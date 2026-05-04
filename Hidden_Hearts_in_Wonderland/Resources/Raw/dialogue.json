@@ -1,0 +1,175 @@
+﻿[
+  {
+    "Id": "start_aya",
+    "CharacterName": "อายะ",
+    "Text": "วันนี้เธอดูเงียบๆ นะ มีอะไรหรือเปล่า?",
+    "Image": "aaa.png",
+    "Choices": [
+      {
+        "Text": "ก็แค่เหนื่อยนิดหน่อย",
+        "NextNodeId": "aya_care",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ไม่มีอะไรหรอก อย่าคิดมาก",
+        "NextNodeId": "aya_distance",
+        "AffectionChange": -5,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "aya_care",
+    "CharacterName": "อายะ",
+    "Text": "งั้นไปพักผ่อนกันหน่อยไหม? ฉันรู้ที่เงียบๆ ด้วยนะ",
+    "Image": "aaa.png",
+    "Choices": [
+      {
+        "Text": "ไปสิ ฟังดูดีนะ",
+        "NextNodeId": "aya_walk",
+        "AffectionChange": 10,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ขออยู่คนเดียวแป๊บนึง",
+        "NextNodeId": "aya_sad",
+        "AffectionChange": -5,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "aya_distance",
+    "CharacterName": "อายะ",
+    "Text": "อืม... ถ้าไม่อยากพูดก็ไม่เป็นไรนะ",
+    "Image": "aaa.png",
+    "Choices": [
+      {
+        "Text": "ขอโทษนะ ฉันแค่เครียดจริงๆ",
+        "NextNodeId": "aya_care",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ก็แค่เรื่องเล็กน้อย",
+        "NextNodeId": "aya_bad_route",
+        "AffectionChange": -10,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "aya_walk",
+    "CharacterName": "อายะ",
+    "Text": "ที่นี่แหละ อากาศดีใช่ไหม 😊",
+    "Image": "aya_happy.png",
+    "Choices": [
+      {
+        "Text": "ดีมากเลย ขอบคุณนะ",
+        "NextNodeId": "aya_confess",
+        "AffectionChange": 15,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ก็โอเคนะ",
+        "NextNodeId": "aya_neutral",
+        "AffectionChange": 0,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "aya_sad",
+    "CharacterName": "อายะ",
+    "Text": "เข้าใจแล้ว... ถ้าต้องการฉันก็อยู่ตรงนี้นะ",
+    "Image": "aya_sad.png",
+    "Choices": [
+      {
+        "Text": "ขอบคุณนะ",
+        "NextNodeId": "aya_neutral",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "aya_confess",
+    "CharacterName": "อายะ",
+    "Text": "จริงๆ แล้ว... ฉันดีใจนะที่ได้อยู่กับเธอแบบนี้",
+    "Image": "aya_blush.png",
+    "Choices": [
+      {
+        "Text": "ฉันก็เหมือนกัน",
+        "NextNodeId": "aya_good_ending",
+        "AffectionChange": 20,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "อย่าคิดมากเลย",
+        "NextNodeId": "aya_bad_route",
+        "AffectionChange": -10,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "aya_neutral",
+    "CharacterName": "อายะ",
+    "Text": "วันนี้ก็ดีเหมือนกันนะ ขอบคุณที่อยู่ด้วยกัน",
+    "Image": "aya_smile.png",
+    "Choices": [
+      {
+        "Text": "ไว้มาอีกนะ",
+        "NextNodeId": "aya_normal_ending",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "aya_bad_route",
+    "CharacterName": "อายะ",
+    "Text": "บางที... เราอาจจะยังไม่เข้าใจกันก็ได้",
+    "Image": "aya_sad.png",
+    "Choices": [
+      {
+        "Text": "...",
+        "NextNodeId": "aya_bad_ending",
+        "AffectionChange": 0,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "aya_good_ending",
+    "CharacterName": "อายะ",
+    "Text": "งั้น... จากนี้ไป เรามาอยู่ข้างกันนะ 💖",
+    "Image": "aya_blush.png",
+    "Choices": []
+  },
+
+  {
+    "Id": "aya_normal_ending",
+    "CharacterName": "อายะ",
+    "Text": "วันนี้เป็นวันที่ดีนะ ไว้เจอกันอีก 😊",
+    "Image": "aya_smile.png",
+    "Choices": []
+  },
+
+  {
+    "Id": "aya_bad_ending",
+    "CharacterName": "อายะ",
+    "Text": "บางที... เราควรเว้นระยะกันสักพักนะ",
+    "Image": "aya_sad.png",
+    "Choices": []
+  }
+]

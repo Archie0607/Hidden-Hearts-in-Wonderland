@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Hidden_Hearts_in_Wonderland.Views.DialoguePage"
+    BackgroundColor="Black"
+    Padding="0">
+
+    <Grid>
+
+        <!-- 🔥 ฉากหลัง: เต็มจอจริง -->
+        <Image Source="bg1.jpg"
+               Aspect="AspectFill"
+               HorizontalOptions="Fill"
+               VerticalOptions="Fill"/>
+
+        <!-- 👧 ตัวละคร: ลอยเหนือฉากหลัง -->
+        <Image Source="{Binding CurrentNode.Image}"
+               Aspect="AspectFit"
+               HorizontalOptions="Center"
+               VerticalOptions="End"
+               Margin="0,0,0,160"
+               HeightRequest="500"/>
+
+        <!-- 💬 กล่องบทสนทนา (โปร่ง) -->
+        <Border VerticalOptions="End"
+                Margin="20,0,20,20"
+                Padding="16"
+                BackgroundColor="#CCFFC0CB"
+                StrokeThickness="0">
+
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Spacing="8">
+
+                <!-- 👤 ชื่อ -->
+                <Border BackgroundColor="#FF80A0"
+                        Padding="6"
+                        HorizontalOptions="Start">
+
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10"/>
+                    </Border.StrokeShape>
+
+                    <Label Text="{Binding CurrentNode.CharacterName}"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="White"/>
+                </Border>
+
+                <!-- 💬 ข้อความ -->
+                <Label Text="{Binding CurrentNode.Text}"
+                       FontSize="18"
+                       TextColor="White"/>
+
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- 🔘 ตัวเลือก -->
+        <CollectionView ItemsSource="{Binding CurrentNode.Choices}"
+                        VerticalOptions="End"
+                        Margin="20,0,20,160">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+
+                    <Border Margin="5"
+                            Padding="14"
+                            BackgroundColor="#FF90CAF9"
+                            Opacity="0.95">
+
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16"/>
+                        </Border.StrokeShape>
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectChoiceCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <Label Text="{Binding Text}"
+                               FontSize="16"
+                               TextColor="Black"/>
+
+                    </Border>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+    </Grid>
+</ContentPage>
