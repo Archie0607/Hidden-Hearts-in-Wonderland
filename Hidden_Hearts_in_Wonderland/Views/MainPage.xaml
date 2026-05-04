@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    x:Class="Hidden_Hearts_in_Wonderland.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#E3F2FD">
+
+    <VerticalStackLayout 
+        VerticalOptions="Center" 
+        HorizontalOptions="Center"
+        Spacing="20">
+
+        <!-- 🎮 Title -->
+        <Label Text="Hidden Hearts in Wonderland"
+               FontSize="28"
+               FontAttributes="Bold"
+               TextColor="#333"
+               HorizontalOptions="Center"/>
+
+        <!-- ▶️ Start -->
+        <Button Text="Start Game"
+                Clicked="OnStartClicked"
+                BackgroundColor="#90CAF9"
+                TextColor="Black"
+                CornerRadius="20"
+                WidthRequest="200"/>
+
+        <!-- ⚙️ (เผื่ออนาคต) -->
+        <Button Text="Settings"
+                BackgroundColor="#FFF8E1"
+                TextColor="#333"
+                CornerRadius="20"
+                WidthRequest="200"/>
+
+    </VerticalStackLayout>
+</ContentPage>
