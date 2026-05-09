@@ -64,7 +64,7 @@ public class DialogueViewModel : BaseViewModel
 
     public DialogueViewModel()
     {
-        SelectChoiceCommand = new Command<Choice>(SelectChoice);
+        SelectChoiceCommand = new Command<Choice>(async choice => await SelectChoice(choice));
 
         Init(); //  ใช้ async init
     }
@@ -89,11 +89,19 @@ public class DialogueViewModel : BaseViewModel
         _allNodes = JsonSerializer.Deserialize<List<DialogueNode>>(json);
     }
 
-    void SelectChoice(Choice choice)
+    async Task SelectChoice(Choice choice)
     {
         _gameService.ApplyChoice(choice);
 
         Affection = _gameService.GetCurrentAffection();
+
+        if (choice.IsMiniGame && !string.IsNullOrEmpty(choice.NextNodeId))
+        {
+            await Shell.Current.GoToAsync(
+                $"{nameof(Views.MiniGamePage)}?nextNodeId={choice.NextNodeId}&character={_characterName}"
+            );
+            return;
+        }
 
         if (!string.IsNullOrEmpty(choice.NextNodeId))
         {

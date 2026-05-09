@@ -1,64 +1,57 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage 
+<ContentPage
     x:Class="Hidden_Hearts_in_Wonderland.Views.CharacterSelectPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     BackgroundColor="#E3F2FD">
 
-    <!-- 🌟 จัดให้อยู่กลางจอ -->
     <Grid>
-        <VerticalStackLayout 
+        <VerticalStackLayout
             WidthRequest="500"
             Spacing="20"
             VerticalOptions="Center"
             HorizontalOptions="Center">
 
-            <!-- 🎮 Title -->
             <Label Text="เลือกตัวละคร"
                    FontSize="28"
                    FontAttributes="Bold"
                    TextColor="#333"
-                   HorizontalOptions="Center"/>
+                   HorizontalOptions="Center" />
 
-            <!-- 📦 List -->
             <CollectionView ItemsSource="{Binding Characters}"
                             ItemsLayout="VerticalList"
                             SelectionMode="None">
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-
-                        <!-- 🎴 Card -->
                         <Border Margin="10"
                                 Padding="15"
                                 BackgroundColor="#FFF8E1">
 
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="25"/>
+                                <RoundRectangle CornerRadius="25" />
                             </Border.StrokeShape>
 
                             <Border.Shadow>
                                 <Shadow Brush="#80000000"
                                         Offset="3,3"
-                                        Radius="12"/>
+                                        Radius="12" />
                             </Border.Shadow>
 
                             <Grid ColumnDefinitions="120,*"
                                   ColumnSpacing="15">
 
-                                <!-- 🖼️ รูป -->
                                 <Border>
                                     <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="15"/>
+                                        <RoundRectangle CornerRadius="15" />
                                     </Border.StrokeShape>
 
                                     <Image Source="{Binding Image}"
                                            Aspect="AspectFill"
                                            HeightRequest="120"
-                                           WidthRequest="120"/>
+                                           WidthRequest="120" />
                                 </Border>
 
-                                <!-- 🧠 ข้อมูล -->
                                 <VerticalStackLayout Grid.Column="1"
                                                      VerticalOptions="Center"
                                                      Spacing="10">
@@ -66,18 +59,17 @@
                                     <Label Text="{Binding Name}"
                                            FontSize="20"
                                            FontAttributes="Bold"
-                                           TextColor="#333"/>
+                                           TextColor="#333" />
 
-                                    <!-- 🎯 ปุ่ม -->
                                     <Border BackgroundColor="#90CAF9"
                                             Padding="8">
 
                                         <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="15"/>
+                                            <RoundRectangle CornerRadius="15" />
                                         </Border.StrokeShape>
 
                                         <Border.GestureRecognizers>
-                                            <TapGestureRecognizer 
+                                            <TapGestureRecognizer
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCharacterCommand}"
                                                 CommandParameter="{Binding .}" />
                                         </Border.GestureRecognizers>
@@ -86,21 +78,15 @@
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center"
                                                TextColor="Black"
-                                               FontAttributes="Bold"/>
+                                               FontAttributes="Bold" />
                                     </Border>
 
                                 </VerticalStackLayout>
-
                             </Grid>
-
                         </Border>
-
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-
             </CollectionView>
-
         </VerticalStackLayout>
     </Grid>
-
 </ContentPage>

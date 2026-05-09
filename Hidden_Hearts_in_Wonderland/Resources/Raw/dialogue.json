@@ -1,40 +1,130 @@
-﻿[
+[
   {
     "Id": "start_aya",
-    "CharacterName": "อายะ",
-    "Text": "วันนี้เธอดูเงียบๆ นะ มีอะไรหรือเปล่า?",
-    "Image": "aaa.png",
+    "CharacterName": "Lana",
+    "Text": "วันนี้เธอดูเงียบๆ นะ มีอะไรหรือเปล่า? ฉันเห็นเธอยืนมองสวนดอกไม้มาสักพักแล้ว",
+    "Image": "luna.png",
     "Choices": [
       {
-        "Text": "ก็แค่เหนื่อยนิดหน่อย",
-        "NextNodeId": "aya_care",
+        "Text": "แค่คิดอะไรนิดหน่อย ขอบคุณที่เป็นห่วงนะ",
+        "NextNodeId": "lana_care",
         "AffectionChange": 5,
         "IsMiniGame": false
       },
       {
-        "Text": "ไม่มีอะไรหรอก อย่าคิดมาก",
-        "NextNodeId": "aya_distance",
+        "Text": "ไม่มีอะไรหรอก อย่าถามเลย",
+        "NextNodeId": "lana_distance",
         "AffectionChange": -5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "จริงๆ แล้วอยากมีคนคุยด้วยพอดี",
+        "NextNodeId": "lana_honest",
+        "AffectionChange": 10,
         "IsMiniGame": false
       }
     ]
   },
 
   {
-    "Id": "aya_care",
-    "CharacterName": "อายะ",
-    "Text": "งั้นไปพักผ่อนกันหน่อยไหม? ฉันรู้ที่เงียบๆ ด้วยนะ",
-    "Image": "aaa.png",
+    "Id": "lana_care",
+    "CharacterName": "Lana",
+    "Text": "งั้นไปเดินเล่นกันไหม? ฉันรู้ทางเล็กๆ หลังสวนที่เงียบมาก เหมาะกับวันที่ใจวุ่นวาย",
+    "Image": "luna_smile.png",
     "Choices": [
       {
-        "Text": "ไปสิ ฟังดูดีนะ",
-        "NextNodeId": "aya_walk",
+        "Text": "ไปสิ ฟังดูดีมาก",
+        "NextNodeId": "lana_walk",
         "AffectionChange": 10,
         "IsMiniGame": false
       },
       {
-        "Text": "ขออยู่คนเดียวแป๊บนึง",
-        "NextNodeId": "aya_sad",
+        "Text": "ขออยู่ตรงนี้อีกหน่อย",
+        "NextNodeId": "lana_wait",
+        "AffectionChange": 0,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_honest",
+    "CharacterName": "Lana",
+    "Text": "ดีใจจังที่เธอบอกตรงๆ ฉันไม่เก่งเรื่องปลอบใจเท่าไร แต่ฉันอยู่ฟังได้นานเลยนะ",
+    "Image": "luna_shy.png",
+    "Choices": [
+      {
+        "Text": "แค่อยู่ด้วยกันก็พอแล้ว",
+        "NextNodeId": "lana_walk",
+        "AffectionChange": 15,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "งั้นเล่าเรื่องของเธอให้ฟังบ้างสิ",
+        "NextNodeId": "lana_like_question",
+        "AffectionChange": 8,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_distance",
+    "CharacterName": "Lana",
+    "Text": "อืม... ถ้าเธอยังไม่อยากพูดก็ไม่เป็นไรนะ ฉันจะไม่บังคับ",
+    "Image": "luna_sad.png",
+    "Choices": [
+      {
+        "Text": "ขอโทษนะ ฉันแค่ยังจัดการความคิดตัวเองไม่ได้",
+        "NextNodeId": "lana_care",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "เข้าใจแล้ว งั้นไว้คุยวันหลัง",
+        "NextNodeId": "lana_bad_route",
+        "AffectionChange": -10,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_wait",
+    "CharacterName": "Lana",
+    "Text": "ได้สิ ฉันจะนั่งข้างๆ เงียบๆ ถ้าเธออยากพูดเมื่อไหร่ก็บอกฉันนะ",
+    "Image": "luna_reading.png",
+    "Choices": [
+      {
+        "Text": "ขอบคุณนะ เธอใจดีจริงๆ",
+        "NextNodeId": "lana_like_question",
+        "AffectionChange": 8,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "เธอไม่ต้องรอก็ได้",
+        "NextNodeId": "lana_bad_route",
+        "AffectionChange": -8,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_walk",
+    "CharacterName": "Lana",
+    "Text": "ดูตรงนั้นสิ ดอกไม้สีขาวบานเต็มเลย ฉันชอบมาที่นี่เวลาต้องตัดสินใจเรื่องสำคัญ",
+    "Image": "luna_smile.png",
+    "Choices": [
+      {
+        "Text": "ที่นี่เหมาะกับเธอดีนะ ดูสงบและอบอุ่น",
+        "NextNodeId": "lana_like_question",
+        "AffectionChange": 10,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ฉันว่ามันก็เป็นแค่สวนธรรมดา",
+        "NextNodeId": "lana_confused",
         "AffectionChange": -5,
         "IsMiniGame": false
       }
@@ -42,77 +132,47 @@
   },
 
   {
-    "Id": "aya_distance",
-    "CharacterName": "อายะ",
-    "Text": "อืม... ถ้าไม่อยากพูดก็ไม่เป็นไรนะ",
-    "Image": "aaa.png",
+    "Id": "lana_confused",
+    "CharacterName": "Lana",
+    "Text": "อาจจะจริงนะ แต่บางอย่างก็พิเศษเพราะเราเลือกจะจำมันแบบนั้น",
+    "Image": "luna_confused.png",
     "Choices": [
       {
-        "Text": "ขอโทษนะ ฉันแค่เครียดจริงๆ",
-        "NextNodeId": "aya_care",
+        "Text": "พูดแบบนั้นแล้วฉันเริ่มเข้าใจขึ้นนิดนึง",
+        "NextNodeId": "lana_like_question",
         "AffectionChange": 5,
         "IsMiniGame": false
       },
       {
-        "Text": "ก็แค่เรื่องเล็กน้อย",
-        "NextNodeId": "aya_bad_route",
-        "AffectionChange": -10,
+        "Text": "ฉันยังไม่ค่อยเข้าใจอยู่ดี",
+        "NextNodeId": "lana_bad_route",
+        "AffectionChange": -5,
         "IsMiniGame": false
       }
     ]
   },
 
   {
-    "Id": "aya_walk",
-    "CharacterName": "อายะ",
-    "Text": "ที่นี่แหละ อากาศดีใช่ไหม 😊",
-    "Image": "aya_happy.png",
+    "Id": "lana_like_question",
+    "CharacterName": "Lana",
+    "Text": "งั้นฉันถามกลับบ้างนะ ถ้าต้องเลือกของขวัญให้ฉัน เธอคิดว่าฉันน่าจะชอบอะไรมากที่สุด?",
+    "Image": "luna_thinking.png",
     "Choices": [
       {
-        "Text": "ดีมากเลย ขอบคุณนะ",
-        "NextNodeId": "aya_confess",
+        "Text": "หนังสือเล่มเล็กกับชาร้อน",
+        "NextNodeId": "lana_like_right",
         "AffectionChange": 15,
         "IsMiniGame": false
       },
       {
-        "Text": "ก็โอเคนะ",
-        "NextNodeId": "aya_neutral",
-        "AffectionChange": 0,
-        "IsMiniGame": false
-      }
-    ]
-  },
-
-  {
-    "Id": "aya_sad",
-    "CharacterName": "อายะ",
-    "Text": "เข้าใจแล้ว... ถ้าต้องการฉันก็อยู่ตรงนี้นะ",
-    "Image": "aya_sad.png",
-    "Choices": [
-      {
-        "Text": "ขอบคุณนะ",
-        "NextNodeId": "aya_neutral",
-        "AffectionChange": 5,
-        "IsMiniGame": false
-      }
-    ]
-  },
-
-  {
-    "Id": "aya_confess",
-    "CharacterName": "อายะ",
-    "Text": "จริงๆ แล้ว... ฉันดีใจนะที่ได้อยู่กับเธอแบบนี้",
-    "Image": "aya_blush.png",
-    "Choices": [
-      {
-        "Text": "ฉันก็เหมือนกัน",
-        "NextNodeId": "aya_good_ending",
-        "AffectionChange": 20,
+        "Text": "เครื่องประดับที่เด่นที่สุดในร้าน",
+        "NextNodeId": "lana_like_middle",
+        "AffectionChange": 3,
         "IsMiniGame": false
       },
       {
-        "Text": "อย่าคิดมากเลย",
-        "NextNodeId": "aya_bad_route",
+        "Text": "ของแพงๆ อะไรก็ได้ เธอน่าจะชอบ",
+        "NextNodeId": "lana_like_wrong",
         "AffectionChange": -10,
         "IsMiniGame": false
       }
@@ -120,14 +180,20 @@
   },
 
   {
-    "Id": "aya_neutral",
-    "CharacterName": "อายะ",
-    "Text": "วันนี้ก็ดีเหมือนกันนะ ขอบคุณที่อยู่ด้วยกัน",
-    "Image": "aya_smile.png",
+    "Id": "lana_like_right",
+    "CharacterName": "Lana",
+    "Text": "ถูกเลย... ฉันชอบของที่ทำให้รู้สึกว่าอีกฝ่ายตั้งใจจำ ไม่จำเป็นต้องแพงเลย",
+    "Image": "luna_inlove.png",
     "Choices": [
       {
-        "Text": "ไว้มาอีกนะ",
-        "NextNodeId": "aya_normal_ending",
+        "Text": "เล่นเกมจับคู่ความทรงจำก่อน แล้วค่อยเล่าต่อ",
+        "NextNodeId": "lana_memory",
+        "AffectionChange": 15,
+        "IsMiniGame": true
+      },
+      {
+        "Text": "เดาเอาน่ะ แต่ดีใจที่ถูก",
+        "NextNodeId": "lana_memory",
         "AffectionChange": 5,
         "IsMiniGame": false
       }
@@ -135,14 +201,110 @@
   },
 
   {
-    "Id": "aya_bad_route",
-    "CharacterName": "อายะ",
-    "Text": "บางที... เราอาจจะยังไม่เข้าใจกันก็ได้",
-    "Image": "aya_sad.png",
+    "Id": "lana_like_middle",
+    "CharacterName": "Lana",
+    "Text": "ก็ไม่แย่นะ แต่ฉันไม่ค่อยชอบอะไรที่เด่นเกินไป ฉันชอบของที่ใช้ได้ในวันธรรมดามากกว่า",
+    "Image": "luna_confused.png",
     "Choices": [
       {
-        "Text": "...",
-        "NextNodeId": "aya_bad_ending",
+        "Text": "งั้นคราวหน้าฉันจะเลือกให้เข้ากับเธอกว่านี้",
+        "NextNodeId": "lana_memory",
+        "AffectionChange": 8,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ยุ่งยากจังนะ",
+        "NextNodeId": "lana_bad_route",
+        "AffectionChange": -10,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_like_wrong",
+    "CharacterName": "Lana",
+    "Text": "อืม... ฉันไม่ได้สนใจราคาขนาดนั้นหรอกนะ บางทีเธออาจยังไม่รู้จักฉันเท่าไร",
+    "Image": "luna_sad.png",
+    "Choices": [
+      {
+        "Text": "ขอโทษนะ ฉันตอบไม่ดีเอง ให้โอกาสฉันอีกครั้งได้ไหม",
+        "NextNodeId": "lana_memory",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "งั้นฉันคงเดาไม่เก่งจริงๆ",
+        "NextNodeId": "lana_bad_route",
+        "AffectionChange": -5,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_memory",
+    "CharacterName": "Lana",
+    "Text": "พูดถึงเรื่องจำได้... เธอจำได้ไหมว่าฉันเคยบอกว่าชอบมุมไหนของ Wonderland มากที่สุด?",
+    "Image": "luna_thinking.png",
+    "Choices": [
+      {
+        "Text": "มุมห้องสมุดที่มีแสงแดดตอนบ่าย",
+        "NextNodeId": "lana_memory_right",
+        "AffectionChange": 15,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ลานเต้นรำกลางเมือง",
+        "NextNodeId": "lana_memory_wrong",
+        "AffectionChange": -5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "สวนดอกไม้ตรงที่เรายืนอยู่",
+        "NextNodeId": "lana_memory_middle",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_memory_right",
+    "CharacterName": "Lana",
+    "Text": "เธอจำได้จริงๆ ด้วย ฉันพูดแค่ครั้งเดียวเองนะ แบบนี้มันทำให้ฉันรู้สึกพิเศษนิดหน่อย",
+    "Image": "luna_shy.png",
+    "Choices": [
+      {
+        "Text": "สำหรับฉัน เรื่องของเธอมันสำคัญ",
+        "NextNodeId": "lana_confess",
+        "AffectionChange": 15,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ฉันแค่ความจำดีน่ะ",
+        "NextNodeId": "lana_neutral",
+        "AffectionChange": 3,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_memory_middle",
+    "CharacterName": "Lana",
+    "Text": "ที่นี่ก็ชอบนะ แต่ไม่ใช่ที่สุด ถึงอย่างนั้นฉันก็ดีใจที่เธอลองจำ",
+    "Image": "luna_smile.png",
+    "Choices": [
+      {
+        "Text": "งั้นวันหลังพาฉันไปที่ที่เธอชอบที่สุดนะ",
+        "NextNodeId": "lana_neutral",
+        "AffectionChange": 8,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "เดาผิดแฮะ",
+        "NextNodeId": "lana_neutral",
         "AffectionChange": 0,
         "IsMiniGame": false
       }
@@ -150,26 +312,110 @@
   },
 
   {
-    "Id": "aya_good_ending",
-    "CharacterName": "อายะ",
-    "Text": "งั้น... จากนี้ไป เรามาอยู่ข้างกันนะ 💖",
-    "Image": "aya_blush.png",
+    "Id": "lana_memory_wrong",
+    "CharacterName": "Lana",
+    "Text": "ไม่ใช่จ้ะ ฉันไม่ค่อยถนัดที่คนเยอะเท่าไร แต่ไม่เป็นไรนะ อย่างน้อยเธอก็ตอบ",
+    "Image": "luna_sad.png",
+    "Choices": [
+      {
+        "Text": "งั้นฉันจะตั้งใจฟังเธอมากกว่านี้",
+        "NextNodeId": "lana_neutral",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "เรื่องเล็กน้อยเอง",
+        "NextNodeId": "lana_bad_route",
+        "AffectionChange": -8,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_confess",
+    "CharacterName": "Lana",
+    "Text": "ถ้าเป็นแบบนั้นจริง... ฉันคงต้องกล้าพูดเหมือนกัน ว่าฉันชอบเวลาที่ได้อยู่กับเธอ",
+    "Image": "luna_inlove.png",
+    "Choices": [
+      {
+        "Text": "ฉันก็ชอบเวลาที่อยู่กับเธอ",
+        "NextNodeId": "lana_good_ending",
+        "AffectionChange": 20,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "ขอบคุณนะ แต่ฉันยังไม่แน่ใจ",
+        "NextNodeId": "lana_normal_ending",
+        "AffectionChange": 0,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_neutral",
+    "CharacterName": "Lana",
+    "Text": "วันนี้ฉันสนุกนะ ถึงจะมีบางช่วงที่เราเดาใจกันไม่ถูก แต่ฉันว่ามันก็เป็นจุดเริ่มต้นที่ดี",
+    "Image": "luna_smile.png",
+    "Choices": [
+      {
+        "Text": "ไว้เรามาคุยกันอีกนะ",
+        "NextNodeId": "lana_normal_ending",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "อืม วันนี้พอแค่นี้ก็ได้",
+        "NextNodeId": "lana_bad_route",
+        "AffectionChange": -5,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_bad_route",
+    "CharacterName": "Lana",
+    "Text": "บางทีเราอาจยังไม่เข้าใจกันเท่าไร แต่ก็ไม่เป็นไรนะ ความสัมพันธ์บางอย่างต้องใช้เวลา",
+    "Image": "luna_sad.png",
+    "Choices": [
+      {
+        "Text": "ฉันจะพยายามให้ดีกว่านี้",
+        "NextNodeId": "lana_normal_ending",
+        "AffectionChange": 5,
+        "IsMiniGame": false
+      },
+      {
+        "Text": "...",
+        "NextNodeId": "lana_bad_ending",
+        "AffectionChange": 0,
+        "IsMiniGame": false
+      }
+    ]
+  },
+
+  {
+    "Id": "lana_good_ending",
+    "CharacterName": "Lana",
+    "Text": "งั้นจากนี้ไป เราค่อยๆ รู้จักกันมากขึ้นนะ ฉันอยากให้เธอเป็นคนที่ได้เห็น Wonderland ในแบบที่ฉันรักที่สุด",
+    "Image": "luna_inlove.png",
     "Choices": []
   },
 
   {
-    "Id": "aya_normal_ending",
-    "CharacterName": "อายะ",
-    "Text": "วันนี้เป็นวันที่ดีนะ ไว้เจอกันอีก 😊",
-    "Image": "aya_smile.png",
+    "Id": "lana_normal_ending",
+    "CharacterName": "Lana",
+    "Text": "วันนี้เป็นวันที่ดีนะ ขอบคุณที่เดินเล่นและคุยกับฉัน ไว้เจอกันใหม่ใน Wonderland",
+    "Image": "luna_smile.png",
     "Choices": []
   },
 
   {
-    "Id": "aya_bad_ending",
-    "CharacterName": "อายะ",
-    "Text": "บางที... เราควรเว้นระยะกันสักพักนะ",
-    "Image": "aya_sad.png",
+    "Id": "lana_bad_ending",
+    "CharacterName": "Lana",
+    "Text": "ฉันจะกลับก่อนนะ หวังว่าวันหนึ่งเราจะคุยกันได้โดยไม่ต้องฝืนใจ",
+    "Image": "luna_sad.png",
     "Choices": []
   }
 ]
