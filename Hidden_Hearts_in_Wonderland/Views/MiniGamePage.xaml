@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Hidden_Hearts_in_Wonderland.Views.MiniGamePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#E3F2FD">
+
+    <Grid RowDefinitions="Auto,*,Auto"
+          Padding="20"
+          RowSpacing="16">
+
+        <VerticalStackLayout Spacing="6">
+            <Label Text="จับคู่ความทรงจำของ Lana"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="#333"
+                   HorizontalOptions="Center" />
+
+            <Label Text="{Binding StatusText}"
+                   FontSize="14"
+                   TextColor="#555"
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Cards}"
+                        SelectionMode="None">
+
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="4"
+                                 HorizontalItemSpacing="10"
+                                 VerticalItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border HeightRequest="92"
+                            BackgroundColor="{Binding CardColor}"
+                            StrokeThickness="0">
+
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="14" />
+                        </Border.StrokeShape>
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCardCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <Label Text="{Binding DisplayText}"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#333"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Grid.Row="2"
+                Text="เริ่มใหม่"
+                Command="{Binding RestartCommand}"
+                BackgroundColor="#FFF8E1"
+                TextColor="#333"
+                CornerRadius="18"
+                WidthRequest="160"
+                HorizontalOptions="Center" />
+    </Grid>
+</ContentPage>

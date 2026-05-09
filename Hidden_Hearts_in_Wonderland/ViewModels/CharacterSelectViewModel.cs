@@ -18,8 +18,7 @@ public class CharacterSelectViewModel
     {
         Characters = new ObservableCollection<Character>
         {
-            new Character { Name = "อายะ", Image = "aya.png", StartNodeId = "start_aya" },
-            new Character { Name = "ยูมิ", Image = "yumi.png", StartNodeId = "start_yumi" }
+            new Character { Name = "อายะ", Image = "luna_smile.png", StartNodeId = "start_aya" }
         };
 
         SelectCharacterCommand = new Command<Character>(OnSelectCharacter);
