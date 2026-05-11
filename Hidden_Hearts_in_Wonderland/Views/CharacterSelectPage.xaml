@@ -7,8 +7,8 @@
 
     <Grid>
         <VerticalStackLayout
-            WidthRequest="500"
-            Spacing="20"
+            WidthRequest="520"
+            Spacing="18"
             VerticalOptions="Center"
             HorizontalOptions="Center">
 
@@ -17,6 +17,21 @@
                    FontAttributes="Bold"
                    TextColor="#333"
                    HorizontalOptions="Center" />
+
+            <Border BackgroundColor="#FFF8E1"
+                    Padding="12,8"
+                    HorizontalOptions="Center">
+
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16" />
+                </Border.StrokeShape>
+
+                <Label x:Name="CoinsLabel"
+                       Text="Coins: 0"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="#333" />
+            </Border>
 
             <CollectionView ItemsSource="{Binding Characters}"
                             ItemsLayout="VerticalList"
@@ -87,6 +102,15 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
+            <Button Text="เล่นมินิเกมเก็บเงิน"
+                    Clicked="OnMatchGameClicked"
+                    BackgroundColor="#FF80A0"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="22"
+                    WidthRequest="240"
+                    HorizontalOptions="Center" />
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

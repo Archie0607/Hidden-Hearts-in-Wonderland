@@ -7,7 +7,7 @@ namespace Hidden_Hearts_in_Wonderland.ViewModels;
 
 public class CharacterSelectViewModel
 {
-    // 🔥 ใช้ instance เดียวทั้งเกม
+    // instance เดียวทั้งเกม
     private readonly GameService _gameService = GameService.Instance;
 
     public ObservableCollection<Character> Characters { get; set; }
@@ -26,10 +26,10 @@ public class CharacterSelectViewModel
 
     async void OnSelectCharacter(Character character)
     {
-        // 🎯 บอกระบบว่าเลือกใคร
+        //  บอกระบบว่าเลือกใคร
         _gameService.SelectCharacter(character.Name);
 
-        // 👉 ไปหน้า Dialogue พร้อมส่งค่า
+        //  ไปหน้า Dialogue พร้อมส่งค่า
         await Shell.Current.GoToAsync(
             $"{nameof(Views.DialoguePage)}?startId={character.StartNodeId}&character={character.Name}"
         );
