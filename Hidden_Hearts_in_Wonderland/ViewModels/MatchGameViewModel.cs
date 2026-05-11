@@ -4,35 +4,77 @@ using Hidden_Hearts_in_Wonderland.Services;
 
 namespace Hidden_Hearts_in_Wonderland.ViewModels;
 
+[QueryProperty(nameof(NextNodeId), "nextNodeId")]
+[QueryProperty(nameof(CharacterName), "character")]
 public class MatchGameViewModel : BaseViewModel
 {
-    private const int BoardRows = 6;
-    private const int BoardColumns = 6;
-    private const string SpecialImage = "slime_2_2.png";
+    private const int StartingMoves = 12;
+    private const int Goal = 30;
+    private const int CoinPerSlime = 5;
 
     private readonly Random _random = new();
     private readonly GameService _gameService = GameService.Instance;
     private MatchTile? _selectedTile;
-    private bool _isResolving;
-    private int _movesLeft = 20;
+    private bool _isBusy;
+    private bool _isFinished;
+    private int _movesLeft;
+    private int _collected;
+    private int _score;
     private int _coinsEarned;
+    private int _rows = 5;
+    private int _columns = 9;
+    private string _message = "Match 3 colors";
+    private string _nextNodeId = string.Empty;
+    private string _characterName = string.Empty;
 
-    private readonly string[] _slimeImages =
-    {
-        "slime_0_0.png",
-        "slime_0_1.png",
-        "slime_0_2.png",
-        "slime_1_0.png",
-        "slime_1_1.png",
-        "slime_1_2.png",
-        "slime_2_0.png"
-    };
+    private readonly SlimeInfo[] _slimes =
+    [
+        new("Blue", "slime_0_0.png"),
+        new("Green", "slime_0_1.png"),
+        new("Yellow", "slime_0_2.png"),
+        new("Red", "slime_1_0.png"),
+        new("Purple", "slime_1_1.png"),
+        new("Pink", "slime_1_2.png"),
+        new("Orange", "slime_2_0.png")
+    ];
 
     public ObservableCollection<MatchTile> Tiles { get; } = new();
 
     public ICommand SelectTileCommand { get; }
     public ICommand RestartCommand { get; }
     public ICommand BackCommand { get; }
+
+    public string NextNodeId
+    {
+        get => _nextNodeId;
+        set => _nextNodeId = value ?? string.Empty;
+    }
+
+    public string CharacterName
+    {
+        get => _characterName;
+        set => _characterName = value ?? string.Empty;
+    }
+
+    public int Rows
+    {
+        get => _rows;
+        private set
+        {
+            _rows = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public int Columns
+    {
+        get => _columns;
+        private set
+        {
+            _columns = value;
+            OnPropertyChanged();
+        }
+    }
 
     public int MovesLeft
     {
@@ -45,6 +87,28 @@ public class MatchGameViewModel : BaseViewModel
         }
     }
 
+    public int Collected
+    {
+        get => _collected;
+        set
+        {
+            _collected = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(GoalText));
+            OnPropertyChanged(nameof(StatusText));
+        }
+    }
+
+    public int Score
+    {
+        get => _score;
+        set
+        {
+            _score = value;
+            OnPropertyChanged();
+        }
+    }
+
     public int CoinsEarned
     {
         get => _coinsEarned;
@@ -52,11 +116,25 @@ public class MatchGameViewModel : BaseViewModel
         {
             _coinsEarned = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(CoinText));
             OnPropertyChanged(nameof(StatusText));
         }
     }
 
-    public string StatusText => $"Moves: {MovesLeft}   Earned: {CoinsEarned} coins   Total: {_gameService.Coins}";
+    public string Message
+    {
+        get => _message;
+        set
+        {
+            _message = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(StatusText));
+        }
+    }
+
+    public string GoalText => $"{Collected}/{Goal}";
+    public string CoinText => $"+{CoinsEarned}";
+    public string StatusText => Message;
 
     public MatchGameViewModel()
     {
@@ -66,122 +144,142 @@ public class MatchGameViewModel : BaseViewModel
         BuildBoard();
     }
 
+    public void SetBoardShape(int rows, int columns)
+    {
+        if (Rows == rows && Columns == columns)
+        {
+            return;
+        }
+
+        Rows = rows;
+        Columns = columns;
+        BuildBoard();
+    }
+
+    public void SetTileSize(double tileSize)
+    {
+        foreach (var tile in Tiles)
+        {
+            tile.TileSize = tileSize;
+        }
+    }
+
     private void BuildBoard()
     {
         Tiles.Clear();
         _selectedTile = null;
-        _isResolving = false;
-        MovesLeft = 20;
+        _isBusy = false;
+        _isFinished = false;
+        MovesLeft = StartingMoves;
+        Collected = 0;
+        Score = 0;
         CoinsEarned = 0;
+        Message = "Match 3 colors";
 
-        for (var row = 0; row < BoardRows; row++)
+        for (var row = 0; row < Rows; row++)
         {
-            for (var column = 0; column < BoardColumns; column++)
+            for (var column = 0; column < Columns; column++)
             {
-                Tiles.Add(new MatchTile(row, column, PickImageAvoidingMatch(row, column)));
+                Tiles.Add(new MatchTile(row, column, PickSlime(row, column)));
             }
         }
     }
 
-    private string PickImageAvoidingMatch(int row, int column)
+    private SlimeInfo PickSlime(int row, int column)
     {
-        string image;
+        SlimeInfo slime;
 
         do
         {
-            image = RandomImage();
+            slime = RandomSlime();
         }
-        while (WouldCreateMatch(row, column, image));
+        while (WouldCreateStartingMatch(row, column, slime));
 
-        return image;
+        return slime;
     }
 
-    private bool WouldCreateMatch(int row, int column, string image)
+    private SlimeInfo RandomSlime()
     {
-        if (column >= 2 &&
-            GetTile(row, column - 1)?.Image == image &&
-            GetTile(row, column - 2)?.Image == image)
-        {
-            return true;
-        }
-
-        if (row >= 2 &&
-            GetTile(row - 1, column)?.Image == image &&
-            GetTile(row - 2, column)?.Image == image)
-        {
-            return true;
-        }
-
-        return false;
+        return _slimes[_random.Next(_slimes.Length)];
     }
 
-    private string RandomImage()
+    private bool WouldCreateStartingMatch(int row, int column, SlimeInfo slime)
     {
-        return _slimeImages[_random.Next(_slimeImages.Length)];
+        var horizontalMatch = column >= 2
+            && GetTile(row, column - 1).Slime?.Name == slime.Name
+            && GetTile(row, column - 2).Slime?.Name == slime.Name;
+
+        var verticalMatch = row >= 2
+            && GetTile(row - 1, column).Slime?.Name == slime.Name
+            && GetTile(row - 2, column).Slime?.Name == slime.Name;
+
+        return horizontalMatch || verticalMatch;
     }
 
     private async Task SelectTile(MatchTile? tile)
     {
-        if (tile == null || _isResolving || MovesLeft <= 0)
+        if (tile == null || _isBusy || _isFinished || MovesLeft <= 0)
         {
             return;
         }
 
         if (_selectedTile == null)
         {
-            SelectOnly(tile);
+            Select(tile);
             return;
         }
 
         if (_selectedTile == tile)
         {
-            tile.IsSelected = false;
-            _selectedTile = null;
+            ClearSelection();
             return;
         }
 
         if (!AreAdjacent(_selectedTile, tile))
         {
-            SelectOnly(tile);
+            ClearSelection();
+            Select(tile);
             return;
         }
 
-        var first = _selectedTile;
-        first.IsSelected = false;
-        _selectedTile = null;
+        _isBusy = true;
         MovesLeft--;
+        SwapSlimes(_selectedTile, tile);
 
-        if (first.IsSpecial || tile.IsSpecial)
-        {
-            await ActivateSpecial(first, tile);
-            await CheckForGameOver();
-            return;
-        }
+        var matchedTiles = FindMatches();
 
-        SwapImages(first, tile);
-
-        var groups = FindMatchGroups();
-        if (groups.Count == 0)
+        if (matchedTiles.Count == 0)
         {
             await Task.Delay(220);
-            SwapImages(first, tile);
-            await CheckForGameOver();
+            SwapSlimes(_selectedTile, tile);
+            Message = "No match. Try another swap.";
+            ClearSelection();
+            _isBusy = false;
+            await CheckGameEnd();
             return;
         }
 
-        await ResolveMatches(groups, first, tile);
-        await CheckForGameOver();
+        ClearSelection();
+        await ResolveMatches(matchedTiles);
+        _isBusy = false;
+        await CheckGameEnd();
     }
 
-    private void SelectOnly(MatchTile tile)
+    private void Select(MatchTile tile)
+    {
+        tile.IsSelected = true;
+        _selectedTile = tile;
+        Message = "Pick a nearby slime";
+    }
+
+    private void ClearSelection()
     {
         if (_selectedTile != null)
         {
             _selectedTile.IsSelected = false;
         }
 
-        tile.IsSelected = true;
-        _selectedTile = tile;
+        _selectedTile = null;
     }
 
     private static bool AreAdjacent(MatchTile first, MatchTile second)
@@ -189,217 +287,228 @@ public class MatchGameViewModel : BaseViewModel
         return Math.Abs(first.Row - second.Row) + Math.Abs(first.Column - second.Column) == 1;
     }
 
-    private static void SwapImages(MatchTile first, MatchTile second)
+    private static void SwapSlimes(MatchTile first, MatchTile second)
     {
-        (first.Image, second.Image) = (second.Image, first.Image);
+        (first.Slime, second.Slime) = (second.Slime, first.Slime);
     }
 
-    private async Task ActivateSpecial(MatchTile first, MatchTile second)
+    private async Task ResolveMatches(List<MatchTile> matchedTiles)
     {
-        _isResolving = true;
-
-        var targetImage = first.IsSpecial ? second.Image : first.Image;
-        var targets = first.IsSpecial && second.IsSpecial
-            ? Tiles.Where(tile => !tile.IsSpecial).ToHashSet()
-            : Tiles.Where(tile => tile.Image == targetImage).ToHashSet();
-
-        targets.Add(first);
-        targets.Add(second);
-
-        await ClearTiles(targets, keepSpecial: null);
-        await ResolveMatches(FindMatchGroups(), null, null);
-
-        _isResolving = false;
-    }
-
-    private async Task ResolveMatches(List<List<MatchTile>> groups, MatchTile? firstMoveTile, MatchTile? secondMoveTile)
-    {
-        _isResolving = true;
-
-        while (groups.Count > 0)
+        while (matchedTiles.Count > 0)
         {
-            var allMatches = groups.SelectMany(group => group).ToHashSet();
-            var specialTiles = groups
-                .Where(group => group.Count >= 4)
-                .Select(group => PickSpecialTile(group, firstMoveTile, secondMoveTile))
-                .ToHashSet();
-
-            await ClearTiles(allMatches, specialTiles);
-
-            foreach (var tile in specialTiles)
+            foreach (var tile in matchedTiles)
             {
-                tile.Image = SpecialImage;
-                tile.IsMatched = false;
+                tile.IsMatched = true;
             }
 
+            await Task.Delay(240);
+
+            var coins = matchedTiles.Count * CoinPerSlime;
+            Collected += matchedTiles.Count;
+            Score += matchedTiles.Count * 50;
+            CoinsEarned += coins;
+            _gameService.AddCoins(coins);
+            Message = $"Matched {matchedTiles.Count}";
+
+            ClearMatchedTiles(matchedTiles);
             await Task.Delay(120);
-            groups = FindMatchGroups();
-            firstMoveTile = null;
-            secondMoveTile = null;
-        }
 
-        _isResolving = false;
+            DropSlimesIntoEmptySpaces();
+            Message = "Slimes dropped in";
+            await Task.Delay(170);
+
+            matchedTiles = FindMatches();
+        }
     }
 
-    private async Task ClearTiles(HashSet<MatchTile> tiles, HashSet<MatchTile>? keepSpecial)
+    private static void ClearMatchedTiles(List<MatchTile> matchedTiles)
     {
-        var clearingTiles = keepSpecial == null
-            ? tiles
-            : tiles.Where(tile => !keepSpecial.Contains(tile)).ToHashSet();
-
-        if (clearingTiles.Count == 0)
+        foreach (var tile in matchedTiles)
         {
-            return;
-        }
-
-        var reward = clearingTiles.Count * 5;
-        CoinsEarned += reward;
-        _gameService.AddCoins(reward);
-        OnPropertyChanged(nameof(StatusText));
-
-        foreach (var tile in clearingTiles)
-        {
-            tile.IsMatched = true;
-        }
-
-        await Task.Delay(240);
-
-        foreach (var tile in clearingTiles)
-        {
+            tile.Slime = null;
             tile.IsMatched = false;
-            tile.Image = RandomImage();
         }
     }
 
-    private static MatchTile PickSpecialTile(List<MatchTile> group, MatchTile? firstMoveTile, MatchTile? secondMoveTile)
+    private void DropSlimesIntoEmptySpaces()
     {
-        if (firstMoveTile != null && group.Contains(firstMoveTile))
+        for (var column = 0; column < Columns; column++)
         {
-            return firstMoveTile;
-        }
+            var slimesInColumn = new List<SlimeInfo>();
 
-        if (secondMoveTile != null && group.Contains(secondMoveTile))
-        {
-            return secondMoveTile;
-        }
-
-        return group[group.Count / 2];
-    }
-
-    private List<List<MatchTile>> FindMatchGroups()
-    {
-        var groups = new List<List<MatchTile>>();
-
-        for (var row = 0; row < BoardRows; row++)
-        {
-            var runStart = 0;
-
-            for (var column = 1; column <= BoardColumns; column++)
+            for (var row = Rows - 1; row >= 0; row--)
             {
-                var startTile = GetTile(row, runStart);
-                var currentTile = column < BoardColumns ? GetTile(row, column) : null;
-                var isSame = currentTile != null &&
-                             startTile != null &&
-                             !currentTile.IsSpecial &&
-                             !startTile.IsSpecial &&
-                             currentTile.Image == startTile.Image;
+                var slime = GetTile(row, column).Slime;
 
-                if (isSame)
+                if (slime != null)
                 {
-                    continue;
+                    slimesInColumn.Add(slime);
                 }
+            }
 
-                if (column - runStart >= 3)
-                {
-                    groups.Add(Enumerable.Range(runStart, column - runStart)
-                        .Select(matchColumn => GetTile(row, matchColumn)!)
-                        .ToList());
-                }
+            var slimeIndex = 0;
 
-                runStart = column;
+            for (var row = Rows - 1; row >= 0; row--)
+            {
+                var tile = GetTile(row, column);
+
+                tile.Slime = slimeIndex < slimesInColumn.Count
+                    ? slimesInColumn[slimeIndex++]
+                    : RandomSlime();
             }
         }
+    }
 
-        for (var column = 0; column < BoardColumns; column++)
+    private List<MatchTile> FindMatches()
+    {
+        var matched = new HashSet<MatchTile>();
+
+        for (var row = 0; row < Rows; row++)
         {
-            var runStart = 0;
+            var run = new List<MatchTile> { GetTile(row, 0) };
 
-            for (var row = 1; row <= BoardRows; row++)
+            for (var column = 1; column < Columns; column++)
             {
-                var startTile = GetTile(runStart, column);
-                var currentTile = row < BoardRows ? GetTile(row, column) : null;
-                var isSame = currentTile != null &&
-                             startTile != null &&
-                             !currentTile.IsSpecial &&
-                             !startTile.IsSpecial &&
-                             currentTile.Image == startTile.Image;
+                var tile = GetTile(row, column);
 
-                if (isSame)
+                if (HasSameSlime(tile, run[^1]))
                 {
-                    continue;
+                    run.Add(tile);
                 }
-
-                if (row - runStart >= 3)
+                else
                 {
-                    groups.Add(Enumerable.Range(runStart, row - runStart)
-                        .Select(matchRow => GetTile(matchRow, column)!)
-                        .ToList());
+                    AddRunIfMatch(run, matched);
+                    run = [tile];
                 }
-
-                runStart = row;
             }
+
+            AddRunIfMatch(run, matched);
         }
 
-        return groups;
+        for (var column = 0; column < Columns; column++)
+        {
+            var run = new List<MatchTile> { GetTile(0, column) };
+
+            for (var row = 1; row < Rows; row++)
+            {
+                var tile = GetTile(row, column);
+
+                if (HasSameSlime(tile, run[^1]))
+                {
+                    run.Add(tile);
+                }
+                else
+                {
+                    AddRunIfMatch(run, matched);
+                    run = [tile];
+                }
+            }
+
+            AddRunIfMatch(run, matched);
+        }
+
+        return matched.ToList();
     }
 
-    private MatchTile? GetTile(int row, int column)
+    private static bool HasSameSlime(MatchTile first, MatchTile second)
     {
-        return Tiles.FirstOrDefault(tile => tile.Row == row && tile.Column == column);
+        return first.Slime is { } firstSlime
+            && second.Slime is { } secondSlime
+            && firstSlime.Name == secondSlime.Name;
     }
 
-    private async Task CheckForGameOver()
+    private static void AddRunIfMatch(List<MatchTile> run, HashSet<MatchTile> matched)
     {
-        if (MovesLeft > 0)
+        if (run.Count < 3)
         {
             return;
         }
+
+        foreach (var tile in run)
+        {
+            matched.Add(tile);
+        }
+    }
+
+    private MatchTile GetTile(int row, int column)
+    {
+        return Tiles[row * Columns + column];
+    }
+
+    private async Task CheckGameEnd()
+    {
+        if (Collected >= Goal)
+        {
+            await FinishGame(true);
+            return;
+        }
+
+        if (MovesLeft <= 0)
+        {
+            await FinishGame(false);
+        }
+    }
+
+    private async Task FinishGame(bool isWin)
+    {
+        _isFinished = true;
 
         var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        var title = isWin ? "Mini game cleared" : "Mini game finished";
+        var result = $"Coins earned: {CoinsEarned}\nScore: {Score}\nCollected: {Collected}/{Goal}";
+
+        if (IsDialogueGame)
+        {
+            var bonus = isWin ? 20 : 5;
+
+            if (!string.IsNullOrWhiteSpace(CharacterName))
+            {
+                _gameService.Player.AddAffection(CharacterName, bonus);
+            }
+
+            if (page != null)
+            {
+                await page.DisplayAlertAsync(title, $"{result}\n+{bonus} affection", "Continue");
+            }
+
+            await Shell.Current.GoToAsync($"../{nameof(Views.DialoguePage)}?startId={NextNodeId}&character={CharacterName}");
+            return;
+        }
+
         if (page != null)
         {
-            await page.DisplayAlertAsync("จบมินิเกม", $"ได้เงิน {CoinsEarned} coins", "OK");
+            await page.DisplayAlertAsync(title, $"{result}\nTotal coins: {_gameService.Coins}", "OK");
         }
     }
+
+    private bool IsDialogueGame => !string.IsNullOrWhiteSpace(NextNodeId);
 }
 
 public class MatchTile : BaseViewModel
 {
-    private string _image;
+    private SlimeInfo? _slime;
     private bool _isSelected;
     private bool _isMatched;
+    private double _tileSize = 64;
 
-    public MatchTile(int row, int column, string image)
+    public MatchTile(int row, int column, SlimeInfo slime)
     {
         Row = row;
         Column = column;
-        _image = image;
+        _slime = slime;
     }
 
     public int Row { get; }
     public int Column { get; }
-    public bool IsSpecial => Image == "slime_2_2.png";
 
-    public string Image
+    public SlimeInfo? Slime
     {
-        get => _image;
+        get => _slime;
         set
         {
-            _image = value;
+            _slime = value;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(IsSpecial));
-            OnPropertyChanged(nameof(TileStrokeColor));
-            OnPropertyChanged(nameof(TileStrokeThickness));
+            OnPropertyChanged(nameof(Image));
         }
     }
 
@@ -410,10 +519,8 @@ public class MatchTile : BaseViewModel
         {
             _isSelected = value;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(TileColor));
-            OnPropertyChanged(nameof(TileStrokeColor));
-            OnPropertyChanged(nameof(TileStrokeThickness));
-            OnPropertyChanged(nameof(TileScale));
+            OnPropertyChanged(nameof(TileBackground));
+            OnPropertyChanged(nameof(BorderColor));
         }
     }
 
@@ -424,45 +531,29 @@ public class MatchTile : BaseViewModel
         {
             _isMatched = value;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(TileColor));
-            OnPropertyChanged(nameof(TileStrokeColor));
-            OnPropertyChanged(nameof(TileStrokeThickness));
-            OnPropertyChanged(nameof(TileScale));
+            OnPropertyChanged(nameof(TileBackground));
+            OnPropertyChanged(nameof(BorderColor));
         }
     }
 
-    public Color TileStrokeColor
+    public double TileSize
     {
-        get
+        get => _tileSize;
+        set
         {
-            if (IsSelected)
+            if (Math.Abs(_tileSize - value) < 0.1)
             {
-                return Color.FromArgb("#FF2F7D");
+                return;
             }
 
-            return IsSpecial ? Color.FromArgb("#8E24AA") : Color.FromArgb("#E6CFA4");
+            _tileSize = value;
+            OnPropertyChanged();
         }
     }
 
-    public double TileStrokeThickness => IsSelected || IsSpecial ? 4 : 1;
-
-    public double TileScale => IsSelected ? 1.06 : 1;
-
-    public Color TileColor
-    {
-        get
-        {
-            if (IsMatched)
-            {
-                return Color.FromArgb("#C8E6C9");
-            }
-
-            if (IsSpecial)
-            {
-                return Color.FromArgb("#F3D7FF");
-            }
-
-            return IsSelected ? Color.FromArgb("#FFD1E0") : Color.FromArgb("#FFF8E1");
-        }
-    }
+    public string? Image => Slime?.Image;
+    public Color TileBackground => IsMatched ? Color.FromArgb("#DFF6DD") : IsSelected ? Color.FromArgb("#FFF2A8") : Color.FromArgb("#E7F1FB");
+    public Color BorderColor => IsMatched ? Color.FromArgb("#65B76F") : IsSelected ? Color.FromArgb("#F2C94C") : Color.FromArgb("#B9D5EE");
 }
+
+public record SlimeInfo(string Name, string Image);

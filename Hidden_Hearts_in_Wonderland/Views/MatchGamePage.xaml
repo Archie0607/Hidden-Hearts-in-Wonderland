@@ -3,102 +3,292 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.MatchGamePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#E3F2FD">
+    BackgroundColor="#F7FBFF">
 
-    <Grid RowDefinitions="Auto,Auto,Auto"
-          Padding="10"
-          RowSpacing="8">
+    <Grid x:Name="RootGrid"
+          RowDefinitions="Auto,*"
+          ColumnDefinitions="Auto,*,Auto"
+          Padding="4,2"
+          RowSpacing="3"
+          ColumnSpacing="4"
+          SizeChanged="OnPageSizeChanged">
 
-        <Grid ColumnDefinitions="Auto,*,Auto"
-              ColumnSpacing="8">
+        <Grid x:Name="TopHud"
+              Grid.ColumnSpan="3"
+              ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"
+              ColumnSpacing="5">
+            <Label Text="Slime Match"
+                   FontSize="14"
+                   FontAttributes="Bold"
+                   TextColor="#253047"
+                   VerticalOptions="Center" />
 
-            <Button Text="กลับ"
-                    Command="{Binding BackCommand}"
-                    BackgroundColor="#FFF8E1"
-                    TextColor="#333"
-                    Padding="12,8"
-                    CornerRadius="14" />
-
-            <VerticalStackLayout Grid.Column="1"
-                                 Spacing="2"
-                                 HorizontalOptions="Center">
-                <Label Text="Slime Match"
-                       FontSize="24"
-                       FontAttributes="Bold"
-                       TextColor="#333"
-                       HorizontalOptions="Center" />
-
-                <Label Text="{Binding StatusText}"
-                       FontSize="13"
-                       TextColor="#555"
-                       HorizontalOptions="Center" />
-            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="Restart"
+                    Command="{Binding RestartCommand}"
+                    BackgroundColor="#E7F1FB"
+                    TextColor="#253047"
+                    CornerRadius="9"
+                    FontSize="10"
+                    HeightRequest="24"
+                    MinimumHeightRequest="24"
+                    Padding="8,0" />
 
             <Button Grid.Column="2"
-                    Text="เริ่มใหม่"
-                    Command="{Binding RestartCommand}"
-                    BackgroundColor="#FF80A0"
-                    TextColor="White"
-                    Padding="12,8"
-                    CornerRadius="14" />
+                    Text="Back"
+                    Command="{Binding BackCommand}"
+                    BackgroundColor="#FFE8F1"
+                    TextColor="#4C263A"
+                    CornerRadius="9"
+                    FontSize="10"
+                    HeightRequest="24"
+                    MinimumHeightRequest="24"
+                    Padding="8,0" />
+
+            <Label Text="{Binding StatusText}"
+                   Grid.Column="3"
+                   FontSize="10"
+                   TextColor="#596273"
+                   HorizontalTextAlignment="Center"
+                   LineBreakMode="TailTruncation"
+                   VerticalOptions="Center" />
+
+            <Border Grid.Column="4"
+                    BackgroundColor="#EAF5FF"
+                    Padding="6,2"
+                    Stroke="#B8D9F4"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="9" />
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="4">
+                    <Label Text="Goal"
+                           FontSize="9"
+                           TextColor="#596273"
+                           VerticalOptions="Center" />
+                    <Label Text="{Binding GoalText}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#253047"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <Border Grid.Column="5"
+                    BackgroundColor="#FFF8E8"
+                    Padding="6,2"
+                    Stroke="#F2D99A"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="9" />
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="4">
+                    <Label Text="Moves"
+                           FontSize="9"
+                           TextColor="#756234"
+                           VerticalOptions="Center" />
+                    <Label Text="{Binding MovesLeft}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#443716"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <Border Grid.Column="6"
+                    BackgroundColor="#FFEFF6"
+                    Padding="6,2"
+                    Stroke="#F4BDD4"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="9" />
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="4">
+                    <Label Text="Score"
+                           FontSize="9"
+                           TextColor="#785169"
+                           VerticalOptions="Center" />
+                    <Label Text="{Binding Score}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#4C263A"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <Border Grid.Column="7"
+                    BackgroundColor="#F1FFF0"
+                    Padding="6,2"
+                    Stroke="#BFE5B8"
+                    StrokeThickness="1">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="9" />
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="4">
+                    <Label Text="Coins"
+                           FontSize="9"
+                           TextColor="#4F704A"
+                           VerticalOptions="Center" />
+                    <Label Text="{Binding CoinText}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#31552D"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
         </Grid>
 
-        <Border Grid.Row="1"
-                Padding="8"
-                BackgroundColor="#66FFFFFF"
-                HorizontalOptions="Center">
-
+        <Border x:Name="LeftHud"
+                Grid.Row="1"
+                Grid.Column="0"
+                WidthRequest="92"
+                Padding="6"
+                BackgroundColor="#EEF7FF"
+                Stroke="#B8D9F4"
+                StrokeThickness="1">
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="14" />
+                <RoundRectangle CornerRadius="12" />
             </Border.StrokeShape>
-
-            <CollectionView ItemsSource="{Binding Tiles}"
-                            SelectionMode="None"
-                            WidthRequest="332"
-                            HeightRequest="332"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center">
-
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical"
-                                     Span="6"
-                                     HorizontalItemSpacing="4"
-                                     VerticalItemSpacing="4" />
-                </CollectionView.ItemsLayout>
-
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border WidthRequest="52"
-                                HeightRequest="52"
-                                Padding="3"
-                                Scale="{Binding TileScale}"
-                                BackgroundColor="{Binding TileColor}"
-                                Stroke="{Binding TileStrokeColor}"
-                                StrokeThickness="{Binding TileStrokeThickness}">
-
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10" />
-                            </Border.StrokeShape>
-
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Tapped="OnTileTapped"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectTileCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
-
-                            <Image Source="{Binding Image}"
-                                   Aspect="AspectFit" />
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <VerticalStackLayout Spacing="6"
+                                 VerticalOptions="Center">
+                <Label Text="Slime Match"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="#253047"
+                       HorizontalTextAlignment="Center" />
+                <Button Text="Restart"
+                        Command="{Binding RestartCommand}"
+                        BackgroundColor="#E7F1FB"
+                        TextColor="#253047"
+                        CornerRadius="9"
+                        FontSize="10"
+                        HeightRequest="26"
+                        MinimumHeightRequest="26"
+                        Padding="4,0" />
+                <Button Text="Back"
+                        Command="{Binding BackCommand}"
+                        BackgroundColor="#FFE8F1"
+                        TextColor="#4C263A"
+                        CornerRadius="9"
+                        FontSize="10"
+                        HeightRequest="26"
+                        MinimumHeightRequest="26"
+                        Padding="4,0" />
+                <Border BackgroundColor="#FFEFF6"
+                        Padding="4,3"
+                        Stroke="#F4BDD4"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="9" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="Score"
+                               FontSize="9"
+                               TextColor="#785169"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding Score}"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="#4C263A"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border BackgroundColor="#F1FFF0"
+                        Padding="4,3"
+                        Stroke="#BFE5B8"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="9" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="Coins"
+                               FontSize="9"
+                               TextColor="#4F704A"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding CoinText}"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="#31552D"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
         </Border>
 
-        <Label Grid.Row="2"
-               Text="เลือก slime สองช่องติดกันเพื่อสลับ จับคู่ 3 ตัวขึ้นไปเพื่อเก็บ coins"
-               FontSize="13"
-               TextColor="#555"
-               HorizontalTextAlignment="Center" />
+        <Border x:Name="BoardBorder"
+                Grid.Row="1"
+                Grid.Column="1"
+                Padding="3"
+                BackgroundColor="#203654"
+                Stroke="#9FC9F0"
+                StrokeThickness="2"
+                SizeChanged="OnBoardSizeChanged">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+
+            <Grid x:Name="BoardGrid"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center" />
+        </Border>
+
+        <Border x:Name="RightHud"
+                Grid.Row="1"
+                Grid.Column="2"
+                WidthRequest="92"
+                Padding="6"
+                BackgroundColor="#FFF8E8"
+                Stroke="#F2D99A"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+            <VerticalStackLayout Spacing="6"
+                                 VerticalOptions="Center">
+                <Border BackgroundColor="#EAF5FF"
+                        Padding="4,3"
+                        Stroke="#B8D9F4"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="9" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="Goal"
+                               FontSize="9"
+                               TextColor="#596273"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding GoalText}"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="#253047"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border BackgroundColor="#FFFDF4"
+                        Padding="4,3"
+                        Stroke="#F2D99A"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="9" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="Moves"
+                               FontSize="9"
+                               TextColor="#756234"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding MovesLeft}"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="#443716"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Label Text="{Binding StatusText}"
+                       FontSize="10"
+                       TextColor="#596273"
+                       LineBreakMode="WordWrap"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Border>
     </Grid>
 </ContentPage>
