@@ -6,9 +6,12 @@
     BackgroundColor="Black"
     Padding="0">
 
-    <Grid RowDefinitions="*,Auto,Auto">
+    <Grid RowDefinitions="*,Auto"
+          ColumnDefinitions="0.48*,0.52*">
+
         <Image Source="bg1.jpg"
-               Grid.RowSpan="3"
+               Grid.RowSpan="2"
+               Grid.ColumnSpan="2"
                Aspect="AspectFill"
                HorizontalOptions="Fill"
                VerticalOptions="Fill" />
@@ -27,45 +30,52 @@
 
         <Image Source="{Binding CurrentNode.Image}"
                Grid.Row="0"
+               Grid.Column="0"
                Aspect="AspectFit"
                HorizontalOptions="Center"
                VerticalOptions="End"
-               Margin="0,24,0,8"
-               MaximumHeightRequest="420" />
+               Margin="28,48,12,8"
+               MaximumHeightRequest="560"
+               MaximumWidthRequest="420" />
 
-        <VerticalStackLayout Grid.Row="1"
-                             BindableLayout.ItemsSource="{Binding CurrentNode.Choices}"
-                             Margin="20,0,20,8"
-                             Spacing="8"
-                             HorizontalOptions="Fill">
+        <ScrollView Grid.Row="0"
+                    Grid.Column="1"
+                    Margin="12,72,28,12"
+                    VerticalOptions="Center">
 
-            <BindableLayout.ItemTemplate>
-                <DataTemplate>
-                    <Border Padding="12"
-                            BackgroundColor="#EE90CAF9">
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding CurrentNode.Choices}"
+                                 Spacing="12"
+                                 HorizontalOptions="Fill">
 
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="14" />
-                        </Border.StrokeShape>
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="16"
+                                BackgroundColor="#EE90CAF9">
 
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectChoiceCommand}"
-                                CommandParameter="{Binding .}" />
-                        </Border.GestureRecognizers>
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
 
-                        <Label Text="{Binding Text}"
-                               FontSize="15"
-                               LineBreakMode="WordWrap"
-                               TextColor="Black" />
-                    </Border>
-                </DataTemplate>
-            </BindableLayout.ItemTemplate>
-        </VerticalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectChoiceCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
 
-        <Border Grid.Row="2"
-                Margin="20,0,20,20"
-                Padding="14"
+                            <Label Text="{Binding Text}"
+                                   FontSize="17"
+                                   LineBreakMode="WordWrap"
+                                   TextColor="Black" />
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Border Grid.Row="1"
+                Grid.ColumnSpan="2"
+                Margin="24,0,24,20"
+                Padding="16"
                 BackgroundColor="#D9FFC0CB"
                 StrokeThickness="0">
 
@@ -75,7 +85,7 @@
 
             <VerticalStackLayout Spacing="8">
                 <Border BackgroundColor="#FF80A0"
-                        Padding="6,4"
+                        Padding="8,5"
                         HorizontalOptions="Start">
 
                     <Border.StrokeShape>
@@ -83,13 +93,13 @@
                     </Border.StrokeShape>
 
                     <Label Text="{Binding CurrentNode.CharacterName}"
-                           FontSize="15"
+                           FontSize="16"
                            FontAttributes="Bold"
                            TextColor="White" />
                 </Border>
 
                 <Label Text="{Binding CurrentNode.Text}"
-                       FontSize="17"
+                       FontSize="18"
                        LineBreakMode="WordWrap"
                        TextColor="White" />
             </VerticalStackLayout>

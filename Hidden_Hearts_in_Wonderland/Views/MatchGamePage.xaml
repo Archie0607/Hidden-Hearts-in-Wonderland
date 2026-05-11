@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Hidden_Hearts_in_Wonderland.Views.MatchGamePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#E3F2FD">
+
+    <Grid RowDefinitions="Auto,Auto,Auto"
+          Padding="10"
+          RowSpacing="8">
+
+        <Grid ColumnDefinitions="Auto,*,Auto"
+              ColumnSpacing="8">
+
+            <Button Text="กลับ"
+                    Command="{Binding BackCommand}"
+                    BackgroundColor="#FFF8E1"
+                    TextColor="#333"
+                    Padding="12,8"
+                    CornerRadius="14" />
+
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="2"
+                                 HorizontalOptions="Center">
+                <Label Text="Slime Match"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="#333"
+                       HorizontalOptions="Center" />
+
+                <Label Text="{Binding StatusText}"
+                       FontSize="13"
+                       TextColor="#555"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <Button Grid.Column="2"
+                    Text="เริ่มใหม่"
+                    Command="{Binding RestartCommand}"
+                    BackgroundColor="#FF80A0"
+                    TextColor="White"
+                    Padding="12,8"
+                    CornerRadius="14" />
+        </Grid>
+
+        <Border Grid.Row="1"
+                Padding="8"
+                BackgroundColor="#66FFFFFF"
+                HorizontalOptions="Center">
+
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="14" />
+            </Border.StrokeShape>
+
+            <CollectionView ItemsSource="{Binding Tiles}"
+                            SelectionMode="None"
+                            WidthRequest="332"
+                            HeightRequest="332"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical"
+                                     Span="6"
+                                     HorizontalItemSpacing="4"
+                                     VerticalItemSpacing="4" />
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border WidthRequest="52"
+                                HeightRequest="52"
+                                Padding="3"
+                                Scale="{Binding TileScale}"
+                                BackgroundColor="{Binding TileColor}"
+                                Stroke="{Binding TileStrokeColor}"
+                                StrokeThickness="{Binding TileStrokeThickness}">
+
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Tapped="OnTileTapped"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectTileCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+
+                            <Image Source="{Binding Image}"
+                                   Aspect="AspectFit" />
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Border>
+
+        <Label Grid.Row="2"
+               Text="เลือก slime สองช่องติดกันเพื่อสลับ จับคู่ 3 ตัวขึ้นไปเพื่อเก็บ coins"
+               FontSize="13"
+               TextColor="#555"
+               HorizontalTextAlignment="Center" />
+    </Grid>
+</ContentPage>

@@ -12,5 +12,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(CharacterSelectPage), typeof(CharacterSelectPage));
         Routing.RegisterRoute(nameof(DialoguePage), typeof(DialoguePage));
         Routing.RegisterRoute(nameof(MiniGamePage), typeof(MiniGamePage));
+        Routing.RegisterRoute(nameof(MatchGamePage), typeof(MatchGamePage));
     }
 }
