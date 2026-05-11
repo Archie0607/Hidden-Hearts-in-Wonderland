@@ -12,7 +12,7 @@
             VerticalOptions="Center"
             HorizontalOptions="Center">
 
-            <Label Text="เลือกตัวละคร"
+            <Label Text="Choose a character"
                    FontSize="28"
                    FontAttributes="Bold"
                    TextColor="#333"
@@ -21,7 +21,6 @@
             <Border BackgroundColor="#FFF8E1"
                     Padding="12,8"
                     HorizontalOptions="Center">
-
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="16" />
                 </Border.StrokeShape>
@@ -36,17 +35,14 @@
             <CollectionView ItemsSource="{Binding Characters}"
                             ItemsLayout="VerticalList"
                             SelectionMode="None">
-
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="10"
                                 Padding="15"
                                 BackgroundColor="#FFF8E1">
-
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="25" />
                             </Border.StrokeShape>
-
                             <Border.Shadow>
                                 <Shadow Brush="#80000000"
                                         Offset="3,3"
@@ -55,7 +51,6 @@
 
                             <Grid ColumnDefinitions="120,*"
                                   ColumnSpacing="15">
-
                                 <Border>
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="15" />
@@ -70,7 +65,6 @@
                                 <VerticalStackLayout Grid.Column="1"
                                                      VerticalOptions="Center"
                                                      Spacing="10">
-
                                     <Label Text="{Binding Name}"
                                            FontSize="20"
                                            FontAttributes="Bold"
@@ -78,24 +72,21 @@
 
                                     <Border BackgroundColor="#90CAF9"
                                             Padding="8">
-
                                         <Border.StrokeShape>
                                             <RoundRectangle CornerRadius="15" />
                                         </Border.StrokeShape>
-
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCharacterCommand}"
                                                 CommandParameter="{Binding .}" />
                                         </Border.GestureRecognizers>
 
-                                        <Label Text="เลือก"
+                                        <Label Text="Select"
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center"
                                                TextColor="Black"
                                                FontAttributes="Bold" />
                                     </Border>
-
                                 </VerticalStackLayout>
                             </Grid>
                         </Border>
@@ -103,7 +94,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Button Text="เล่นมินิเกมเก็บเงิน"
+            <Button Text="Play Slime Match"
                     Clicked="OnMatchGameClicked"
                     BackgroundColor="#FF80A0"
                     TextColor="White"

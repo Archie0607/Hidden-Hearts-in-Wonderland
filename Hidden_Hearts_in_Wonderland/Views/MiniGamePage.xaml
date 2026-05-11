@@ -10,7 +10,7 @@
           RowSpacing="16">
 
         <VerticalStackLayout Spacing="6">
-            <Label Text="จับคู่ความทรงจำของ Lana"
+            <Label Text="Memory Match"
                    FontSize="24"
                    FontAttributes="Bold"
                    TextColor="#333"
@@ -25,7 +25,6 @@
         <CollectionView Grid.Row="1"
                         ItemsSource="{Binding Cards}"
                         SelectionMode="None">
-
             <CollectionView.ItemsLayout>
                 <GridItemsLayout Orientation="Vertical"
                                  Span="4"
@@ -38,11 +37,9 @@
                     <Border HeightRequest="92"
                             BackgroundColor="{Binding CardColor}"
                             StrokeThickness="0">
-
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="14" />
                         </Border.StrokeShape>
-
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCardCommand}"
@@ -61,7 +58,7 @@
         </CollectionView>
 
         <Button Grid.Row="2"
-                Text="เริ่มใหม่"
+                Text="Restart"
                 Command="{Binding RestartCommand}"
                 BackgroundColor="#FFF8E1"
                 TextColor="#333"

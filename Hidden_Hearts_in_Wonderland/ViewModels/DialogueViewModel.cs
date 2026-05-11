@@ -98,7 +98,7 @@ public class DialogueViewModel : BaseViewModel
         if (choice.IsMiniGame && !string.IsNullOrEmpty(choice.NextNodeId))
         {
             await Shell.Current.GoToAsync(
-                $"{nameof(Views.MiniGamePage)}?nextNodeId={choice.NextNodeId}&character={_characterName}"
+                $"{nameof(Views.MatchGamePage)}?nextNodeId={choice.NextNodeId}&character={_characterName}"
             );
             return;
         }
