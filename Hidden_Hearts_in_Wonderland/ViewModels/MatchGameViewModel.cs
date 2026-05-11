@@ -29,13 +29,13 @@ public class MatchGameViewModel : BaseViewModel
 
     private readonly SlimeInfo[] _slimes =
     [
-        new("Blue", "slime_0_0.png"),
-        new("Green", "slime_0_1.png"),
-        new("Yellow", "slime_0_2.png"),
-        new("Red", "slime_1_0.png"),
-        new("Purple", "slime_1_1.png"),
-        new("Pink", "slime_1_2.png"),
-        new("Orange", "slime_2_0.png")
+        new("Blue", "slime_blue.png"),
+        new("Green", "slime_green.png"),
+        new("Yellow", "slime_yellow.png"),
+        new("Red", "slime_red.png"),
+        new("Purple", "slime_purple.png"),
+        new("Pink", "slime_pink.png"),
+        new("Orange", "slime_orange.png")
     ];
 
     public ObservableCollection<MatchTile> Tiles { get; } = new();
