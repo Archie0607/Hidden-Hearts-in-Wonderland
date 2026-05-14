@@ -16,12 +16,27 @@ public class CharacterSelectViewModel
 
     public CharacterSelectViewModel()
     {
-        Characters = new ObservableCollection<Character>
-        {
-            new Character { Name = "อายะ", Image = "luna_smile.png", StartNodeId = "start_aya" }
-        };
+        Characters = [];
+        RefreshCharacters();
 
         SelectCharacterCommand = new Command<Character>(OnSelectCharacter);
+    }
+
+    public void RefreshCharacters()
+    {
+        Characters.Clear();
+
+        foreach (var character in CharacterProfileService.GetCharacters())
+        {
+            Characters.Add(new Character
+            {
+                Name = character.Name,
+                Image = character.Image,
+                StartNodeId = character.StartNodeId,
+                PersonalityPrompt = character.PersonalityPrompt,
+                AffectionScore = _gameService.Player.GetAffection(character.Name)
+            });
+        }
     }
 
     async void OnSelectCharacter(Character character)
@@ -31,7 +46,7 @@ public class CharacterSelectViewModel
 
         //  ไปหน้า Dialogue พร้อมส่งค่า
         await Shell.Current.GoToAsync(
-            $"{nameof(Views.DialoguePage)}?startId={character.StartNodeId}&character={character.Name}"
+            $"{nameof(Views.DialoguePage)}?startId={character.StartNodeId}&character={character.Name}&roundId={Guid.NewGuid():N}"
         );
     }
 }

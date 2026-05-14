@@ -5,89 +5,100 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     BackgroundColor="#E3F2FD">
 
-    <Grid>
+    <Grid Padding="14,8">
         <VerticalStackLayout
-            WidthRequest="520"
-            Spacing="18"
+            Spacing="8"
             VerticalOptions="Center"
-            HorizontalOptions="Center">
+            HorizontalOptions="Center"
+            MaximumWidthRequest="860">
 
             <Label Text="Choose a character"
-                   FontSize="28"
+                   FontSize="22"
                    FontAttributes="Bold"
                    TextColor="#333"
                    HorizontalOptions="Center" />
 
             <Border BackgroundColor="#FFF8E1"
-                    Padding="12,8"
+                    Padding="12,6"
                     HorizontalOptions="Center">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="16" />
+                    <RoundRectangle CornerRadius="14" />
                 </Border.StrokeShape>
 
                 <Label x:Name="CoinsLabel"
                        Text="Coins: 0"
-                       FontSize="16"
+                       FontSize="14"
                        FontAttributes="Bold"
                        TextColor="#333" />
             </Border>
 
             <CollectionView ItemsSource="{Binding Characters}"
-                            ItemsLayout="VerticalList"
-                            SelectionMode="None">
+                            SelectionMode="None"
+                            HeightRequest="218"
+                            HorizontalOptions="Center">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal"
+                                       ItemSpacing="12" />
+                </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Margin="10"
-                                Padding="15"
-                                BackgroundColor="#FFF8E1">
+                        <Border Padding="10"
+                                BackgroundColor="#FFF8E1"
+                                HeightRequest="210"
+                                WidthRequest="188">
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="25" />
+                                <RoundRectangle CornerRadius="14" />
                             </Border.StrokeShape>
                             <Border.Shadow>
                                 <Shadow Brush="#80000000"
-                                        Offset="3,3"
-                                        Radius="12" />
+                                        Offset="2,2"
+                                        Radius="8" />
                             </Border.Shadow>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCharacterCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
 
-                            <Grid ColumnDefinitions="120,*"
-                                  ColumnSpacing="15">
-                                <Border>
+                            <Grid RowDefinitions="132,Auto,Auto"
+                                  RowSpacing="6">
+                                <Border BackgroundColor="#F8FBFF"
+                                        HeightRequest="132"
+                                        WidthRequest="168">
                                     <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="15" />
+                                        <RoundRectangle CornerRadius="10" />
                                     </Border.StrokeShape>
 
                                     <Image Source="{Binding Image}"
-                                           Aspect="AspectFill"
-                                           HeightRequest="120"
-                                           WidthRequest="120" />
+                                           Aspect="AspectFit"
+                                           HeightRequest="126"
+                                           WidthRequest="160"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="End" />
                                 </Border>
 
-                                <VerticalStackLayout Grid.Column="1"
-                                                     VerticalOptions="Center"
-                                                     Spacing="10">
-                                    <Label Text="{Binding Name}"
-                                           FontSize="20"
+                                <Label Grid.Row="1"
+                                       Text="{Binding Name}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#333"
+                                       HorizontalOptions="Center" />
+
+                                <Border Grid.Row="2"
+                                        BackgroundColor="#E3F2FD"
+                                        Padding="8,3"
+                                        HorizontalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+
+                                    <Label Text="{Binding AffectionText}"
+                                           FontSize="12"
                                            FontAttributes="Bold"
-                                           TextColor="#333" />
+                                           TextColor="#455A64"
+                                           HorizontalOptions="Center" />
+                                </Border>
 
-                                    <Border BackgroundColor="#90CAF9"
-                                            Padding="8">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="15" />
-                                        </Border.StrokeShape>
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCharacterCommand}"
-                                                CommandParameter="{Binding .}" />
-                                        </Border.GestureRecognizers>
-
-                                        <Label Text="Select"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center"
-                                               TextColor="Black"
-                                               FontAttributes="Bold" />
-                                    </Border>
-                                </VerticalStackLayout>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -99,8 +110,10 @@
                     BackgroundColor="#FF80A0"
                     TextColor="White"
                     FontAttributes="Bold"
-                    CornerRadius="22"
-                    WidthRequest="240"
+                    CornerRadius="16"
+                    WidthRequest="180"
+                    HeightRequest="32"
+                    FontSize="13"
                     HorizontalOptions="Center" />
         </VerticalStackLayout>
     </Grid>

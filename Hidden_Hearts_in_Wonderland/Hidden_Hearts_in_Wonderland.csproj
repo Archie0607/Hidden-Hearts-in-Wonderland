@@ -56,7 +56,19 @@
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Remove="Resources\Images\luna*.png" />
 		<MauiImage Include="Resources\Images\slime\*.png" />
+		<MauiImage Include="Resources\Images\character\Alice\alice.png" />
+		<MauiImage Include="Resources\Images\character\Alice\alice_angry.png" />
+		<MauiImage Include="Resources\Images\character\Alice\alice_bored.png" />
+		<MauiImage Include="Resources\Images\character\Alice\alice_inlove.png" />
+		<MauiImage Include="Resources\Images\character\Alice\alice_sad.png" />
+		<MauiImage Include="Resources\Images\character\Alice\alice_serious.png" />
+		<MauiImage Include="Resources\Images\character\Alice\alice_shy.png" />
+		<MauiImage Include="Resources\Images\character\Alice\alice_smile.png" />
+		<MauiImage Include="Resources\Images\character\Luna\*.png" />
+		<MauiImage Include="Resources\Images\character\Raven\*.png" />
+		<MauiImage Include="Resources\Images\character\Ryne\*.png" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 		
 		<!-- Custom Fonts -->
