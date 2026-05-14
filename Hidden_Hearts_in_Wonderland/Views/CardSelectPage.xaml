@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Hidden_Hearts_in_Wonderland.Views.CardSelectPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#F6F2E8">
+
+    <Grid Padding="18"
+          RowDefinitions="Auto,*"
+          RowSpacing="16">
+        <VerticalStackLayout Spacing="4">
+            <Label Text="Choose your hero"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="#273043" />
+            <Label Text="{Binding Message}"
+                   FontSize="13"
+                   TextColor="#586174" />
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding MainCards}"
+                        SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="3"
+                                 HorizontalItemSpacing="12"
+                                 VerticalItemSpacing="12" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="12"
+                            Stroke="#D6DCE8"
+                            StrokeThickness="2"
+                            BackgroundColor="#FFFFFF">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectHeroCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Image Source="{Binding Image}"
+                                   Aspect="AspectFit"
+                                   HeightRequest="150" />
+                            <Label Text="{Binding Name}"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="#273043"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding Description}"
+                                   FontSize="13"
+                                   TextColor="#586174"
+                                   LineBreakMode="WordWrap"
+                                   HorizontalTextAlignment="Center" />
+                            <Grid ColumnDefinitions="*,*,*"
+                                  ColumnSpacing="6">
+                                <Label Text="{Binding Hp, StringFormat='HP {0}'}"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="#273043"
+                                       HorizontalTextAlignment="Center" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding Atk, StringFormat='ATK {0}'}"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="#273043"
+                                       HorizontalTextAlignment="Center" />
+                                <Label Grid.Column="2"
+                                       Text="{Binding Def, StringFormat='DEF {0}'}"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="#273043"
+                                       HorizontalTextAlignment="Center" />
+                            </Grid>
+                            <Button Text="Select"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectHeroCommand}"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="#273043"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    HeightRequest="38" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Hidden_Hearts_in_Wonderland.Views.CardTeamPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#EEF3F0">
+
+    <Grid Padding="18"
+          RowDefinitions="Auto,*"
+          RowSpacing="16">
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="10">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Team"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#253047" />
+                <Label Text="{Binding Message}"
+                       FontSize="13"
+                       TextColor="#596273" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="Back"
+                    Command="{Binding BackCommand}"
+                    BackgroundColor="#FFE2E7"
+                    TextColor="#253047"
+                    CornerRadius="10"
+                    HeightRequest="38" />
+        </Grid>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Cards}"
+                        SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="4"
+                                 HorizontalItemSpacing="12"
+                                 VerticalItemSpacing="12" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="10"
+                            BackgroundColor="#FFFFFF"
+                            Stroke="{Binding StrokeColor}"
+                            StrokeThickness="2"
+                            Opacity="{Binding Opacity}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleCardCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout Spacing="7">
+                            <Image Source="{Binding Image}"
+                                   Aspect="AspectFit"
+                                   HeightRequest="126" />
+                            <Label Text="{Binding Name}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#253047"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="TailTruncation" />
+                            <Label Text="{Binding Description}"
+                                   FontSize="11"
+                                   TextColor="#596273"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap"
+                                   MaxLines="2" />
+                            <Label Text="{Binding AffectionText}"
+                                   FontSize="11"
+                                   TextColor="#596273"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding StatusText}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="#31552D"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

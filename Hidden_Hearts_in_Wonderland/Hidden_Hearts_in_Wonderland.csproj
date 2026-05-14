@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net10.0-android</TargetFrameworks>
+		<TargetFrameworks>net10.0-android36.1</TargetFrameworks>
 		<TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('linux'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
 
@@ -57,18 +57,25 @@
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
 		<MauiImage Remove="Resources\Images\luna*.png" />
+		<MauiImage Include="Resources\Images\card\*.png" />
+		<MauiImage Remove="Resources\Images\card\alice.png" />
+		<MauiImage Remove="Resources\Images\card\raven.png" />
+		<MauiImage Remove="Resources\Images\card\ryne.png" />
+		<MauiImage Include="Resources\Images\card\alice.png" Link="Resources\Images\card\alice_card.png" />
+		<MauiImage Include="Resources\Images\card\raven.png" Link="Resources\Images\card\raven_card.png" />
+		<MauiImage Include="Resources\Images\card\ryne.png" Link="Resources\Images\card\ryne_card.png" />
 		<MauiImage Include="Resources\Images\slime\*.png" />
-		<MauiImage Include="Resources\Images\character\Alice\alice.png" />
-		<MauiImage Include="Resources\Images\character\Alice\alice_angry.png" />
-		<MauiImage Include="Resources\Images\character\Alice\alice_bored.png" />
-		<MauiImage Include="Resources\Images\character\Alice\alice_inlove.png" />
-		<MauiImage Include="Resources\Images\character\Alice\alice_sad.png" />
-		<MauiImage Include="Resources\Images\character\Alice\alice_serious.png" />
-		<MauiImage Include="Resources\Images\character\Alice\alice_shy.png" />
-		<MauiImage Include="Resources\Images\character\Alice\alice_smile.png" />
-		<MauiImage Include="Resources\Images\character\Luna\*.png" />
-		<MauiImage Include="Resources\Images\character\Raven\*.png" />
-		<MauiImage Include="Resources\Images\character\Ryne\*.png" />
+		<MauiImage Include="Resources\Images\character\alice\alice.png" />
+		<MauiImage Include="Resources\Images\character\alice\alice_angry.png" />
+		<MauiImage Include="Resources\Images\character\alice\alice_bored.png" />
+		<MauiImage Include="Resources\Images\character\alice\alice_inlove.png" />
+		<MauiImage Include="Resources\Images\character\alice\alice_sad.png" />
+		<MauiImage Include="Resources\Images\character\alice\alice_serious.png" />
+		<MauiImage Include="Resources\Images\character\alice\alice_shy.png" />
+		<MauiImage Include="Resources\Images\character\alice\alice_smile.png" />
+		<MauiImage Include="Resources\Images\character\luna\*.png" />
+		<MauiImage Include="Resources\Images\character\raven\*.png" />
+		<MauiImage Include="Resources\Images\character\ryne\*.png" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 		
 		<!-- Custom Fonts -->
@@ -87,6 +94,18 @@
 	  <MauiXaml Update="Views\CharacterSelectPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\CardBattlePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\CardSelectPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\CardStageSelectPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\CardTeamPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\DialoguePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -103,6 +122,18 @@
 
 	<ItemGroup>
 	  <None Update="Views\CharacterSelectPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Views\CardBattlePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Views\CardSelectPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Views\CardStageSelectPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	  <None Update="Views\CardTeamPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </None>
 	  <None Update="Views\DialoguePage.xaml">

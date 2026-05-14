@@ -32,6 +32,29 @@
                        TextColor="#333" />
             </Border>
 
+            <HorizontalStackLayout Spacing="10"
+                                   HorizontalOptions="Center">
+                <Button Text="Battle"
+                        Clicked="OnBattleClicked"
+                        BackgroundColor="#273043"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="16"
+                        WidthRequest="180"
+                        HeightRequest="32"
+                        FontSize="13" />
+
+                <Button Text="Play Slime Match"
+                        Clicked="OnMatchGameClicked"
+                        BackgroundColor="#FF80A0"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="16"
+                        WidthRequest="180"
+                        HeightRequest="32"
+                        FontSize="13" />
+            </HorizontalStackLayout>
+
             <CollectionView ItemsSource="{Binding Characters}"
                             SelectionMode="None"
                             HeightRequest="218"
@@ -104,17 +127,6 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-            <Button Text="Play Slime Match"
-                    Clicked="OnMatchGameClicked"
-                    BackgroundColor="#FF80A0"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    CornerRadius="16"
-                    WidthRequest="180"
-                    HeightRequest="32"
-                    FontSize="13"
-                    HorizontalOptions="Center" />
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

@@ -26,4 +26,9 @@ public partial class CharacterSelectPage : ContentPage
     {
         await Shell.Current.GoToAsync(nameof(MatchGamePage));
     }
+
+    private async void OnBattleClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(CardStageSelectPage));
+    }
 }

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Hidden_Hearts_in_Wonderland.Views.CardBattlePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#EEF3F0">
+
+    <Grid RowDefinitions="Auto,*,Auto,*"
+          Padding="14,8"
+          RowSpacing="4">
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+              ColumnSpacing="8">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="{Binding StageText}"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       TextColor="#253047" />
+                <Label Text="{Binding Message}"
+                       FontSize="13"
+                       TextColor="#596273"
+                       LineBreakMode="TailTruncation" />
+            </VerticalStackLayout>
+
+            <Button Grid.Column="1"
+                    Text="{Binding NextButtonText}"
+                    Command="{Binding NextStageCommand}"
+                    IsEnabled="{Binding CanGoNext}"
+                    BackgroundColor="#DFF3E6"
+                    TextColor="#253047"
+                    CornerRadius="10"
+                    HeightRequest="34"
+                    Padding="12,0" />
+            <Button Grid.Column="2"
+                    Text="Restart"
+                    Command="{Binding RestartCommand}"
+                    BackgroundColor="#FFF1D8"
+                    TextColor="#253047"
+                    CornerRadius="10"
+                    HeightRequest="34"
+                    Padding="12,0" />
+            <Button Grid.Column="3"
+                    Text="Back"
+                    Command="{Binding BackCommand}"
+                    BackgroundColor="#FFE2E7"
+                    TextColor="#253047"
+                    CornerRadius="10"
+                    HeightRequest="34"
+                    Padding="12,0" />
+        </Grid>
+
+        <HorizontalStackLayout Grid.Row="1"
+                               BindableLayout.ItemsSource="{Binding EnemyTeam}"
+                               Spacing="28"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate>
+                    <Grid WidthRequest="136"
+                          HeightRequest="150"
+                          ColumnDefinitions="24,112"
+                          ColumnSpacing="4"
+                          Opacity="{Binding Opacity}">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnEnemyCardTapped" />
+                        </Grid.GestureRecognizers>
+
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="5"
+                                             VerticalOptions="Center">
+                            <Grid RowDefinitions="14,4"
+                                  RowSpacing="1">
+                                <Label Text="H"
+                                       FontSize="9"
+                                       FontAttributes="Bold"
+                                       TextColor="#B54040"
+                                       HorizontalTextAlignment="Center" />
+                                <Grid Grid.Row="1"
+                                      WidthRequest="20"
+                                      HeightRequest="4">
+                                    <BoxView BackgroundColor="#E5E8EC"
+                                             CornerRadius="2" />
+                                    <BoxView BackgroundColor="#D96161"
+                                             WidthRequest="{Binding HpMiniBarWidth}"
+                                             CornerRadius="2"
+                                             HorizontalOptions="Start" />
+                                </Grid>
+                            </Grid>
+                            <Grid RowDefinitions="14,4"
+                                  RowSpacing="1">
+                                <Label Text="A"
+                                       FontSize="9"
+                                       FontAttributes="Bold"
+                                       TextColor="#A16518"
+                                       HorizontalTextAlignment="Center" />
+                                <Grid Grid.Row="1"
+                                      WidthRequest="20"
+                                      HeightRequest="4">
+                                    <BoxView BackgroundColor="#E5E8EC"
+                                             CornerRadius="2" />
+                                    <BoxView BackgroundColor="#E1A24A"
+                                             WidthRequest="{Binding AtkMiniBarWidth}"
+                                             CornerRadius="2"
+                                             HorizontalOptions="Start" />
+                                </Grid>
+                            </Grid>
+                            <Grid RowDefinitions="14,4"
+                                  RowSpacing="1">
+                                <Label Text="D"
+                                       FontSize="9"
+                                       FontAttributes="Bold"
+                                       TextColor="#386DB5"
+                                       HorizontalTextAlignment="Center" />
+                                <Grid Grid.Row="1"
+                                      WidthRequest="20"
+                                      HeightRequest="4">
+                                    <BoxView BackgroundColor="#E5E8EC"
+                                             CornerRadius="2" />
+                                    <BoxView BackgroundColor="#6E9EEB"
+                                             WidthRequest="{Binding DefMiniBarWidth}"
+                                             CornerRadius="2"
+                                             HorizontalOptions="Start" />
+                                </Grid>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="3"
+                                             HorizontalOptions="Center">
+                            <Image Source="{Binding Image}"
+                                   Aspect="AspectFit"
+                                   HeightRequest="132"
+                                   WidthRequest="104" />
+                            <Label Text="{Binding StatusText}"
+                                   FontSize="9"
+                                   FontAttributes="Bold"
+                                   TextColor="#AA3E3E"
+                                   HeightRequest="12"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </HorizontalStackLayout>
+
+        <BoxView Grid.Row="2"
+                 HeightRequest="1"
+                 BackgroundColor="#C9D3DC" />
+
+        <HorizontalStackLayout Grid.Row="3"
+                               BindableLayout.ItemsSource="{Binding PlayerTeam}"
+                               Spacing="34"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate>
+                    <Grid WidthRequest="150"
+                          HeightRequest="170"
+                          ColumnDefinitions="26,124"
+                          ColumnSpacing="4"
+                          Opacity="{Binding Opacity}">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnPlayerCardTapped" />
+                        </Grid.GestureRecognizers>
+
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="7"
+                                             VerticalOptions="Center">
+                            <Grid RowDefinitions="16,5"
+                                  RowSpacing="1">
+                                <Label Text="H"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       TextColor="#2F8E4A"
+                                       HorizontalTextAlignment="Center" />
+                                <Grid Grid.Row="1"
+                                      WidthRequest="22"
+                                      HeightRequest="5">
+                                    <BoxView BackgroundColor="#E5E8EC"
+                                             CornerRadius="3" />
+                                    <BoxView BackgroundColor="#67B27A"
+                                             WidthRequest="{Binding HpMiniBarWidth}"
+                                             CornerRadius="3"
+                                             HorizontalOptions="Start" />
+                                </Grid>
+                            </Grid>
+                            <Grid RowDefinitions="16,5"
+                                  RowSpacing="1">
+                                <Label Text="A"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       TextColor="#A16518"
+                                       HorizontalTextAlignment="Center" />
+                                <Grid Grid.Row="1"
+                                      WidthRequest="22"
+                                      HeightRequest="5">
+                                    <BoxView BackgroundColor="#E5E8EC"
+                                             CornerRadius="3" />
+                                    <BoxView BackgroundColor="#E1A24A"
+                                             WidthRequest="{Binding AtkMiniBarWidth}"
+                                             CornerRadius="3"
+                                             HorizontalOptions="Start" />
+                                </Grid>
+                            </Grid>
+                            <Grid RowDefinitions="16,5"
+                                  RowSpacing="1">
+                                <Label Text="D"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       TextColor="#386DB5"
+                                       HorizontalTextAlignment="Center" />
+                                <Grid Grid.Row="1"
+                                      WidthRequest="22"
+                                      HeightRequest="5">
+                                    <BoxView BackgroundColor="#E5E8EC"
+                                             CornerRadius="3" />
+                                    <BoxView BackgroundColor="#6E9EEB"
+                                             WidthRequest="{Binding DefMiniBarWidth}"
+                                             CornerRadius="3"
+                                             HorizontalOptions="Start" />
+                                </Grid>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="3"
+                                             HorizontalOptions="Center">
+                            <Image Source="{Binding Image}"
+                                   Aspect="AspectFit"
+                                   HeightRequest="150"
+                                   WidthRequest="118" />
+                            <Label Text="{Binding StatusText}"
+                                   FontSize="9"
+                                   FontAttributes="Bold"
+                                   TextColor="#305B3A"
+                                   HeightRequest="12"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>

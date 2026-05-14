@@ -12,6 +12,6 @@ public partial class MainPage : ContentPage
 
     private async void OnStartClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(nameof(CharacterSelectPage));
+        await Shell.Current.GoToAsync(nameof(CardSelectPage));
     }
 }
