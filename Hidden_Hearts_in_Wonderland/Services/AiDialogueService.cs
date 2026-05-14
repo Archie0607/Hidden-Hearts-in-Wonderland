@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Hidden_Hearts_in_Wonderland.Models;
 
@@ -8,7 +8,18 @@ public class AiDialogueService
 {
     public const string GeneratedNextNodeId = "__ai_next__";
 
+    // Groq API key guide:
+    // 1. Put your main key in ApiKey, for example: private const string ApiKey = "YOUR_GROQ_API_KEY";
+    // 2. Put backup keys in the empty ApiKeys slots below, for example: "YOUR_BACKUP_GROQ_API_KEY_1".
+    // 3. The app uses the main key first, then switches to backup keys on quota/rate limit errors.
+    // 4. Remove real keys from this file before pushing to GitHub.
     private const string ApiKey = "";
+    private static readonly string[] ApiKeys =
+    [
+        ApiKey, // main key
+        "",     // backup key 1, for example: "YOUR_BACKUP_GROQ_API_KEY_1"
+        "",     // backup key 2, for example: "YOUR_BACKUP_GROQ_API_KEY_2"
+    ];
     private const string Model = "llama-3.3-70b-versatile";
     private static readonly Uri Endpoint = new("https://api.groq.com/openai/v1/chat/completions");
 
@@ -148,13 +159,15 @@ public class AiDialogueService
 
     private async Task<string> RequestAiTextAsync(string prompt, double temperature)
     {
-        if (string.IsNullOrWhiteSpace(ApiKey))
-            throw new InvalidOperationException("Missing Groq API key. Fill ApiKey in AiDialogueService before starting the app.");
+        var apiKeys = ApiKeys
+            .Where(key => !string.IsNullOrWhiteSpace(key))
+            .Distinct()
+            .ToList();
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, Endpoint);
+        if (apiKeys.Count == 0)
+            throw new InvalidOperationException("Missing Groq API key. Fill ApiKeys in AiDialogueService before starting the app.");
+
         var systemPrompt = "You are a JSON-only writer for a Thai dating visual novel. Return one valid JSON object only.";
-        request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {ApiKey}");
-
         var body = new
         {
             model = Model,
@@ -178,28 +191,72 @@ public class AiDialogueService
                 type = "json_object"
             }
         };
+        var bodyJson = JsonSerializer.Serialize(body);
+        var failedKeyIndexes = new HashSet<int>();
+        var lastQuotaError = string.Empty;
 
-        request.Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
-
-        using var response = await _httpClient.SendAsync(request);
-        var json = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode)
+        for (var keyIndex = 0; keyIndex < apiKeys.Count; keyIndex++)
         {
-            throw new InvalidOperationException($"Groq request failed: {(int)response.StatusCode} {response.ReasonPhrase}. {json}");
+            if (failedKeyIndexes.Contains(keyIndex))
+                continue;
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, Endpoint);
+            request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {apiKeys[keyIndex]}");
+            request.Content = new StringContent(bodyJson, Encoding.UTF8, "application/json");
+
+            using var response = await _httpClient.SendAsync(request);
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                if (IsQuotaOrRateLimitError(response, json) && keyIndex < apiKeys.Count - 1)
+                {
+                    failedKeyIndexes.Add(keyIndex);
+                    lastQuotaError = $"Key #{keyIndex + 1}: {(int)response.StatusCode} {response.ReasonPhrase}. {ShortenForError(json)}";
+                    continue;
+                }
+
+                if (IsQuotaOrRateLimitError(response, json))
+                    throw new InvalidOperationException($"Groq quota/rate limit failed for all API keys. Last issue: {(int)response.StatusCode} {response.ReasonPhrase}. {json}");
+
+                throw new InvalidOperationException($"Groq request failed: {(int)response.StatusCode} {response.ReasonPhrase}. {json}");
+            }
+
+            var groq = JsonSerializer.Deserialize<GroqChatResponse>(json, _jsonOptions);
+            var text = groq?.Choices?
+                .FirstOrDefault()?
+                .Message?
+                .Content;
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                throw new InvalidOperationException("Groq returned an empty message.");
+            }
+
+            return text;
         }
 
-        var groq = JsonSerializer.Deserialize<GroqChatResponse>(json, _jsonOptions);
-        var text = groq?.Choices?
-            .FirstOrDefault()?
-            .Message?
-            .Content;
+        throw new InvalidOperationException($"Groq quota/rate limit failed for all API keys. Last issue: {lastQuotaError}");
+    }
 
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            throw new InvalidOperationException("Groq returned an empty message.");
-        }
+    private static bool IsQuotaOrRateLimitError(HttpResponseMessage response, string responseBody)
+    {
+        var statusCode = (int)response.StatusCode;
+        if (statusCode == 429)
+            return true;
 
-        return text;
+        if (statusCode == 401)
+            return false;
+
+        var body = responseBody.ToLowerInvariant();
+        return body.Contains("quota")
+            || body.Contains("rate_limit")
+            || body.Contains("rate limit")
+            || body.Contains("too many requests")
+            || body.Contains("resource_exhausted")
+            || body.Contains("insufficient_quota")
+            || body.Contains("tokens per minute")
+            || body.Contains("tokens per day")
+            || body.Contains("token limit");
     }
 
     private static string BuildScenePackPrompt(Character character, DialogueNode templateNode, int affection, string roundId)
@@ -257,7 +314,7 @@ public class AiDialogueService
 
         Dialogue rules:
         - Write like a soft, slightly shy Thai anime visual novel heroine. Use natural Thai spoken rhythm, not formal translated Thai.
-        - Thai lines should feel casual, warm, and alive, with gentle particles or hesitation when appropriate, such as "อื้ม", "เอ่อ", "นะ", "ล่ะ", "เหรอ", "ถ้าไม่รบกวน".
+        - Thai lines should feel casual, warm, and alive, with gentle particles or hesitation when appropriate, such as "犧ｭ犧ｷ犹霞ｸ｡", "犹犧ｭ犹謂ｸｭ", "犧吭ｸｰ", "犧･犹謂ｸｰ", "犹犧ｫ犧｣犧ｭ", "犧籾ｹ霞ｸｲ犹・ｸ｡犹謂ｸ｣犧壟ｸ≒ｸｧ犧・.
         - Avoid stiff, literal, questionnaire-like Thai. Do not make every line sound like an interview question.
         - Prefer emotionally specific spoken lines over generic sentences.
         - All heroine replies must be direct spoken dialogue from {{character.Name}} to the player.
@@ -338,8 +395,8 @@ public class AiDialogueService
         - Each choice should lead the same situation forward, not jump to a different scene.
         - Every choice text must be direct speech from the player to {{character.Name}}.
         - Do not write actions, narration, stage directions, or descriptions of tone.
-        - Do not write text like "ยิ้มให้", "เดินเข้าไป", "ถามว่า", "พูดกับ", or "ชวนคุย".
-        - Good choice text examples: "วันนี้เธอดูสบายใจกว่าปกตินะ", "ถ้าไม่รังเกียจ ฉันขออยู่ตรงนี้ด้วยได้ไหม"
+        - Do not write text like "犧｢犧ｴ犹霞ｸ｡犹・ｸｫ犹・, "犹犧扉ｸｴ犧吭ｹ犧もｹ霞ｸｲ犹・ｸ・, "犧籾ｸｲ犧｡犧ｧ犹謂ｸｲ", "犧樅ｸｹ犧扉ｸ≒ｸｱ犧・, or "犧癌ｸｧ犧吭ｸ・ｸｸ犧｢".
+        - Good choice text examples: "犧ｧ犧ｱ犧吭ｸ吭ｸｵ犹霞ｹ犧倨ｸｭ犧扉ｸｹ犧ｪ犧壟ｸｲ犧｢犹・ｸ謂ｸ≒ｸｧ犹謂ｸｲ犧巵ｸ≒ｸ歩ｸｴ犧吭ｸｰ", "犧籾ｹ霞ｸｲ犹・ｸ｡犹謂ｸ｣犧ｱ犧・ｹ犧≒ｸｵ犧｢犧・犧霞ｸｱ犧吭ｸもｸｭ犧ｭ犧｢犧ｹ犹謂ｸ歩ｸ｣犧・ｸ吭ｸｵ犹霞ｸ扉ｹ霞ｸｧ犧｢犹・ｸ扉ｹ霞ｹ・ｸｫ犧｡"
         - Generate exactly 3 player choices with these roles:
           1. Positive: respects her personality, likes, current emotion, or boundaries. affectionChange must be 5 to 12.
           2. Neutral: polite and natural but not especially intimate. affectionChange must be 0 to 3.
@@ -390,7 +447,7 @@ public class AiDialogueService
         - Do not write generic choices that could fit any scene.
         - Each choice must be a line of dialogue the player says directly to {{character.Name}}.
         - Do not write actions, narration, stage directions, or descriptions of tone.
-        - Do not write text like "ยิ้มให้", "เดินเข้าไป", "ถามว่า", "พูดกับ", or "ชวนคุย".
+        - Do not write text like "犧｢犧ｴ犹霞ｸ｡犹・ｸｫ犹・, "犹犧扉ｸｴ犧吭ｹ犧もｹ霞ｸｲ犹・ｸ・, "犧籾ｸｲ犧｡犧ｧ犹謂ｸｲ", "犧樅ｸｹ犧扉ｸ≒ｸｱ犧・, or "犧癌ｸｧ犧吭ｸ・ｸｸ犧｢".
         - The player can imply emotion through words, but the text itself must be speakable aloud.
         - Do not repeat the same choice wording from earlier turns.
         - Generate exactly 3 player choices with these roles:
@@ -463,7 +520,7 @@ public class AiDialogueService
         - reply must directly react to the player's selected choice.
         - The first sentence of reply must naturally answer the meaning or emotion of the selected choice.
         - Do not quote or repeat the selected choice verbatim.
-        - Do not start with formulaic phrases like "ที่คุณบอกว่า", "ที่คุณพูดว่า", "คำว่า", or "เรื่องที่คุณพูด".
+        - Do not start with formulaic phrases like "犧伶ｸｵ犹謂ｸ・ｸｸ犧内ｸ壟ｸｭ犧≒ｸｧ犹謂ｸｲ", "犧伶ｸｵ犹謂ｸ・ｸｸ犧内ｸ樅ｸｹ犧扉ｸｧ犹謂ｸｲ", "犧・ｸｳ犧ｧ犹謂ｸｲ", or "犹犧｣犧ｷ犹謂ｸｭ犧・ｸ伶ｸｵ犹謂ｸ・ｸｸ犧内ｸ樅ｸｹ犧・.
         - Make it feel like two people talking, not like summarizing what the player chose.
         - Do not change topic suddenly. Continue from the previous heroine line and selected player choice.
         - Do not write narration, actions, stage directions, or descriptions in reply.
@@ -476,7 +533,7 @@ public class AiDialogueService
         - Each new choice should move the current situation forward in a different way.
         - Each choice text must be direct speech from the player to {{character.Name}}.
         - Do not write actions, narration, stage directions, or descriptions of tone.
-        - Do not write text like "ยิ้มให้", "เดินเข้าไป", "ถามว่า", "พูดกับ", or "ชวนคุย".
+        - Do not write text like "犧｢犧ｴ犹霞ｸ｡犹・ｸｫ犹・, "犹犧扉ｸｴ犧吭ｹ犧もｹ霞ｸｲ犹・ｸ・, "犧籾ｸｲ犧｡犧ｧ犹謂ｸｲ", "犧樅ｸｹ犧扉ｸ≒ｸｱ犧・, or "犧癌ｸｧ犧吭ｸ・ｸｸ犧｢".
         - Do not repeat the same choice wording from earlier turns.
         - The next choices should fit the chosen mood and scene.
         - Generate exactly 3 player choices with these roles:
@@ -1023,3 +1080,4 @@ public class AiDialogueService
         public string Content { get; set; } = string.Empty;
     }
 }
+
