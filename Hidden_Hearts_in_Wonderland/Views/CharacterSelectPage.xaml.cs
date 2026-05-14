@@ -15,6 +15,11 @@ public partial class CharacterSelectPage : ContentPage
     {
         base.OnAppearing();
         CoinsLabel.Text = $"Coins: {GameService.Instance.Coins}";
+
+        if (BindingContext is CharacterSelectViewModel viewModel)
+        {
+            viewModel.RefreshCharacters();
+        }
     }
 
     private async void OnMatchGameClicked(object sender, EventArgs e)

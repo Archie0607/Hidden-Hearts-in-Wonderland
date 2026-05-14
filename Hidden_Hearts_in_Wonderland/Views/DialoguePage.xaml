@@ -43,30 +43,40 @@
                     Margin="12,72,28,12"
                     VerticalOptions="Center">
 
-            <VerticalStackLayout BindableLayout.ItemsSource="{Binding CurrentNode.Choices}"
-                                 Spacing="12"
-                                 HorizontalOptions="Fill">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate>
-                        <Border Padding="16"
-                                BackgroundColor="#EE90CAF9">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="16" />
-                            </Border.StrokeShape>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectChoiceCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
+            <Grid>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding CurrentNode.Choices}"
+                                     Spacing="12"
+                                     HorizontalOptions="Fill">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="16"
+                                    BackgroundColor="#EE90CAF9">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="16" />
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectChoiceCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
 
-                            <Label Text="{Binding Text}"
-                                   FontSize="17"
-                                   LineBreakMode="WordWrap"
-                                   TextColor="Black" />
-                        </Border>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </VerticalStackLayout>
+                                <Label Text="{Binding Text}"
+                                       FontSize="17"
+                                       LineBreakMode="WordWrap"
+                                       TextColor="Black" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#FF80A0"
+                                   HeightRequest="48"
+                                   WidthRequest="48"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+            </Grid>
         </ScrollView>
 
         <Border Grid.Row="1"
