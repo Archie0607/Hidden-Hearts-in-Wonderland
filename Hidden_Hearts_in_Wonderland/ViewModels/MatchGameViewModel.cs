@@ -11,6 +11,7 @@ public class MatchGameViewModel : BaseViewModel
     private const int StartingMoves = 12;
     private const int Goal = 30;
     private const int CoinPerSlime = 5;
+    private const string RainbowSlimeName = "Rainbow";
 
     private readonly Random _random = new();
     private readonly GameService _gameService = GameService.Instance;
@@ -21,6 +22,12 @@ public class MatchGameViewModel : BaseViewModel
     private int _collected;
     private int _score;
     private int _coinsEarned;
+    private bool _isResultPopupVisible;
+    private string _resultTitle = "";
+    private string _resultCoinsText = "";
+    private string _resultScoreText = "";
+    private string _resultCollectedText = "";
+    private string _resultBonusText = "";
     private int _rows = 5;
     private int _columns = 9;
     private string _message = "Match 3 colors";
@@ -29,19 +36,21 @@ public class MatchGameViewModel : BaseViewModel
 
     private readonly SlimeInfo[] _slimes =
     [
-        new("Blue", "slime_blue.png"),
-        new("Green", "slime_green.png"),
-        new("Yellow", "slime_yellow.png"),
-        new("Red", "slime_red.png"),
-        new("Purple", "slime_purple.png"),
-        new("Pink", "slime_pink.png"),
-        new("Orange", "slime_orange.png")
+        new("Fire", "fire.png"),
+        new("Water", "water.png"),
+        new("Wind", "wind.png"),
+        new("Earth", "earth.png"),
+        new("Light", "light.png"),
+        new("Dark", "dark.png")
     ];
+
+    private readonly SlimeInfo _rainbowSlime = new(RainbowSlimeName, "rainbow.png");
 
     public ObservableCollection<MatchTile> Tiles { get; } = new();
 
     public ICommand SelectTileCommand { get; }
     public ICommand RestartCommand { get; }
+    public ICommand ContinueResultCommand { get; }
     public ICommand BackCommand { get; }
 
     public string NextNodeId
@@ -136,10 +145,71 @@ public class MatchGameViewModel : BaseViewModel
     public string CoinText => $"+{CoinsEarned}";
     public string StatusText => Message;
 
+    public bool IsResultPopupVisible
+    {
+        get => _isResultPopupVisible;
+        set
+        {
+            _isResultPopupVisible = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string ResultTitle
+    {
+        get => _resultTitle;
+        set
+        {
+            _resultTitle = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string ResultCoinsText
+    {
+        get => _resultCoinsText;
+        set
+        {
+            _resultCoinsText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string ResultScoreText
+    {
+        get => _resultScoreText;
+        set
+        {
+            _resultScoreText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string ResultCollectedText
+    {
+        get => _resultCollectedText;
+        set
+        {
+            _resultCollectedText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string ResultBonusText
+    {
+        get => _resultBonusText;
+        set
+        {
+            _resultBonusText = value;
+            OnPropertyChanged();
+        }
+    }
+
     public MatchGameViewModel()
     {
         SelectTileCommand = new Command<MatchTile>(async tile => await SelectTile(tile));
         RestartCommand = new Command(BuildBoard);
+        ContinueResultCommand = new Command(async () => await ContinueResult());
         BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
         BuildBoard();
     }
@@ -170,6 +240,7 @@ public class MatchGameViewModel : BaseViewModel
         _selectedTile = null;
         _isBusy = false;
         _isFinished = false;
+        IsResultPopupVisible = false;
         MovesLeft = StartingMoves;
         Collected = 0;
         Score = 0;
@@ -200,6 +271,11 @@ public class MatchGameViewModel : BaseViewModel
 
     private SlimeInfo RandomSlime()
     {
+        if (_random.NextDouble() < 0.06)
+        {
+            return _rainbowSlime;
+        }
+
         return _slimes[_random.Next(_slimes.Length)];
     }
 
@@ -245,6 +321,18 @@ public class MatchGameViewModel : BaseViewModel
         _isBusy = true;
         MovesLeft--;
         SwapSlimes(_selectedTile, tile);
+
+        var rainbowTiles = FindRainbowClearTiles(_selectedTile, tile);
+        if (rainbowTiles.Count > 0)
+        {
+            var clearedColor = GetRainbowTargetName(_selectedTile, tile);
+            ClearSelection();
+            Message = clearedColor == null ? "Rainbow burst" : $"Rainbow cleared {clearedColor}";
+            await ResolveMatches(rainbowTiles);
+            _isBusy = false;
+            await CheckGameEnd();
+            return;
+        }
 
         var matchedTiles = FindMatches();
 
@@ -292,6 +380,40 @@ public class MatchGameViewModel : BaseViewModel
         (first.Slime, second.Slime) = (second.Slime, first.Slime);
     }
 
+    private List<MatchTile> FindRainbowClearTiles(MatchTile first, MatchTile second)
+    {
+        var targetName = GetRainbowTargetName(first, second);
+
+        if (targetName == null)
+        {
+            return [];
+        }
+
+        return Tiles
+            .Where(tile => tile.Slime?.Name == targetName || tile.Slime?.Name == RainbowSlimeName)
+            .ToList();
+    }
+
+    private static string? GetRainbowTargetName(MatchTile first, MatchTile second)
+    {
+        if (first.Slime?.Name == RainbowSlimeName && second.Slime?.Name != RainbowSlimeName)
+        {
+            return second.Slime?.Name;
+        }
+
+        if (second.Slime?.Name == RainbowSlimeName && first.Slime?.Name != RainbowSlimeName)
+        {
+            return first.Slime?.Name;
+        }
+
+        if (first.Slime?.Name == RainbowSlimeName && second.Slime?.Name == RainbowSlimeName)
+        {
+            return RainbowSlimeName;
+        }
+
+        return null;
+    }
+
     private async Task ResolveMatches(List<MatchTile> matchedTiles)
     {
         while (matchedTiles.Count > 0)
@@ -308,7 +430,7 @@ public class MatchGameViewModel : BaseViewModel
             Score += matchedTiles.Count * 50;
             CoinsEarned += coins;
             _gameService.AddCoins(coins);
-            Message = $"Matched {matchedTiles.Count}";
+            Message = $"Cleared {matchedTiles.Count}";
 
             ClearMatchedTiles(matchedTiles);
             await Task.Delay(120);
@@ -414,6 +536,8 @@ public class MatchGameViewModel : BaseViewModel
     {
         return first.Slime is { } firstSlime
             && second.Slime is { } secondSlime
+            && firstSlime.Name != RainbowSlimeName
+            && secondSlime.Name != RainbowSlimeName
             && firstSlime.Name == secondSlime.Name;
     }
 
@@ -453,9 +577,19 @@ public class MatchGameViewModel : BaseViewModel
     {
         _isFinished = true;
 
-        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-        var title = isWin ? "Mini game cleared" : "Mini game finished";
-        var result = $"Coins earned: {CoinsEarned}\nScore: {Score}\nCollected: {Collected}/{Goal}";
+        if (isWin)
+        {
+            _ = AudioService.Instance.PlayWinAsync();
+        }
+        else
+        {
+            _ = AudioService.Instance.PlayGameOverAsync();
+        }
+
+        ResultTitle = isWin ? "Mini game cleared" : "Mini game finished";
+        ResultCoinsText = $"+{CoinsEarned}";
+        ResultScoreText = $"Score: {Score}";
+        ResultCollectedText = $"Collected: {Collected}/{Goal}";
 
         if (IsDialogueGame)
         {
@@ -466,18 +600,23 @@ public class MatchGameViewModel : BaseViewModel
                 _gameService.Player.AddAffection(CharacterName, bonus);
             }
 
-            if (page != null)
-            {
-                await page.DisplayAlertAsync(title, $"{result}\n+{bonus} affection", "Continue");
-            }
-
-            await Shell.Current.GoToAsync($"../{nameof(Views.DialoguePage)}?startId={NextNodeId}&character={CharacterName}");
+            ResultBonusText = $"+{bonus} affection";
+            IsResultPopupVisible = true;
             return;
         }
 
-        if (page != null)
+        ResultBonusText = $"Total coins: {_gameService.Coins}";
+        IsResultPopupVisible = true;
+        await Task.CompletedTask;
+    }
+
+    private async Task ContinueResult()
+    {
+        IsResultPopupVisible = false;
+
+        if (IsDialogueGame)
         {
-            await page.DisplayAlertAsync(title, $"{result}\nTotal coins: {_gameService.Coins}", "OK");
+            await Shell.Current.GoToAsync($"../{nameof(Views.DialoguePage)}?startId={NextNodeId}&character={CharacterName}");
         }
     }
 

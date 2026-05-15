@@ -14,6 +14,7 @@ public class CardStageSelectViewModel : BaseViewModel
 
     public ICommand SelectStageCommand { get; }
     public ICommand TeamCommand { get; }
+    public ICommand StatsCommand { get; }
     public ICommand BackCommand { get; }
 
     public string Message
@@ -30,6 +31,7 @@ public class CardStageSelectViewModel : BaseViewModel
     {
         SelectStageCommand = new Command<CardStageSelectItem>(async item => await SelectStage(item));
         TeamCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(Views.CardTeamPage)));
+        StatsCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(Views.StatsPage)));
         BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
         Refresh();
     }

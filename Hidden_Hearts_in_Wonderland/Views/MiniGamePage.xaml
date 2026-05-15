@@ -3,7 +3,9 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.MiniGamePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#E3F2FD">
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundColor="#E3F2FD"
+    BackgroundImageSource="bg2.png">
 
     <Grid RowDefinitions="Auto,*,Auto"
           Padding="20"
@@ -57,13 +59,13 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Grid.Row="2"
-                Text="Restart"
-                Command="{Binding RestartCommand}"
-                BackgroundColor="#FFF8E1"
-                TextColor="#333"
-                CornerRadius="18"
-                WidthRequest="160"
-                HorizontalOptions="Center" />
+        <controls:FantasyButton Grid.Row="2"
+                                Text="Restart"
+                                Command="{Binding RestartCommand}"
+                                ButtonImage="ui_button_blue_normal.png"
+                                ButtonWidth="160"
+                                ButtonHeight="46"
+                                LabelFontSize="14"
+                                HorizontalOptions="Center" />
     </Grid>
 </ContentPage>

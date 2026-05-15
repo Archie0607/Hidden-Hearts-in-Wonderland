@@ -3,61 +3,64 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.CardBattlePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#EEF3F0">
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundColor="#151827"
+    BackgroundImageSource="{Binding StageBackgroundImage}">
 
-    <Grid RowDefinitions="Auto,*,Auto,*"
-          Padding="14,8"
-          RowSpacing="4">
+    <Grid x:Name="BattleRoot"
+          BackgroundColor="#80000000">
+        <Grid RowDefinitions="Auto,*,Auto,*"
+              Padding="14,8"
+              RowSpacing="2">
         <Grid ColumnDefinitions="*,Auto,Auto,Auto"
               ColumnSpacing="8">
-            <VerticalStackLayout Spacing="2">
+            <VerticalStackLayout Spacing="2"
+                                 Padding="10,6"
+                                 BackgroundColor="Transparent">
                 <Label Text="{Binding StageText}"
                        FontSize="22"
                        FontAttributes="Bold"
-                       TextColor="#253047" />
+                       TextColor="#FFFFFF" />
                 <Label Text="{Binding Message}"
                        FontSize="13"
-                       TextColor="#596273"
+                       TextColor="#E8EAF5"
                        LineBreakMode="TailTruncation" />
             </VerticalStackLayout>
 
-            <Button Grid.Column="1"
-                    Text="{Binding NextButtonText}"
-                    Command="{Binding NextStageCommand}"
-                    IsEnabled="{Binding CanGoNext}"
-                    BackgroundColor="#DFF3E6"
-                    TextColor="#253047"
-                    CornerRadius="10"
-                    HeightRequest="34"
-                    Padding="12,0" />
-            <Button Grid.Column="2"
-                    Text="Restart"
-                    Command="{Binding RestartCommand}"
-                    BackgroundColor="#FFF1D8"
-                    TextColor="#253047"
-                    CornerRadius="10"
-                    HeightRequest="34"
-                    Padding="12,0" />
-            <Button Grid.Column="3"
-                    Text="Back"
-                    Command="{Binding BackCommand}"
-                    BackgroundColor="#FFE2E7"
-                    TextColor="#253047"
-                    CornerRadius="10"
-                    HeightRequest="34"
-                    Padding="12,0" />
+            <controls:FantasyButton Grid.Column="1"
+                                    Text="{Binding NextButtonText}"
+                                    Command="{Binding NextStageCommand}"
+                                    IsEnabled="{Binding CanGoNext}"
+                                    ButtonImage="ui_button_green_normal.png"
+                                    ButtonWidth="118"
+                                    ButtonHeight="36"
+                                    LabelFontSize="12" />
+            <controls:FantasyButton Grid.Column="2"
+                                    Text="Restart"
+                                    Command="{Binding RestartCommand}"
+                                    ButtonImage="ui_button_blue_normal.png"
+                                    ButtonWidth="118"
+                                    ButtonHeight="36"
+                                    LabelFontSize="12" />
+            <controls:FantasyButton Grid.Column="3"
+                                    Text="Back"
+                                    Command="{Binding BackCommand}"
+                                    ButtonImage="ui_button_red_dark.png"
+                                    ButtonWidth="118"
+                                    ButtonHeight="36"
+                                    LabelFontSize="12" />
         </Grid>
 
         <HorizontalStackLayout Grid.Row="1"
                                BindableLayout.ItemsSource="{Binding EnemyTeam}"
-                               Spacing="28"
+                               Spacing="10"
                                HorizontalOptions="Center"
                                VerticalOptions="Center">
             <BindableLayout.ItemTemplate>
                 <DataTemplate>
-                    <Grid WidthRequest="136"
-                          HeightRequest="150"
-                          ColumnDefinitions="24,112"
+                    <Grid WidthRequest="{Binding CardWidth}"
+                          HeightRequest="{Binding CardHeight}"
+                          ColumnDefinitions="Auto,*"
                           ColumnSpacing="4"
                           Opacity="{Binding Opacity}">
                         <Grid.GestureRecognizers>
@@ -65,6 +68,7 @@
                         </Grid.GestureRecognizers>
 
                         <VerticalStackLayout Grid.Column="0"
+                                             WidthRequest="{Binding StatColumnWidth}"
                                              Spacing="5"
                                              VerticalOptions="Center">
                             <Grid RowDefinitions="14,4"
@@ -128,34 +132,39 @@
                                              HorizontalOptions="Center">
                             <Image Source="{Binding Image}"
                                    Aspect="AspectFit"
-                                   HeightRequest="132"
-                                   WidthRequest="104" />
+                                   HeightRequest="{Binding ImageHeight}"
+                                   WidthRequest="{Binding ImageWidth}" />
                             <Label Text="{Binding StatusText}"
-                                   FontSize="9"
+                                   FontSize="{Binding StatusFontSize}"
                                    FontAttributes="Bold"
                                    TextColor="#AA3E3E"
                                    HeightRequest="12"
                                    HorizontalTextAlignment="Center" />
                         </VerticalStackLayout>
+                        <Label Grid.ColumnSpan="2"
+                               Text="{Binding FloatingText}"
+                               IsVisible="{Binding IsFloatingTextVisible}"
+                               TextColor="{Binding FloatingTextColor}"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Start"
+                               Margin="0,-10,0,0" />
                     </Grid>
                 </DataTemplate>
             </BindableLayout.ItemTemplate>
         </HorizontalStackLayout>
 
-        <BoxView Grid.Row="2"
-                 HeightRequest="1"
-                 BackgroundColor="#C9D3DC" />
-
         <HorizontalStackLayout Grid.Row="3"
                                BindableLayout.ItemsSource="{Binding PlayerTeam}"
-                               Spacing="34"
+                               Spacing="8"
                                HorizontalOptions="Center"
                                VerticalOptions="Center">
             <BindableLayout.ItemTemplate>
                 <DataTemplate>
-                    <Grid WidthRequest="150"
-                          HeightRequest="170"
-                          ColumnDefinitions="26,124"
+                    <Grid WidthRequest="{Binding CardWidth}"
+                          HeightRequest="{Binding CardHeight}"
+                          ColumnDefinitions="Auto,*"
                           ColumnSpacing="4"
                           Opacity="{Binding Opacity}">
                         <Grid.GestureRecognizers>
@@ -163,6 +172,7 @@
                         </Grid.GestureRecognizers>
 
                         <VerticalStackLayout Grid.Column="0"
+                                             WidthRequest="{Binding StatColumnWidth}"
                                              Spacing="7"
                                              VerticalOptions="Center">
                             <Grid RowDefinitions="16,5"
@@ -226,18 +236,100 @@
                                              HorizontalOptions="Center">
                             <Image Source="{Binding Image}"
                                    Aspect="AspectFit"
-                                   HeightRequest="150"
-                                   WidthRequest="118" />
+                                   HeightRequest="{Binding ImageHeight}"
+                                   WidthRequest="{Binding ImageWidth}" />
                             <Label Text="{Binding StatusText}"
-                                   FontSize="9"
+                                   FontSize="{Binding StatusFontSize}"
                                    FontAttributes="Bold"
                                    TextColor="#305B3A"
                                    HeightRequest="12"
                                    HorizontalTextAlignment="Center" />
                         </VerticalStackLayout>
+                        <Label Grid.ColumnSpan="2"
+                               Text="{Binding FloatingText}"
+                               IsVisible="{Binding IsFloatingTextVisible}"
+                               TextColor="{Binding FloatingTextColor}"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Start"
+                               Margin="0,-10,0,0" />
                     </Grid>
                 </DataTemplate>
             </BindableLayout.ItemTemplate>
         </HorizontalStackLayout>
+        </Grid>
+
+        <Grid BackgroundColor="#B3000000"
+              IsVisible="{Binding IsRewardPopupVisible}">
+            <Border BackgroundColor="#80000000"
+                    Stroke="#FFD866"
+                    StrokeThickness="2"
+                    Padding="20"
+                    WidthRequest="340"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10" />
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{Binding RewardTitle}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="Red"
+                           HorizontalTextAlignment="Center" />
+                    <HorizontalStackLayout Spacing="7"
+                                           HorizontalOptions="Center">
+                        <Image Source="coin.png"
+                               WidthRequest="24"
+                               HeightRequest="24"
+                               Aspect="AspectFit" />
+                        <Label Text="{Binding RewardCoinsText}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#92E27F"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="7"
+                                           HorizontalOptions="Center">
+                        <Image Source="exp.png"
+                               WidthRequest="24"
+                               HeightRequest="24"
+                               Aspect="AspectFit" />
+                        <Label Text="{Binding RewardExpText}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#8DB5FF"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding RewardRuneText}"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#D9B6FF"
+                           HorizontalTextAlignment="Center" />
+
+                    <controls:FantasyButton Text="Next"
+                                            Command="{Binding NextStageCommand}"
+                                            IsVisible="{Binding CanGoNext}"
+                                            ButtonImage="ui_button_green_glow.png"
+                                            ButtonHeight="42"
+                                            LabelFontSize="13"
+                                            Margin="0,8,0,0" />
+                    <controls:FantasyButton Text="Restart"
+                                            Command="{Binding RestartCommand}"
+                                            IsVisible="{Binding IsDefeatPopupVisible}"
+                                            ButtonImage="ui_button_green_glow.png"
+                                            ButtonHeight="42"
+                                            LabelFontSize="13"
+                                            Margin="0,8,0,0" />
+                    <controls:FantasyButton Text="Back stages"
+                                            Command="{Binding StageSelectCommand}"
+                                            ButtonImage="ui_button_blue_glow.png"
+                                            ButtonHeight="42"
+                                            LabelFontSize="13" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>

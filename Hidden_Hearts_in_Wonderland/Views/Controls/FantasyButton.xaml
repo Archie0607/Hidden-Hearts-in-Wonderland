@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Hidden_Hearts_in_Wonderland.Views.Controls.FantasyButton"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Grid HeightRequest="{Binding ButtonHeight, Source={x:Reference Root}}"
+          WidthRequest="{Binding ButtonWidth, Source={x:Reference Root}}">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnTapped" />
+        </Grid.GestureRecognizers>
+
+        <Image Source="{Binding ButtonImage, Source={x:Reference Root}}"
+               Aspect="Fill" />
+
+        <Label Text="{Binding Text, Source={x:Reference Root}}"
+               TextColor="{Binding LabelColor, Source={x:Reference Root}}"
+               FontSize="{Binding LabelFontSize, Source={x:Reference Root}}"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center"
+               LineBreakMode="TailTruncation"
+               Margin="22,0" />
+    </Grid>
+</ContentView>

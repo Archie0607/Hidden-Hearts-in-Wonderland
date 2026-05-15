@@ -3,22 +3,40 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.CharacterSelectPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#E3F2FD">
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundImageSource="startbg2.png">
 
     <Grid Padding="14,8">
+        <controls:FantasyButton Text="Back"
+                                Clicked="OnBackClicked"
+                                ButtonImage="ui_button_red_dark.png"
+                                ButtonWidth="116"
+                                ButtonHeight="38"
+                                LabelFontSize="13"
+                                HorizontalOptions="End"
+                                VerticalOptions="Start"
+                                ZIndex="2" />
+
         <VerticalStackLayout
             Spacing="8"
             VerticalOptions="Center"
             HorizontalOptions="Center"
             MaximumWidthRequest="860">
+            
+            <!--<Border BackgroundColor="Transparent"
+                    Padding="12,6"
+                    HorizontalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="14" />
+                </Border.StrokeShape>
 
-            <Label Text="Choose a character"
-                   FontSize="22"
+                <Label Text="Choose a character"
+                   FontSize="18"
                    FontAttributes="Bold"
-                   TextColor="#333"
-                   HorizontalOptions="Center" />
+                   TextColor="#333"/>
+            </Border>
 
-            <Border BackgroundColor="#FFF8E1"
+            <Border BackgroundColor="Transparent"
                     Padding="12,6"
                     HorizontalOptions="Center">
                 <Border.StrokeShape>
@@ -27,32 +45,40 @@
 
                 <Label x:Name="CoinsLabel"
                        Text="Coins: 0"
-                       FontSize="14"
+                       FontSize="12"
                        FontAttributes="Bold"
                        TextColor="#333" />
-            </Border>
+            </Border>-->
 
             <HorizontalStackLayout Spacing="10"
                                    HorizontalOptions="Center">
-                <Button Text="Battle"
-                        Clicked="OnBattleClicked"
-                        BackgroundColor="#273043"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        CornerRadius="16"
-                        WidthRequest="180"
-                        HeightRequest="32"
-                        FontSize="13" />
+                <controls:FantasyButton Text="Battle"
+                                        Clicked="OnBattleClicked"
+                                        ButtonImage="ui_button_red_normal.png"
+                                        ButtonWidth="180"
+                                        ButtonHeight="40"
+                                        LabelFontSize="13" />
 
-                <Button Text="Play Slime Match"
-                        Clicked="OnMatchGameClicked"
-                        BackgroundColor="#FF80A0"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        CornerRadius="16"
-                        WidthRequest="180"
-                        HeightRequest="32"
-                        FontSize="13" />
+                <controls:FantasyButton Text="Play Slime Match"
+                                        Clicked="OnMatchGameClicked"
+                                        ButtonImage="ui_button_blue_normal.png"
+                                        ButtonWidth="180"
+                                        ButtonHeight="40"
+                                        LabelFontSize="13" />
+
+                <controls:FantasyButton Text="Shop"
+                                        Clicked="OnShopClicked"
+                                        ButtonImage="ui_button_green_normal.png"
+                                        ButtonWidth="180"
+                                        ButtonHeight="40"
+                                        LabelFontSize="13" />
+
+                <controls:FantasyButton Text="Bag"
+                                        Clicked="OnBagClicked"
+                                        ButtonImage="ui_button_purple_normal.png"
+                                        ButtonWidth="180"
+                                        ButtonHeight="40"
+                                        LabelFontSize="13" />
             </HorizontalStackLayout>
 
             <CollectionView ItemsSource="{Binding Characters}"
@@ -65,8 +91,10 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="10"
-                                BackgroundColor="#FFF8E1"
+                        <Border Padding="1"
+                                Stroke="Gold"
+                                StrokeThickness="3"
+                                BackgroundColor="Transparent"
                                 HeightRequest="210"
                                 WidthRequest="188">
                             <Border.StrokeShape>
@@ -83,45 +111,56 @@
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
 
-                            <Grid RowDefinitions="132,Auto,Auto"
-                                  RowSpacing="6">
-                                <Border BackgroundColor="#F8FBFF"
-                                        HeightRequest="132"
-                                        WidthRequest="168">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="10" />
-                                    </Border.StrokeShape>
-
-                                    <Image Source="{Binding Image}"
-                                           Aspect="AspectFit"
-                                           HeightRequest="126"
-                                           WidthRequest="160"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="End" />
+                            <Grid VerticalOptions="Start">
+                                <Border StrokeShape="RoundRectangle 10" StrokeThickness="0">
+                                    <Image Source="bg4.png" 
+                                           Aspect="AspectFill" 
+                                           Opacity="0.8" />
                                 </Border>
 
-                                <Label Grid.Row="1"
-                                       Text="{Binding Name}"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       TextColor="#333"
-                                       HorizontalOptions="Center" />
+                                <Grid RowDefinitions="132,Auto,Auto" RowSpacing="6">
+                                    <Border BackgroundColor="Transparent"
+                                            HeightRequest="132"
+                                            Stroke="Transparent"
+                                            WidthRequest="168">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10" />
+                                        </Border.StrokeShape>
 
-                                <Border Grid.Row="2"
-                                        BackgroundColor="#E3F2FD"
-                                        Padding="8,3"
-                                        HorizontalOptions="Center">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="10" />
-                                    </Border.StrokeShape>
+                                        <Image Source="{Binding Image}"
+                                               Aspect="AspectFit"
+                                               HeightRequest="126"
+                                               WidthRequest="160"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="End" />
+                                    </Border>
 
-                                    <Label Text="{Binding AffectionText}"
+
+                                    <Label Grid.Row="1"
+                                           Text="{Binding Name}"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="Black"
+                                           HorizontalOptions="Center" />
+
+                                    <Border Grid.Row="2"
+                                            BackgroundColor="LightPink"
+                                            Stroke="Gold"
+                                            StrokeThickness="2"
+                                            Padding="8,3"
+                                            HorizontalOptions="Center"
+                                            Margin="0,0,0,10">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10" />
+                                        </Border.StrokeShape>
+
+                                        <Label Text="{Binding AffectionText}"
                                            FontSize="12"
                                            FontAttributes="Bold"
-                                           TextColor="#455A64"
+                                           TextColor="Black"
                                            HorizontalOptions="Center" />
-                                </Border>
-
+                                    </Border>
+                                </Grid>
                             </Grid>
                         </Border>
                     </DataTemplate>

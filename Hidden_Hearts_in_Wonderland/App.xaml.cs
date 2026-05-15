@@ -1,5 +1,5 @@
-﻿using Hidden_Hearts_in_Wonderland.Views;
-using Microsoft.Extensions.DependencyInjection;
+using Hidden_Hearts_in_Wonderland.Services;
+using Hidden_Hearts_in_Wonderland.Views;
 
 namespace Hidden_Hearts_in_Wonderland
 {
@@ -12,8 +12,8 @@ namespace Hidden_Hearts_in_Wonderland
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            
+            return new Window(new LoadingPage());
         }
-
     }
 }

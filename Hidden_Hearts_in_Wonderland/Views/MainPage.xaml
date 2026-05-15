@@ -3,31 +3,144 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundImageSource="startbg2.png"
     BackgroundColor="#E3F2FD">
 
-    <VerticalStackLayout
-        VerticalOptions="Center"
-        HorizontalOptions="Center"
-        Spacing="20">
+    <Grid>
+        <VerticalStackLayout
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="20">
 
-        <Label Text="Hidden Hearts in Wonderland"
+
+        <!--<Label Text="Hidden Hearts in Wonderland"
                FontSize="28"
                FontAttributes="Bold"
-               TextColor="#333"
-               HorizontalOptions="Center" />
+               TextColor="#E3F2FD"
+               HorizontalOptions="Center" />-->
 
-        <Button Text="Start Game"
-                Clicked="OnStartClicked"
-                BackgroundColor="#90CAF9"
-                TextColor="Black"
-                CornerRadius="20"
-                WidthRequest="200" />
+            <controls:FantasyButton Text="Start Game"
+                                    ButtonImage="ui_button_blue_glow.png"
+                                    ButtonWidth="300"
+                                    ButtonHeight="86"
+                                    Clicked="OnStartClicked" />
 
-        <Button Text="Settings"
-                BackgroundColor="#FFF8E1"
-                TextColor="#333"
-                CornerRadius="20"
-                WidthRequest="200" />
+            <controls:FantasyButton Text="Settings"
+                                    ButtonImage="ui_button_purple_normal.png"
+                                    ButtonWidth="300"
+                                    ButtonHeight="86"
+                                    Clicked="OnSettingsClicked" />
 
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+
+        <Grid x:Name="SettingsOverlay"
+              IsVisible="False">
+            <BoxView BackgroundColor="Transparent">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnSettingsBackdropTapped" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border BackgroundColor="#D9000000"
+                    Stroke="#FFD866"
+                    StrokeThickness="2"
+                    Padding="18"
+                    WidthRequest="360"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Settings"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="#FFD866"
+                           HorizontalTextAlignment="Center" />
+
+                    <Grid RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Main Sound"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#FFFFFF" />
+                            <Label x:Name="MainVolumeLabel"
+                                   Grid.Column="1"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#92E27F" />
+                        </Grid>
+                        <Slider x:Name="MainVolumeSlider"
+                                Grid.Row="1"
+                                Minimum="0"
+                                Maximum="1"
+                                ValueChanged="OnMainVolumeChanged" />
+                        <Label Grid.Row="2"
+                               Text="For main menu and slime minigame music"
+                               FontSize="11"
+                               TextColor="#DDE4FF" />
+                    </Grid>
+
+                    <Grid RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Battle Sound"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#FFFFFF" />
+                            <Label x:Name="BattleVolumeLabel"
+                                   Grid.Column="1"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#92E27F" />
+                        </Grid>
+                        <Slider x:Name="BattleVolumeSlider"
+                                Grid.Row="1"
+                                Minimum="0"
+                                Maximum="1"
+                                ValueChanged="OnBattleVolumeChanged" />
+                        <Label Grid.Row="2"
+                               Text="For battle music"
+                               FontSize="11"
+                               TextColor="#DDE4FF" />
+                    </Grid>
+
+                    <Grid RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Click Sound"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#FFFFFF" />
+                            <Label x:Name="ClickVolumeLabel"
+                                   Grid.Column="1"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#92E27F" />
+                        </Grid>
+                        <Slider x:Name="ClickVolumeSlider"
+                                Grid.Row="1"
+                                Minimum="0"
+                                Maximum="1"
+                                ValueChanged="OnClickVolumeChanged" />
+                        <Label Grid.Row="2"
+                               Text="For button clicks"
+                               FontSize="11"
+                               TextColor="#DDE4FF" />
+                    </Grid>
+
+                    <controls:FantasyButton Text="Close"
+                                            ButtonImage="ui_button_red_dark.png"
+                                            ButtonWidth="190"
+                                            ButtonHeight="48"
+                                            LabelFontSize="14"
+                                            HorizontalOptions="Center"
+                                            Clicked="OnCloseSettingsClicked" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
 </ContentPage>

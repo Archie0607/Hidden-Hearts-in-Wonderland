@@ -1,4 +1,5 @@
 using Hidden_Hearts_in_Wonderland.ViewModels;
+using Hidden_Hearts_in_Wonderland.Services;
 
 namespace Hidden_Hearts_in_Wonderland.Views;
 
@@ -9,7 +10,17 @@ public partial class CardBattlePage : ContentPage
     public CardBattlePage()
     {
         InitializeComponent();
-        BindingContext = new CardBattleViewModel();
+        var viewModel = new CardBattleViewModel
+        {
+            AnimateAttackAsync = AnimateFighterAttack
+        };
+        BindingContext = viewModel;
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        _ = AudioService.Instance.PlayBattleMusicOnceAsync();
     }
 
     private async void OnPlayerCardTapped(object? sender, TappedEventArgs e)
@@ -24,6 +35,7 @@ public partial class CardBattlePage : ContentPage
             return;
         }
 
+        _ = AudioService.Instance.PlayClickAsync();
         viewModel.SelectPlayerCommand.Execute(fighter);
         _selectedPlayerView = cardView;
 
@@ -43,6 +55,7 @@ public partial class CardBattlePage : ContentPage
             return;
         }
 
+        _ = AudioService.Instance.PlayClickAsync();
         await AnimateAttack(_selectedPlayerView, enemyView);
         viewModel.AttackEnemyCommand.Execute(enemy);
         _selectedPlayerView = null;
@@ -59,6 +72,38 @@ public partial class CardBattlePage : ContentPage
         await target.ScaleTo(0.94, 60, Easing.CubicOut);
         await target.ScaleTo(1, 70, Easing.CubicIn);
         await attacker.TranslateTo(0, 0, 150, Easing.CubicIn);
+    }
+
+    private async Task AnimateFighterAttack(BattleFighter attacker, BattleFighter target)
+    {
+        var attackerView = FindBoundElement(BattleRoot, attacker);
+        var targetView = FindBoundElement(BattleRoot, target);
+
+        if (attackerView == null || targetView == null)
+        {
+            return;
+        }
+
+        await AnimateAttack(attackerView, targetView);
+    }
+
+    private static VisualElement? FindBoundElement(Element element, object bindingContext)
+    {
+        if (element is VisualElement visualElement && ReferenceEquals(visualElement.BindingContext, bindingContext))
+        {
+            return visualElement;
+        }
+
+        foreach (var child in element.LogicalChildren)
+        {
+            var match = FindBoundElement(child, bindingContext);
+            if (match != null)
+            {
+                return match;
+            }
+        }
+
+        return null;
     }
 
     private static Point GetCenter(VisualElement element)

@@ -3,30 +3,36 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.DialoguePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
     BackgroundColor="Black"
+    BackgroundImageSource="bg5.png"
     Padding="0">
 
     <Grid RowDefinitions="*,Auto"
           ColumnDefinitions="0.48*,0.52*">
 
-        <Image Source="bg1.jpg"
+        <!--<Image Source="bg5.png"
                Grid.RowSpan="2"
                Grid.ColumnSpan="2"
                Aspect="AspectFill"
                HorizontalOptions="Fill"
-               VerticalOptions="Fill" />
+               VerticalOptions="Fill" />-->
 
-        <Button Text="Back"
-                Clicked="OnBackClicked"
-                Margin="16,16,0,0"
-                Padding="14,8"
-                BackgroundColor="#CCFFF8E1"
-                TextColor="#333"
-                FontAttributes="Bold"
-                CornerRadius="16"
-                HorizontalOptions="Start"
-                VerticalOptions="Start"
-                ZIndex="10" />
+        <BoxView Grid.RowSpan="2"
+                 Grid.ColumnSpan="2"
+                 BackgroundColor="Black"
+                 Opacity="0.18" />
+
+        <controls:FantasyButton Text="Back"
+                                Clicked="OnBackClicked"
+                                ButtonImage="ui_button_red_dark.png"
+                                ButtonWidth="116"
+                                ButtonHeight="38"
+                                LabelFontSize="13"
+                                Margin="16,16,0,0"
+                                HorizontalOptions="Start"
+                                VerticalOptions="Start"
+                                ZIndex="10" />
 
         <Image Source="{Binding CurrentNode.Image}"
                Grid.Row="0"
@@ -100,13 +106,13 @@
                     <Label Text="{Binding CurrentNode.CharacterName}"
                            FontSize="16"
                            FontAttributes="Bold"
-                           TextColor="White" />
+                           TextColor="Black" />
                 </Border>
 
                 <Label Text="{Binding CurrentNode.Text}"
                        FontSize="18"
                        LineBreakMode="WordWrap"
-                       TextColor="White" />
+                       TextColor="Black" />
             </VerticalStackLayout>
         </Border>
     </Grid>

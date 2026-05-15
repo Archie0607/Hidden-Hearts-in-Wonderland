@@ -3,17 +3,20 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.MatchGamePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#F7FBFF">
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundColor="#F7FBFF"
+    BackgroundImageSource="startbg2.png">
 
-    <Grid x:Name="RootGrid"
-          RowDefinitions="Auto,*"
-          ColumnDefinitions="Auto,*,Auto"
-          Padding="4,2"
-          RowSpacing="3"
-          ColumnSpacing="4"
-          SizeChanged="OnPageSizeChanged">
+    <Grid>
+        <Grid x:Name="RootGrid"
+              RowDefinitions="Auto,*"
+              ColumnDefinitions="Auto,*,Auto"
+              Padding="4,2"
+              RowSpacing="3"
+              ColumnSpacing="4"
+              SizeChanged="OnPageSizeChanged">
 
-        <Grid x:Name="TopHud"
+            <Grid x:Name="TopHud"
               Grid.ColumnSpan="3"
               ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"
               ColumnSpacing="5">
@@ -23,27 +26,21 @@
                    TextColor="#253047"
                    VerticalOptions="Center" />
 
-            <Button Grid.Column="1"
-                    Text="Restart"
-                    Command="{Binding RestartCommand}"
-                    BackgroundColor="#E7F1FB"
-                    TextColor="#253047"
-                    CornerRadius="9"
-                    FontSize="10"
-                    HeightRequest="24"
-                    MinimumHeightRequest="24"
-                    Padding="8,0" />
+            <controls:FantasyButton Grid.Column="1"
+                                    Text="Restart"
+                                    Command="{Binding RestartCommand}"
+                                    ButtonImage="ui_button_blue_normal.png"
+                                    ButtonWidth="84"
+                                    ButtonHeight="24"
+                                    LabelFontSize="9" />
 
-            <Button Grid.Column="2"
-                    Text="Back"
-                    Command="{Binding BackCommand}"
-                    BackgroundColor="#FFE8F1"
-                    TextColor="#4C263A"
-                    CornerRadius="9"
-                    FontSize="10"
-                    HeightRequest="24"
-                    MinimumHeightRequest="24"
-                    Padding="8,0" />
+            <controls:FantasyButton Grid.Column="2"
+                                    Text="Back"
+                                    Command="{Binding BackCommand}"
+                                    ButtonImage="ui_button_red_dark.png"
+                                    ButtonWidth="84"
+                                    ButtonHeight="24"
+                                    LabelFontSize="9" />
 
             <Label Text="{Binding StatusText}"
                    Grid.Column="3"
@@ -143,8 +140,8 @@
                 Grid.Column="0"
                 WidthRequest="92"
                 Padding="6"
-                BackgroundColor="#EEF7FF"
-                Stroke="#B8D9F4"
+                BackgroundColor="#80000000"
+                Stroke="Gold"
                 StrokeThickness="1">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="12" />
@@ -154,29 +151,25 @@
                 <Label Text="Slime Match"
                        FontSize="13"
                        FontAttributes="Bold"
-                       TextColor="#253047"
+                       TextColor="White"
                        HorizontalTextAlignment="Center" />
-                <Button Text="Restart"
-                        Command="{Binding RestartCommand}"
-                        BackgroundColor="#E7F1FB"
-                        TextColor="#253047"
-                        CornerRadius="9"
-                        FontSize="10"
-                        HeightRequest="26"
-                        MinimumHeightRequest="26"
-                        Padding="4,0" />
-                <Button Text="Back"
-                        Command="{Binding BackCommand}"
-                        BackgroundColor="#FFE8F1"
-                        TextColor="#4C263A"
-                        CornerRadius="9"
-                        FontSize="10"
-                        HeightRequest="26"
-                        MinimumHeightRequest="26"
-                        Padding="4,0" />
-                <Border BackgroundColor="#FFEFF6"
+                <controls:FantasyButton Text="Restart"
+                                        Command="{Binding RestartCommand}"
+                                        ButtonImage="ui_button_blue_normal.png"
+                                        ButtonWidth="78"
+                                        ButtonHeight="26"
+                                        LabelFontSize="9"
+                                        HorizontalOptions="Center" />
+                <controls:FantasyButton Text="Back"
+                                        Command="{Binding BackCommand}"
+                                        ButtonImage="ui_button_red_dark.png"
+                                        ButtonWidth="78"
+                                        ButtonHeight="26"
+                                        LabelFontSize="9"
+                                        HorizontalOptions="Center" />
+                <Border BackgroundColor="#80000000"
                         Padding="4,3"
-                        Stroke="#F4BDD4"
+                        Stroke="Gold"
                         StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="9" />
@@ -184,18 +177,18 @@
                     <VerticalStackLayout Spacing="0">
                         <Label Text="Score"
                                FontSize="9"
-                               TextColor="#785169"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
                         <Label Text="{Binding Score}"
                                FontSize="15"
                                FontAttributes="Bold"
-                               TextColor="#4C263A"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
-                <Border BackgroundColor="#F1FFF0"
+                <Border BackgroundColor="#80000000"
                         Padding="4,3"
-                        Stroke="#BFE5B8"
+                        Stroke="Gold"
                         StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="9" />
@@ -203,12 +196,12 @@
                     <VerticalStackLayout Spacing="0">
                         <Label Text="Coins"
                                FontSize="9"
-                               TextColor="#4F704A"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
                         <Label Text="{Binding CoinText}"
                                FontSize="15"
                                FontAttributes="Bold"
-                               TextColor="#31552D"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
@@ -219,8 +212,8 @@
                 Grid.Row="1"
                 Grid.Column="1"
                 Padding="3"
-                BackgroundColor="#203654"
-                Stroke="#9FC9F0"
+                BackgroundColor="#80000000"
+                Stroke="Gold"
                 StrokeThickness="2"
                 SizeChanged="OnBoardSizeChanged">
             <Border.StrokeShape>
@@ -237,17 +230,17 @@
                 Grid.Column="2"
                 WidthRequest="92"
                 Padding="6"
-                BackgroundColor="#FFF8E8"
-                Stroke="#F2D99A"
+                BackgroundColor="#80000000"
+                Stroke="Gold"
                 StrokeThickness="1">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="12" />
             </Border.StrokeShape>
             <VerticalStackLayout Spacing="6"
                                  VerticalOptions="Center">
-                <Border BackgroundColor="#EAF5FF"
+                <Border BackgroundColor="#80000000"
                         Padding="4,3"
-                        Stroke="#B8D9F4"
+                        Stroke="Gold"
                         StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="9" />
@@ -255,18 +248,18 @@
                     <VerticalStackLayout Spacing="0">
                         <Label Text="Goal"
                                FontSize="9"
-                               TextColor="#596273"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
                         <Label Text="{Binding GoalText}"
                                FontSize="15"
                                FontAttributes="Bold"
-                               TextColor="#253047"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
-                <Border BackgroundColor="#FFFDF4"
+                <Border BackgroundColor="#80000000"
                         Padding="4,3"
-                        Stroke="#F2D99A"
+                        Stroke="Gold"
                         StrokeThickness="1">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="9" />
@@ -274,21 +267,77 @@
                     <VerticalStackLayout Spacing="0">
                         <Label Text="Moves"
                                FontSize="9"
-                               TextColor="#756234"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
                         <Label Text="{Binding MovesLeft}"
                                FontSize="15"
                                FontAttributes="Bold"
-                               TextColor="#443716"
+                               TextColor="White"
                                HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
                 <Label Text="{Binding StatusText}"
                        FontSize="10"
-                       TextColor="#596273"
+                       TextColor="White"
                        LineBreakMode="WordWrap"
                        HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
         </Border>
+        </Grid>
+
+        <Grid BackgroundColor="#B3000000"
+              IsVisible="{Binding IsResultPopupVisible}">
+            <Border BackgroundColor="#80000000"
+                    Stroke="#FFD866"
+                    StrokeThickness="2"
+                    Padding="20"
+                    WidthRequest="340"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="{Binding ResultTitle}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="#FFD866"
+                           HorizontalTextAlignment="Center" />
+                    <HorizontalStackLayout Spacing="7"
+                                           HorizontalOptions="Center">
+                        <Image Source="coin.png"
+                               WidthRequest="24"
+                               HeightRequest="24"
+                               Aspect="AspectFit" />
+                        <Label Text="{Binding ResultCoinsText}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#92E27F"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding ResultScoreText}"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="#FFFFFF"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding ResultCollectedText}"
+                           FontSize="15"
+                           TextColor="#DDE4FF"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding ResultBonusText}"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="#D9B6FF"
+                           HorizontalTextAlignment="Center" />
+                    <controls:FantasyButton Text="Continue"
+                                            Command="{Binding ContinueResultCommand}"
+                                            ButtonImage="ui_button_green_glow.png"
+                                            ButtonHeight="42"
+                                            LabelFontSize="13"
+                                            HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>

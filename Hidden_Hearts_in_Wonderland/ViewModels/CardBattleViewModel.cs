@@ -9,20 +9,29 @@ namespace Hidden_Hearts_in_Wonderland.ViewModels;
 public class CardBattleViewModel : BaseViewModel
 {
     private readonly CardBattleService _cardService = CardBattleService.Instance;
+    private readonly GameService _gameService = GameService.Instance;
     private readonly Random _random = new();
     private int _stageIndex;
     private int _stageNumber = 1;
     private BattleFighter? _selectedPlayer;
     private string _message = "Select your card, then select a monster";
+    private bool _isRewardPopupVisible;
+    private string _rewardTitle = "";
+    private string _rewardCoinsText = "";
+    private string _rewardExpText = "";
+    private string _rewardRuneText = "";
+    private bool _isDefeatPopupVisible;
     private bool _isBattleEnded;
     private bool _isLoaded;
 
     public ObservableCollection<BattleFighter> PlayerTeam { get; } = [];
     public ObservableCollection<BattleFighter> EnemyTeam { get; } = [];
+    public Func<BattleFighter, BattleFighter, Task>? AnimateAttackAsync { get; set; }
 
     public ICommand SelectPlayerCommand { get; }
     public ICommand AttackEnemyCommand { get; }
     public ICommand NextStageCommand { get; }
+    public ICommand StageSelectCommand { get; }
     public ICommand RestartCommand { get; }
     public ICommand BackCommand { get; }
 
@@ -52,11 +61,72 @@ public class CardBattleViewModel : BaseViewModel
     }
 
     public string StageText => $"{CurrentStage.Name} / 4";
+    public string StageBackgroundImage => $"bgstate_{CurrentStage.Number}.png";
 
     public bool CanGoNext => _isBattleEnded
         && EnemyTeam.All(enemy => !enemy.IsAlive)
         && _stageIndex < _cardService.Stages.Count - 1
         && _cardService.IsStageUnlocked(_stageIndex + 2);
+
+    public bool IsRewardPopupVisible
+    {
+        get => _isRewardPopupVisible;
+        set
+        {
+            _isRewardPopupVisible = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsDefeatPopupVisible
+    {
+        get => _isDefeatPopupVisible;
+        set
+        {
+            _isDefeatPopupVisible = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string RewardTitle
+    {
+        get => _rewardTitle;
+        set
+        {
+            _rewardTitle = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string RewardCoinsText
+    {
+        get => _rewardCoinsText;
+        set
+        {
+            _rewardCoinsText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string RewardExpText
+    {
+        get => _rewardExpText;
+        set
+        {
+            _rewardExpText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string RewardRuneText
+    {
+        get => _rewardRuneText;
+        set
+        {
+            _rewardRuneText = value;
+            OnPropertyChanged();
+        }
+    }
 
     public string NextButtonText => _stageIndex >= _cardService.Stages.Count - 1 ? "Finished" : "Next stage";
 
@@ -67,6 +137,7 @@ public class CardBattleViewModel : BaseViewModel
         SelectPlayerCommand = new Command<BattleFighter>(SelectPlayer);
         AttackEnemyCommand = new Command<BattleFighter>(async enemy => await AttackEnemy(enemy));
         NextStageCommand = new Command(NextStage);
+        StageSelectCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
         RestartCommand = new Command(Restart);
         BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
 
@@ -79,9 +150,26 @@ public class CardBattleViewModel : BaseViewModel
     {
         PlayerTeam.Clear();
 
-        foreach (var card in _cardService.GetBattleTeamCards())
+        var teamCards = _cardService.GetBattleTeamCards().ToList();
+
+        if (teamCards.Count == 0)
         {
-            PlayerTeam.Add(new BattleFighter(card, false));
+            return;
+        }
+
+        var mainCard = teamCards[0];
+        var supportCards = teamCards.Skip(1).ToList();
+
+        if (supportCards.Count > 0)
+        {
+            PlayerTeam.Add(new BattleFighter(supportCards[0], false, _gameService.AttackBonus, _gameService.DefenseBonus, _gameService.HealthBonus));
+        }
+
+        PlayerTeam.Add(new BattleFighter(mainCard, false, _gameService.AttackBonus, _gameService.DefenseBonus, _gameService.HealthBonus, true));
+
+        if (supportCards.Count > 1)
+        {
+            PlayerTeam.Add(new BattleFighter(supportCards[1], false, _gameService.AttackBonus, _gameService.DefenseBonus, _gameService.HealthBonus));
         }
     }
 
@@ -90,6 +178,8 @@ public class CardBattleViewModel : BaseViewModel
         _stageIndex = Math.Clamp(stageIndex, 0, _cardService.Stages.Count - 1);
         _selectedPlayer = null;
         _isBattleEnded = false;
+        IsRewardPopupVisible = false;
+        IsDefeatPopupVisible = false;
         EnemyTeam.Clear();
 
         foreach (var enemyId in CurrentStage.EnemyIds)
@@ -105,6 +195,7 @@ public class CardBattleViewModel : BaseViewModel
 
         Message = $"{CurrentStage.Name}: your turn";
         OnPropertyChanged(nameof(StageText));
+        OnPropertyChanged(nameof(StageBackgroundImage));
         OnPropertyChanged(nameof(CanGoNext));
         OnPropertyChanged(nameof(NextButtonText));
     }
@@ -150,33 +241,44 @@ public class CardBattleViewModel : BaseViewModel
             case CardRole.Support:
                 var ally = PlayerTeam.Where(player => player.IsAlive).OrderBy(player => player.HpPercent).First();
                 ally.Heal(30);
+                ally.ShowFloatingText("+30", Color.FromArgb("#62E68A"));
                 Message = $"{attacker.Name} heals {ally.Name} +30";
                 break;
             case CardRole.Mage:
                 foreach (var enemy in EnemyTeam.Where(enemy => enemy.IsAlive))
                 {
-                    enemy.TakeDamage(CalculateDamage(attacker, enemy, 0.75));
+                    var mageDamage = CalculateDamage(attacker, enemy, 0.75);
+                    enemy.TakeDamage(mageDamage);
+                    enemy.ShowFloatingText($"-{mageDamage}", Color.FromArgb("#FF6B6B"));
                 }
                 Message = $"{attacker.Name} casts area magic";
                 break;
             case CardRole.Assassin:
-                target.TakeDamage(CalculateDamage(attacker, target));
+                var poisonDamage = CalculateDamage(attacker, target);
+                target.TakeDamage(poisonDamage);
+                target.ShowFloatingText($"-{poisonDamage}", Color.FromArgb("#FF6B6B"));
                 target.PoisonTurns = 3;
-                Message = $"{attacker.Name} poisons {target.Name}";
+                Message = $"{attacker.Name} poisons {target.Name} for {poisonDamage}";
                 break;
             case CardRole.Archer:
                 var isCrit = _random.NextDouble() < 0.35;
-                target.TakeDamage(CalculateDamage(attacker, target, isCrit ? 2 : 1));
-                Message = isCrit ? $"{attacker.Name} lands a critical hit" : $"{attacker.Name} shoots {target.Name}";
+                var arrowDamage = CalculateDamage(attacker, target, isCrit ? 2 : 1);
+                target.TakeDamage(arrowDamage);
+                target.ShowFloatingText($"-{arrowDamage}", isCrit ? Color.FromArgb("#FFD45A") : Color.FromArgb("#FF6B6B"));
+                Message = isCrit ? $"{attacker.Name} crits {target.Name} for {arrowDamage}" : $"{attacker.Name} shoots {target.Name} for {arrowDamage}";
                 break;
             case CardRole.Tank:
-                target.TakeDamage(CalculateDamage(attacker, target));
+                var tankDamage = CalculateDamage(attacker, target);
+                target.TakeDamage(tankDamage);
+                target.ShowFloatingText($"-{tankDamage}", Color.FromArgb("#FF6B6B"));
                 attacker.TauntTurns = 1;
-                Message = $"{attacker.Name} taunts the monsters";
+                Message = $"{attacker.Name} hits {target.Name} for {tankDamage} and taunts";
                 break;
             default:
-                target.TakeDamage(CalculateDamage(attacker, target));
-                Message = $"{attacker.Name} attacks {target.Name}";
+                var damage = CalculateDamage(attacker, target);
+                target.TakeDamage(damage);
+                target.ShowFloatingText($"-{damage}", Color.FromArgb("#FF6B6B"));
+                Message = $"{attacker.Name} attacks {target.Name} for {damage}";
                 break;
         }
     }
@@ -190,10 +292,10 @@ public class CardBattleViewModel : BaseViewModel
         }
 
         await Task.Delay(350);
-        EnemyTurn();
+        await EnemyTurn();
     }
 
-    private void EnemyTurn()
+    private async Task EnemyTurn()
     {
         foreach (var enemy in EnemyTeam.Where(enemy => enemy.IsAlive).ToList())
         {
@@ -203,6 +305,7 @@ public class CardBattleViewModel : BaseViewModel
             }
 
             enemy.TakeDamage(8);
+            enemy.ShowFloatingText("-8", Color.FromArgb("#A86BFF"));
             enemy.PoisonTurns--;
         }
 
@@ -218,7 +321,13 @@ public class CardBattleViewModel : BaseViewModel
         if (attacker != null && target != null)
         {
             var damage = CalculateDamage(attacker, target);
+            if (AnimateAttackAsync != null)
+            {
+                await AnimateAttackAsync(attacker, target);
+            }
+
             target.TakeDamage(damage);
+            target.ShowFloatingText($"-{damage}", Color.FromArgb("#FF6B6B"));
             Message = $"{attacker.Name} hits {target.Name} for {damage}";
         }
 
@@ -235,6 +344,13 @@ public class CardBattleViewModel : BaseViewModel
         if (PlayerTeam.All(player => !player.IsAlive))
         {
             _isBattleEnded = true;
+            RewardTitle = "Defeated";
+            RewardCoinsText = "0";
+            RewardExpText = "0";
+            RewardRuneText = "Try again";
+            IsDefeatPopupVisible = true;
+            IsRewardPopupVisible = true;
+            _ = AudioService.Instance.PlayGameOverAsync();
             Message = "Defeated. Restart the stage or choose another stage.";
             OnPropertyChanged(nameof(CanGoNext));
             return;
@@ -245,7 +361,18 @@ public class CardBattleViewModel : BaseViewModel
     {
         _isBattleEnded = true;
         _cardService.MarkStageCleared(CurrentStage.Number);
-        Message = _stageIndex == _cardService.Stages.Count - 1 ? "Final boss defeated" : "Stage cleared";
+        var reward = _gameService.GrantStageRewards(CurrentStage.Number);
+        var dropText = string.IsNullOrWhiteSpace(reward.RuneName) ? "no rune drop" : $"{reward.RuneName} dropped";
+        RewardTitle = _stageIndex == _cardService.Stages.Count - 1 ? "Final boss defeated" : "Stage cleared";
+        RewardCoinsText = $"+{reward.Coins}";
+        RewardExpText = $"+{reward.Experience}";
+        RewardRuneText = string.IsNullOrWhiteSpace(reward.RuneName) ? "Rune: none" : $"Rune: {reward.RuneName}";
+        IsDefeatPopupVisible = false;
+        IsRewardPopupVisible = true;
+        _ = AudioService.Instance.PlayWinAsync();
+        Message = _stageIndex == _cardService.Stages.Count - 1
+            ? $"Final boss defeated +{reward.Coins} coins +{reward.Experience} EXP, {dropText}"
+            : $"Stage cleared +{reward.Coins} coins +{reward.Experience} EXP, {dropText}";
         OnPropertyChanged(nameof(CanGoNext));
     }
 
@@ -280,12 +407,14 @@ public class CardBattleViewModel : BaseViewModel
         }
 
         StageNumber = _stageIndex + 2;
+        _ = AudioService.Instance.PlayBattleMusicOnceAsync();
     }
 
     private void Restart()
     {
         BuildPlayerTeam();
         LoadStage(StageNumber - 1);
+        _ = AudioService.Instance.PlayBattleMusicOnceAsync();
     }
 }
 
@@ -296,18 +425,22 @@ public class BattleFighter : BaseViewModel
     private bool _hasActed;
     private int _poisonTurns;
     private int _tauntTurns;
+    private string _floatingText = "";
+    private bool _isFloatingTextVisible;
+    private Color _floatingTextColor = Color.FromArgb("#FF6B6B");
 
-    public BattleFighter(CardUnit card, bool isEnemy)
+    public BattleFighter(CardUnit card, bool isEnemy, int attackBonus = 0, int defenseBonus = 0, int healthBonus = 0, bool isPrimary = false)
     {
         Id = card.Id;
         Name = card.Name;
         Description = card.Description;
         Image = card.Image;
         Role = card.Role;
-        MaxHp = card.MaxHp;
-        Atk = card.Atk;
-        Def = card.Def;
+        MaxHp = card.MaxHp + (isEnemy ? 0 : healthBonus);
+        Atk = card.Atk + (isEnemy ? 0 : attackBonus);
+        Def = card.Def + (isEnemy ? 0 : defenseBonus);
         IsEnemy = isEnemy;
+        IsPrimary = isPrimary;
         _hp = MaxHp;
     }
 
@@ -320,6 +453,7 @@ public class BattleFighter : BaseViewModel
     public int Atk { get; }
     public int Def { get; }
     public bool IsEnemy { get; }
+    public bool IsPrimary { get; }
     public bool IsAlive => Hp > 0;
     public double HpPercent => MaxHp == 0 ? 0 : (double)Hp / MaxHp;
     public double HpBarWidth => Math.Max(0, HpPercent * 92);
@@ -328,8 +462,45 @@ public class BattleFighter : BaseViewModel
     public double HpMiniBarWidth => Math.Max(0, HpPercent * 22);
     public double AtkMiniBarWidth => Math.Clamp(Atk * 0.55, 4, 22);
     public double DefMiniBarWidth => Math.Clamp(Def * 1.25, 4, 22);
+    public double CardWidth => IsEnemy ? 112 : IsPrimary ? 142 : 96;
+    public double CardHeight => IsEnemy ? 136 : IsPrimary ? 176 : 132;
+    public double StatColumnWidth => IsEnemy ? 24 : IsPrimary ? 28 : 22;
+    public double ImageColumnWidth => Math.Max(80, CardWidth - StatColumnWidth - 6);
+    public double ImageHeight => IsEnemy ? 116 : IsPrimary ? 154 : 110;
+    public double ImageWidth => IsEnemy ? 86 : IsPrimary ? 110 : 74;
+    public double StatusFontSize => IsPrimary ? 10 : 9;
     public string StatText => $"HP {Hp}/{MaxHp}  ATK {Atk}  DEF {Def}";
     public string StatusText => PoisonTurns > 0 ? $"Poison {PoisonTurns}" : TauntTurns > 0 ? "Taunt" : HasActed ? "Acted" : string.Empty;
+    public string FloatingText
+    {
+        get => _floatingText;
+        private set
+        {
+            _floatingText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsFloatingTextVisible
+    {
+        get => _isFloatingTextVisible;
+        private set
+        {
+            _isFloatingTextVisible = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Color FloatingTextColor
+    {
+        get => _floatingTextColor;
+        private set
+        {
+            _floatingTextColor = value;
+            OnPropertyChanged();
+        }
+    }
+
     public double Opacity => IsAlive ? HasActed ? 0.62 : 1 : 0.35;
     public Color BorderColor => IsSelected ? Color.FromArgb("#FFB84D") : IsEnemy ? Color.FromArgb("#E07A7A") : Color.FromArgb("#6E9EEB");
     public Color BackgroundColor => IsEnemy ? Color.FromArgb("#FFF0F0") : Color.FromArgb("#F1F6FF");
@@ -391,12 +562,25 @@ public class BattleFighter : BaseViewModel
 
     public void TakeDamage(int amount)
     {
+        if (amount > 0)
+        {
+            _ = AudioService.Instance.PlayAttackHitAsync();
+        }
+
         Hp -= amount;
     }
 
     public void Heal(int amount)
     {
         Hp += amount;
+    }
+
+    public void ShowFloatingText(string text, Color color)
+    {
+        FloatingText = text;
+        FloatingTextColor = color;
+        IsFloatingTextVisible = true;
+        _ = HideFloatingTextSoon();
     }
 
     public void ResetTurnState()
@@ -415,5 +599,11 @@ public class BattleFighter : BaseViewModel
         OnPropertyChanged(nameof(HpMiniBarWidth));
         OnPropertyChanged(nameof(StatText));
         OnPropertyChanged(nameof(Opacity));
+    }
+
+    private async Task HideFloatingTextSoon()
+    {
+        await Task.Delay(900);
+        IsFloatingTextVisible = false;
     }
 }

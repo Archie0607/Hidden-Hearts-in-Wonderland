@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Hidden_Hearts_in_Wonderland.Views.StatsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundColor="#151827"
+    BackgroundImageSource="bgbattle.png">
+
+    <Grid RowDefinitions="Auto,Auto,*"
+          Padding="16"
+          RowSpacing="12"
+          BackgroundColor="#80000000">
+        <Grid ColumnDefinitions="*,Auto"
+              Padding="4,0"
+              ColumnSpacing="10">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="STATS"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       TextColor="#F3F5FF" />
+                <Label Text="{Binding Message}"
+                       FontSize="13"
+                       TextColor="White" />
+            </VerticalStackLayout>
+
+            <controls:FantasyButton Grid.Column="1"
+                                    Text="Back"
+                                    Command="{Binding BackCommand}"
+                                    ButtonImage="ui_button_red_dark.png"
+                                    ButtonWidth="112"
+                                    ButtonHeight="38"
+                                    LabelFontSize="13" />
+        </Grid>
+
+        <Border Grid.Row="1"
+                Padding="12"
+                BackgroundColor="#24283A"
+                Stroke="#5D668A"
+                StrokeThickness="2">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+
+            <Grid RowDefinitions="Auto,Auto"
+                  RowSpacing="8">
+                <Grid ColumnDefinitions="*,Auto,Auto"
+                      ColumnSpacing="12">
+                    <Label Text="{Binding LevelText}"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="#FFD866" />
+                    <Label Grid.Column="1"
+                           Text="{Binding StatPointsText}"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="#FFFFFF"
+                           VerticalOptions="Center" />
+                    <HorizontalStackLayout Grid.Column="2"
+                                           Spacing="5"
+                                           VerticalOptions="Center">
+                        <Image Source="coin.png"
+                               WidthRequest="22"
+                               HeightRequest="22"
+                               Aspect="AspectFit" />
+                        <Label Text="{Binding CoinsText}"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="#92E27F"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Grid>
+
+                <Grid Grid.Row="1"
+                      ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                    <ProgressBar Progress="{Binding ExpProgress}"
+                                 HeightRequest="10"
+                                 ProgressColor="#5E8CFF"
+                                 BackgroundColor="#10131F"
+                                 VerticalOptions="Center" />
+                    <HorizontalStackLayout Grid.Column="1"
+                                           Spacing="5"
+                                           VerticalOptions="Center">
+                        <Image Source="exp.png"
+                               WidthRequest="20"
+                               HeightRequest="20"
+                               Aspect="AspectFit" />
+                        <Label Text="{Binding ExpText}"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               TextColor="#DDE4FF"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Spacing="12">
+                <Border Padding="12"
+                        BackgroundColor="#2A1820"
+                        Stroke="#8D3945"
+                        StrokeThickness="2">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="58,*,Auto"
+                          ColumnSpacing="12">
+                        <Image Source="atk.png"
+                               HeightRequest="52"
+                               WidthRequest="52"
+                               Aspect="AspectFit" />
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="3"
+                                             VerticalOptions="Center">
+                            <Label Text="ATK"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="#FF6B6B" />
+                            <Label Text="Main stats use level points. Runes add a separate bonus."
+                                   FontSize="13"
+                                   TextColor="#F0D1D4"
+                                   LineBreakMode="WordWrap" />
+                            <Label Text="{Binding AttackText}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="#FFD0D0" />
+                            <Label Text="{Binding AttackRuneText}"
+                                   FontSize="12"
+                                   TextColor="#F0D1D4" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2"
+                                             Spacing="6"
+                                             VerticalOptions="Center">
+                            <controls:FantasyButton Text="+"
+                                                    Command="{Binding UpgradeAttackCommand}"
+                                                    ButtonImage="ui_button_red_glow.png"
+                                                    ButtonWidth="64"
+                                                    ButtonHeight="38"
+                                                    LabelFontSize="20" />
+                            <controls:FantasyButton Text="Rune"
+                                                    Command="{Binding UseAttackRuneCommand}"
+                                                    ButtonImage="ui_button_purple_glow.png"
+                                                    ButtonWidth="64"
+                                                    ButtonHeight="38"
+                                                    LabelFontSize="12" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Padding="12"
+                        BackgroundColor="#17271D"
+                        Stroke="#398D4F"
+                        StrokeThickness="2">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="58,*,Auto"
+                          ColumnSpacing="12">
+                        <Image Source="hp.png"
+                               HeightRequest="52"
+                               WidthRequest="52"
+                               Aspect="AspectFit" />
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="3"
+                                             VerticalOptions="Center">
+                            <Label Text="HP"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="#6FF08B" />
+                            <Label Text="Main stats use level points. Runes add a separate bonus."
+                                   FontSize="13"
+                                   TextColor="#CFEFDB"
+                                   LineBreakMode="WordWrap" />
+                            <Label Text="{Binding HealthText}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="#CEF7D8" />
+                            <Label Text="{Binding HealthRuneText}"
+                                   FontSize="12"
+                                   TextColor="#CFEFDB" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2"
+                                             Spacing="6"
+                                             VerticalOptions="Center">
+                            <controls:FantasyButton Text="+"
+                                                    Command="{Binding UpgradeHealthCommand}"
+                                                    ButtonImage="ui_button_green_glow.png"
+                                                    ButtonWidth="64"
+                                                    ButtonHeight="38"
+                                                    LabelFontSize="20" />
+                            <controls:FantasyButton Text="Rune"
+                                                    Command="{Binding UseHealthRuneCommand}"
+                                                    ButtonImage="ui_button_purple_glow.png"
+                                                    ButtonWidth="64"
+                                                    ButtonHeight="38"
+                                                    LabelFontSize="12" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Padding="12"
+                        BackgroundColor="#172136"
+                        Stroke="#3C64A8"
+                        StrokeThickness="2">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="58,*,Auto"
+                          ColumnSpacing="12">
+                        <Image Source="dff.png"
+                               HeightRequest="52"
+                               WidthRequest="52"
+                               Aspect="AspectFit" />
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="3"
+                                             VerticalOptions="Center">
+                            <Label Text="DFF"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="#74A7FF" />
+                            <Label Text="Main stats use level points. Runes add a separate bonus."
+                                   FontSize="13"
+                                   TextColor="#D3E0FF"
+                                   LineBreakMode="WordWrap" />
+                            <Label Text="{Binding DefenseText}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="#D3E0FF" />
+                            <Label Text="{Binding DefenseRuneText}"
+                                   FontSize="12"
+                                   TextColor="#D3E0FF" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2"
+                                             Spacing="6"
+                                             VerticalOptions="Center">
+                            <controls:FantasyButton Text="+"
+                                                    Command="{Binding UpgradeDefenseCommand}"
+                                                    ButtonImage="ui_button_blue_glow.png"
+                                                    ButtonWidth="64"
+                                                    ButtonHeight="38"
+                                                    LabelFontSize="20" />
+                            <controls:FantasyButton Text="Rune"
+                                                    Command="{Binding UseDefenseRuneCommand}"
+                                                    ButtonImage="ui_button_purple_glow.png"
+                                                    ButtonWidth="64"
+                                                    ButtonHeight="38"
+                                                    LabelFontSize="12" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

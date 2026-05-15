@@ -3,29 +3,32 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.CardTeamPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#EEF3F0">
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundColor="#151827"
+    BackgroundImageSource="bgbattle.png">
 
-    <Grid Padding="18"
-          RowDefinitions="Auto,*"
-          RowSpacing="16">
+    <Grid BackgroundColor="#80000000">
+        <Grid Padding="18"
+              RowDefinitions="Auto,*"
+              RowSpacing="16">
         <Grid ColumnDefinitions="*,Auto"
               ColumnSpacing="10">
             <VerticalStackLayout Spacing="4">
                 <Label Text="Team"
                        FontSize="28"
                        FontAttributes="Bold"
-                       TextColor="#253047" />
+                       TextColor="#FFFFFF" />
                 <Label Text="{Binding Message}"
                        FontSize="13"
-                       TextColor="#596273" />
+                       TextColor="#E8EAF5" />
             </VerticalStackLayout>
-            <Button Grid.Column="1"
-                    Text="Back"
-                    Command="{Binding BackCommand}"
-                    BackgroundColor="#FFE2E7"
-                    TextColor="#253047"
-                    CornerRadius="10"
-                    HeightRequest="38" />
+            <controls:FantasyButton Grid.Column="1"
+                                    Text="Back"
+                                    Command="{Binding BackCommand}"
+                                    ButtonImage="ui_button_red_dark.png"
+                                    ButtonWidth="116"
+                                    ButtonHeight="38"
+                                    LabelFontSize="13" />
         </Grid>
 
         <CollectionView Grid.Row="1"
@@ -83,5 +86,6 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        </Grid>
     </Grid>
 </ContentPage>

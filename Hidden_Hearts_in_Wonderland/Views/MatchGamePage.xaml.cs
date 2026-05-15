@@ -1,4 +1,5 @@
 using Hidden_Hearts_in_Wonderland.ViewModels;
+using Hidden_Hearts_in_Wonderland.Services;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace Hidden_Hearts_in_Wonderland.Views;
@@ -23,6 +24,12 @@ public partial class MatchGamePage : ContentPage
     {
         base.OnBindingContextChanged();
         BuildBoardGrid();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await AudioService.Instance.PlayComedyMusicAsync();
     }
 
     private void OnPageSizeChanged(object? sender, EventArgs e)
@@ -152,14 +159,19 @@ public partial class MatchGamePage : ContentPage
         var slimeImage = new Image
         {
             Aspect = Aspect.AspectFit,
-            Margin = 3
+            Margin = 5,
+            Clip = new RoundRectangleGeometry
+            {
+                CornerRadius = 12,
+                Rect = new Rect(0, 0, tile.TileSize, tile.TileSize)
+            }
         };
         slimeImage.SetBinding(Image.SourceProperty, nameof(MatchTile.Image));
 
         var tileView = new Border
         {
             BindingContext = tile,
-            StrokeThickness = 1,
+            StrokeThickness = 2,
             Content = slimeImage
         };
 
@@ -167,7 +179,7 @@ public partial class MatchGamePage : ContentPage
         tileView.SetBinding(WidthRequestProperty, nameof(MatchTile.TileSize));
         tileView.SetBinding(Border.BackgroundColorProperty, nameof(MatchTile.TileBackground));
         tileView.SetBinding(Border.StrokeProperty, nameof(MatchTile.BorderColor));
-        tileView.StrokeShape = new RoundRectangle { CornerRadius = 8 };
+        tileView.StrokeShape = new RoundRectangle { CornerRadius = 14 };
 
         var tapGesture = new TapGestureRecognizer
         {
@@ -187,6 +199,7 @@ public partial class MatchGamePage : ContentPage
             return;
         }
 
+        _ = AudioService.Instance.PlayClickAsync();
         await tile.ScaleToAsync(0.9, 55, Easing.CubicOut);
         await tile.ScaleToAsync(1, 70, Easing.CubicIn);
     }

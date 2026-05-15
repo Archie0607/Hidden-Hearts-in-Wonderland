@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Hidden_Hearts_in_Wonderland.Views.InventoryPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundColor="#151827"
+    BackgroundImageSource="bginven.png">
+
+    <Grid>
+        <BoxView BackgroundColor="#99000000" />
+
+        <Grid Padding="18"
+              RowDefinitions="Auto,*"
+              RowSpacing="14">
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="10">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Inventory"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="#FFFFFF" />
+                <Label Text="Choose a target and give a gift"
+                       FontSize="13"
+                       TextColor="#E8EAF5" />
+            </VerticalStackLayout>
+
+            <controls:FantasyButton Grid.Column="1"
+                                    Text="Back"
+                                    Command="{Binding BackCommand}"
+                                    ButtonImage="ui_button_red_dark.png"
+                                    ButtonWidth="116"
+                                    ButtonHeight="38"
+                                    LabelFontSize="13" />
+        </Grid>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Items}"
+                        SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="2"
+                                 HorizontalItemSpacing="12"
+                                 VerticalItemSpacing="12" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="12"
+                            BackgroundColor="#80000000"
+                            Stroke="#FFD866"
+                            StrokeThickness="1">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+
+                        <Grid RowDefinitions="94,Auto,Auto,Auto,Auto"
+                              RowSpacing="7">
+                            <Image Source="{Binding Image}"
+                                   Aspect="AspectFit"
+                                   HeightRequest="92" />
+                            <Label Grid.Row="1"
+                                   Text="{Binding Name}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#FFFFFF"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Row="2"
+                                   Text="{Binding Description}"
+                                   FontSize="12"
+                                   TextColor="#DDE4FF"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap"
+                                   MaxLines="2" />
+                            <Label Grid.Row="3"
+                                   Text="{Binding CountText}"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="#92E27F"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Row="4"
+                                   Text="{Binding UseText}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="#FFD866"
+                                   HorizontalTextAlignment="Center" />
+                            <controls:FantasyButton Grid.Row="4"
+                                                    Text="Give"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.GiveGiftCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    IsVisible="{Binding CanGiveGift}"
+                                                    ButtonImage="ui_button_purple_glow.png"
+                                                    ButtonHeight="42"
+                                                    LabelFontSize="13"
+                                                    HorizontalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        </Grid>
+
+        <Grid
+              IsVisible="{Binding IsTargetPopupVisible}">
+            <BoxView BackgroundColor="#B3000000">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseGiftPopupCommand}" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border BackgroundColor="#80000000"
+                    Stroke="#FFD866"
+                    StrokeThickness="2"
+                    Padding="18"
+                    WidthRequest="360"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Choose Target"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="#FFD866"
+                           HorizontalTextAlignment="Center" />
+                    <Image Source="{Binding PendingGiftImage}"
+                           HeightRequest="90"
+                           Aspect="AspectFit" />
+                    <Label Text="{Binding PendingGiftText}"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="#FFFFFF"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding GiftPopupMessage}"
+                           FontSize="13"
+                           TextColor="#E8EAF5"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap" />
+
+                    <CollectionView ItemsSource="{Binding GiftTargets}"
+                                    SelectionMode="None"
+                                    HeightRequest="94">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal"
+                                               ItemSpacing="8" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="6"
+                                        WidthRequest="73"
+                                        BackgroundColor="#801B2033"
+                                        Stroke="#FFD866"
+                                        StrokeThickness="1">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectGiftTargetCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Image Source="{Binding Image}"
+                                               HeightRequest="42"
+                                               Aspect="AspectFit" />
+                                        <Label Text="{Binding Name}"
+                                               FontSize="10"
+                                               FontAttributes="Bold"
+                                               TextColor="#FFFFFF"
+                                               HorizontalTextAlignment="Center" />
+                                        <Label Text="{Binding AffectionText}"
+                                               FontSize="10"
+                                               FontAttributes="Bold"
+                                               TextColor="#FF9FCB"
+                                               HorizontalTextAlignment="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

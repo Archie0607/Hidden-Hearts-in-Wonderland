@@ -3,19 +3,35 @@
     x:Class="Hidden_Hearts_in_Wonderland.Views.CardSelectPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="#F6F2E8">
+    xmlns:controls="clr-namespace:Hidden_Hearts_in_Wonderland.Views.Controls"
+    BackgroundColor="#F6F2E8"
+    BackgroundImageSource="startbg2.png">
 
-    <Grid Padding="18"
-          RowDefinitions="Auto,*"
-          RowSpacing="16">
+    <Grid BackgroundColor="#80000000">
+        <Grid Padding="1"
+              RowDefinitions="Auto,*"
+              RowSpacing="16">
+        <controls:FantasyButton Text="Back"
+                                Clicked="OnBackClicked"
+                                ButtonImage="ui_button_red_dark.png"
+                                ButtonWidth="116"
+                                ButtonHeight="38"
+                                LabelFontSize="13"
+                                HorizontalOptions="End"
+                                VerticalOptions="Start"
+                                Margin="0,12,12,0"
+                                ZIndex="2" />
+
         <VerticalStackLayout Spacing="4">
-            <Label Text="Choose your hero"
-                   FontSize="28"
+            <!--<Label Text="Choose your hero"
+                   FontSize="24"
                    FontAttributes="Bold"
-                   TextColor="#273043" />
-            <Label Text="{Binding Message}"
-                   FontSize="13"
-                   TextColor="#586174" />
+                   TextColor="White"
+                   HorizontalOptions="Center"/>-->
+            <!--<Label Text="{Binding Message}"
+                   FontSize="14"
+                   TextColor="White" 
+                   HorizontalOptions="Center"/>-->
         </VerticalStackLayout>
 
         <CollectionView Grid.Row="1"
@@ -29,10 +45,10 @@
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border Padding="12"
-                            Stroke="#D6DCE8"
-                            StrokeThickness="2"
-                            BackgroundColor="#FFFFFF">
+                    <Border Padding="1"
+                            Stroke="Gold"
+                            StrokeThickness="3"
+                            BackgroundColor="Transparent">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
                         </Border.StrokeShape>
@@ -42,51 +58,52 @@
                                 CommandParameter="{Binding .}" />
                         </Border.GestureRecognizers>
 
-                        <VerticalStackLayout Spacing="8">
-                            <Image Source="{Binding Image}"
-                                   Aspect="AspectFit"
-                                   HeightRequest="150" />
-                            <Label Text="{Binding Name}"
-                                   FontSize="20"
-                                   FontAttributes="Bold"
-                                   TextColor="#273043"
-                                   HorizontalTextAlignment="Center" />
-                            <Label Text="{Binding Description}"
-                                   FontSize="13"
-                                   TextColor="#586174"
-                                   LineBreakMode="WordWrap"
-                                   HorizontalTextAlignment="Center" />
-                            <Grid ColumnDefinitions="*,*,*"
-                                  ColumnSpacing="6">
-                                <Label Text="{Binding Hp, StringFormat='HP {0}'}"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       TextColor="#273043"
-                                       HorizontalTextAlignment="Center" />
-                                <Label Grid.Column="1"
-                                       Text="{Binding Atk, StringFormat='ATK {0}'}"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       TextColor="#273043"
-                                       HorizontalTextAlignment="Center" />
-                                <Label Grid.Column="2"
-                                       Text="{Binding Def, StringFormat='DEF {0}'}"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       TextColor="#273043"
-                                       HorizontalTextAlignment="Center" />
-                            </Grid>
-                            <Button Text="Select"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectHeroCommand}"
-                                    CommandParameter="{Binding .}"
-                                    BackgroundColor="#273043"
-                                    TextColor="White"
-                                    CornerRadius="10"
-                                    HeightRequest="38" />
-                        </VerticalStackLayout>
+                        <Grid Margin="5" VerticalOptions="Start" HeightRequest="300">
+                            <Border StrokeShape="RoundRectangle 15"
+                                        StrokeThickness="0">
+                                <Image Source="bg3.png" 
+                                           Aspect="AspectFill" 
+                                           Opacity="0.8" />
+                            </Border>
+
+                            <VerticalStackLayout Spacing="10" 
+                                                 Padding="15">
+
+                                <Image Source="{Binding Image}"
+                                           Aspect="AspectFit"
+                                           HeightRequest="120" />
+                                <Label Text="{Binding Name}"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="Gold" 
+                                           HorizontalTextAlignment="Center" />
+
+                                <Label Text="{Binding Description}"
+                                           FontSize="12"
+                                           TextColor="Gold"
+                                           HorizontalTextAlignment="Center" />
+
+                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="5">
+                                    <Label Text="{Binding Hp, StringFormat='HP {0}'}" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="Gold" />
+                                    <Label Grid.Column="1" Text="{Binding Atk, StringFormat='ATK {0}'}" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="Gold" />
+                                    <Label Grid.Column="2" Text="{Binding Def, StringFormat='DEF {0}'}" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="Gold" />
+                                </Grid>
+
+                                <controls:FantasyButton Text="Select"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectHeroCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        ButtonImage="ui_button_blue_glow.png"
+                                                        ButtonWidth="180"
+                                                        ButtonHeight="46"
+                                                        LabelFontSize="14"
+                                                        HorizontalOptions="Center"
+                                                        Margin="0,8,0,0" />
+                            </VerticalStackLayout>
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        </Grid>
     </Grid>
 </ContentPage>
