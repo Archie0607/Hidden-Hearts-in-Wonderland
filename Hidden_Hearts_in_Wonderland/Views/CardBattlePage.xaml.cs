@@ -9,6 +9,7 @@ public partial class CardBattlePage : ContentPage
 
     public CardBattlePage()
     {
+        // สร้าง viewmodel แล้วส่ง callback animation ให้ฝั่ง logic เรียกใช้ตอนศัตรูโจมตี
         InitializeComponent();
         var viewModel = new CardBattleViewModel
         {
@@ -19,12 +20,14 @@ public partial class CardBattlePage : ContentPage
 
     protected override void OnAppearing()
     {
+        // เข้า battle page แล้วเริ่มเพลงต่อสู้ใหม่
         base.OnAppearing();
         _ = AudioService.Instance.PlayBattleMusicOnceAsync();
     }
 
     private async void OnPlayerCardTapped(object? sender, TappedEventArgs e)
     {
+        // แตะการ์ดฝ่ายเราเพื่อเลือกตัวที่จะใช้เทิร์นนี้
         if (sender is not VisualElement cardView || BindingContext is not CardBattleViewModel viewModel)
         {
             return;
@@ -45,6 +48,7 @@ public partial class CardBattlePage : ContentPage
 
     private async void OnEnemyCardTapped(object? sender, TappedEventArgs e)
     {
+        // แตะศัตรูเพื่อสั่งโจมตีด้วยการ์ดฝ่ายเราที่เลือกไว้
         if (sender is not VisualElement enemyView || BindingContext is not CardBattleViewModel viewModel)
         {
             return;
@@ -63,6 +67,7 @@ public partial class CardBattlePage : ContentPage
 
     private static async Task AnimateAttack(VisualElement attacker, VisualElement target)
     {
+        // ขยับตัวโจมตีไปหาเป้าหมาย แล้วเด้งเป้าหมายให้รู้สึกว่าโดนตี
         var attackerCenter = GetCenter(attacker);
         var targetCenter = GetCenter(target);
         var deltaX = targetCenter.X - attackerCenter.X;
@@ -76,6 +81,7 @@ public partial class CardBattlePage : ContentPage
 
     private async Task AnimateFighterAttack(BattleFighter attacker, BattleFighter target)
     {
+        // หา visual element จาก BattleFighter แล้วเล่น animation โจมตีจริงบนหน้า
         var attackerView = FindBoundElement(BattleRoot, attacker);
         var targetView = FindBoundElement(BattleRoot, target);
 
@@ -89,6 +95,7 @@ public partial class CardBattlePage : ContentPage
 
     private static VisualElement? FindBoundElement(Element element, object bindingContext)
     {
+        // ไล่หา element ที่ bind กับ object ตัวเดียวกันใน visual tree
         if (element is VisualElement visualElement && ReferenceEquals(visualElement.BindingContext, bindingContext))
         {
             return visualElement;
@@ -108,6 +115,7 @@ public partial class CardBattlePage : ContentPage
 
     private static Point GetCenter(VisualElement element)
     {
+        // คำนวณจุดกลางของ element แบบรวม offset ของ parent ทุกชั้น
         var x = element.X + (element.Width / 2);
         var y = element.Y + (element.Height / 2);
         var parent = element.Parent;

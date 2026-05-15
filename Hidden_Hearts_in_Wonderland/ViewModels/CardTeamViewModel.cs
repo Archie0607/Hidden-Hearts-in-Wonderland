@@ -27,6 +27,7 @@ public class CardTeamViewModel : BaseViewModel
 
     public CardTeamViewModel()
     {
+        // เตรียมปุ่มเพิ่ม/ถอดการ์ดซัพพอร์ตในทีม
         ToggleCardCommand = new Command<CardTeamItem>(ToggleCard);
         BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
         Refresh();
@@ -34,6 +35,7 @@ public class CardTeamViewModel : BaseViewModel
 
     public void Refresh()
     {
+        // โหลดการ์ดซัพพอร์ตทั้งหมดพร้อมสถานะว่าปลดล็อกและอยู่ในทีมไหม
         Cards.Clear();
 
         foreach (var card in _cardService.GetUnlockableCards())
@@ -48,6 +50,7 @@ public class CardTeamViewModel : BaseViewModel
 
     private void ToggleCard(CardTeamItem? item)
     {
+        // กดซ้ำเพื่อเพิ่มหรือถอดออกจากทีม แล้วรีเฟรชข้อความสถานะ
         if (item == null)
         {
             return;
@@ -63,6 +66,7 @@ public class CardTeamItem
 {
     public CardTeamItem(CardUnit card, int affection, bool isUnlocked, bool isSelected)
     {
+        // แปลงข้อมูลการ์ดกับ affection เป็น item สำหรับหน้าจัดทีม
         Id = card.Id;
         Name = card.Name;
         Description = card.Description;

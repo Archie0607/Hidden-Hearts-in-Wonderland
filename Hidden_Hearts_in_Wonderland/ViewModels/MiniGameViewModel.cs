@@ -37,6 +37,7 @@ public class MiniGameViewModel : BaseViewModel
 
     public MiniGameViewModel()
     {
+        // เตรียม command สำหรับพลิกการ์ดและเริ่มเกมจับคู่ใหม่
         SelectCardCommand = new Command<CardItem>(async card => await SelectCard(card));
         RestartCommand = new Command(BuildDeck);
         BuildDeck();
@@ -44,6 +45,7 @@ public class MiniGameViewModel : BaseViewModel
 
     private void BuildDeck()
     {
+        // สร้างสำรับคู่การ์ดใหม่ สุ่มลำดับ แล้วรีเซ็ตสถานะเกมทั้งหมด
         Cards.Clear();
         _firstCard = null;
         _secondCard = null;
@@ -76,6 +78,7 @@ public class MiniGameViewModel : BaseViewModel
 
     private async Task SelectCard(CardItem? card)
     {
+        // พลิกการ์ดทีละใบ พอครบสองใบจะเช็กว่าเป็นคู่เดียวกันไหม
         if (card == null || _isChecking || card.IsMatched || card.IsFaceUp)
         {
             return;
@@ -118,12 +121,14 @@ public class MiniGameViewModel : BaseViewModel
 
     private void ClearSelection()
     {
+        // ล้างการ์ดสองใบที่กำลังถือไว้ เพื่อรอเลือกคู่ถัดไป
         _firstCard = null;
         _secondCard = null;
     }
 
     private async Task FinishGame()
     {
+        // จบเกมจับคู่ แล้วส่งผู้เล่นกลับไปยังบทสนทนาตาม next node
         var page = Application.Current?.Windows.FirstOrDefault()?.Page;
 
         if (page != null)
@@ -142,6 +147,7 @@ public class CardItem : BaseViewModel
 
     public CardItem(string matchKey, string value)
     {
+        // เก็บ key สำหรับเทียบคู่ และข้อความที่จะแสดงตอนการ์ดหงาย
         MatchKey = matchKey;
         Value = value;
     }

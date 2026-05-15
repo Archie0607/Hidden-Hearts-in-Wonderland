@@ -128,22 +128,27 @@ public class CardBattleService
     public int HighestUnlockedStageNumber { get; private set; } = 1;
     public IReadOnlyList<string> SelectedSupportCardIds => _selectedSupportCardIds;
 
+    // คืนเฉพาะตัวหลักที่เลือกเป็นหัวหน้าทีมได้
     public IReadOnlyList<CardUnit> GetMainCards() => _playerCards.Where(card => card.IsMainHero).ToList();
 
+    // คืนการ์ดซัพพอร์ตที่ต้องปลดล็อกด้วยค่าความสัมพันธ์
     public IReadOnlyList<CardUnit> GetUnlockableCards() => _playerCards.Where(card => !card.IsMainHero).ToList();
 
     public bool IsUnlocked(CardUnit card)
     {
+        // การ์ดหลักเปิดทันที ส่วนซัพพอร์ตดูจาก affection ของตัวละครนั้น
         return card.UnlockCharacter == null || GetUnlockAffection(card) >= RelationshipUnlockRequirement;
     }
 
     public int GetUnlockAffection(CardUnit card)
     {
+        // ถ้าไม่ต้องปลดล็อกก็ถือว่าไม่ต้องโชว์ affection เฉพาะตัว
         return card.UnlockCharacter == null ? 0 : _gameService.Player.GetAffection(card.UnlockCharacter);
     }
 
     public void SelectMainHero(string cardId)
     {
+        // เปลี่ยนได้เฉพาะการ์ด main hero กัน id แปลก ๆ หลุดเข้าทีม
         if (GetMainCards().Any(card => string.Equals(card.Id, cardId, StringComparison.OrdinalIgnoreCase)))
         {
             SelectedHeroId = cardId;
@@ -152,11 +157,13 @@ public class CardBattleService
 
     public bool IsSelectedSupport(CardUnit card)
     {
+        // เช็กว่า card นี้อยู่ในช่องซัพพอร์ตตอนนี้ไหม
         return _selectedSupportCardIds.Any(id => string.Equals(id, card.Id, StringComparison.OrdinalIgnoreCase));
     }
 
     public bool TryToggleSupportCard(string cardId, out string message)
     {
+        // เพิ่ม/ถอดซัพพอร์ตในทีม พร้อมส่งข้อความกลับไปให้หน้า UI แสดงผล
         var card = GetPlayerCard(cardId);
 
         if (card.IsMainHero)
@@ -193,6 +200,7 @@ public class CardBattleService
 
     public IReadOnlyList<CardUnit> GetBattleTeamCards()
     {
+        // ทีมจริงตอนเข้าฉากต่อสู้คือ main hero 1 ใบ และ support สูงสุด 2 ใบ
         var team = new List<CardUnit> { GetPlayerCard(SelectedHeroId) };
 
         foreach (var cardId in _selectedSupportCardIds.ToList())
@@ -215,21 +223,25 @@ public class CardBattleService
 
     public bool IsStageUnlocked(int stageNumber)
     {
+        // ด่านที่ยังไม่ถึงจะยังเลือกไม่ได้
         return stageNumber <= HighestUnlockedStageNumber;
     }
 
     public void MarkStageCleared(int stageNumber)
     {
+        // ผ่านด่านแล้วปลดล็อกด่านถัดไป แต่ไม่ให้เลขเกินจำนวนด่านจริง
         HighestUnlockedStageNumber = Math.Max(HighestUnlockedStageNumber, Math.Min(stageNumber + 1, Stages.Count));
     }
 
     public CardUnit GetPlayerCard(string id)
     {
+        // หา card ฝั่งผู้เล่นจาก id แบบไม่สนตัวพิมพ์เล็กใหญ่
         return _playerCards.First(card => string.Equals(card.Id, id, StringComparison.OrdinalIgnoreCase));
     }
 
     public CardUnit GetEnemyCard(string id)
     {
+        // หา monster card จาก id ของด่าน
         return _enemyCards.First(card => string.Equals(card.Id, id, StringComparison.OrdinalIgnoreCase));
     }
 }

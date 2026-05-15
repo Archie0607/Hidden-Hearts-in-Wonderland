@@ -18,6 +18,7 @@ public class StatsViewModel : BaseViewModel
 
     public StatsViewModel()
     {
+        // ผูก command ของปุ่มอัป stat และใช้ rune แต่ละชนิด
         UpgradeAttackCommand = new Command(() => Upgrade("atk"));
         UpgradeDefenseCommand = new Command(() => Upgrade("dff"));
         UpgradeHealthCommand = new Command(() => Upgrade("hp"));
@@ -58,6 +59,7 @@ public class StatsViewModel : BaseViewModel
 
     public void Refresh()
     {
+        // แจ้ง UI ทุกค่าที่ขึ้นกับ stat/exp/coin ให้แสดงตัวเลขล่าสุด
         OnPropertyChanged(nameof(LevelText));
         OnPropertyChanged(nameof(ExpText));
         OnPropertyChanged(nameof(ExpProgress));
@@ -73,6 +75,7 @@ public class StatsViewModel : BaseViewModel
 
     private void Upgrade(string stat)
     {
+        // อัป stat ด้วย stat point แล้วเอาข้อความผลลัพธ์ขึ้นหน้าจอ
         _gameService.UpgradeStat(stat, out var message);
         Message = message;
         Refresh();
@@ -80,6 +83,7 @@ public class StatsViewModel : BaseViewModel
 
     private void UseRune(string stat)
     {
+        // ใช้ rune จาก inventory แล้วรีเฟรช bonus ที่แสดงในหน้า stats
         _gameService.UseRune(stat, out var message);
         Message = message;
         Refresh();

@@ -207,6 +207,7 @@ public class MatchGameViewModel : BaseViewModel
 
     public MatchGameViewModel()
     {
+        // เตรียม command ของเกมจับคู่ slime แล้วสร้างกระดานเริ่มต้น
         SelectTileCommand = new Command<MatchTile>(async tile => await SelectTile(tile));
         RestartCommand = new Command(BuildBoard);
         ContinueResultCommand = new Command(async () => await ContinueResult());
@@ -216,6 +217,7 @@ public class MatchGameViewModel : BaseViewModel
 
     public void SetBoardShape(int rows, int columns)
     {
+        // เปลี่ยนทรงกระดานตามแนวหน้าจอ ถ้าขนาดเดิมอยู่แล้วไม่ต้องสร้างใหม่
         if (Rows == rows && Columns == columns)
         {
             return;
@@ -228,6 +230,7 @@ public class MatchGameViewModel : BaseViewModel
 
     public void SetTileSize(double tileSize)
     {
+        // อัปเดตขนาด tile ทุกช่องให้พอดีกับพื้นที่จริงของหน้าจอ
         foreach (var tile in Tiles)
         {
             tile.TileSize = tileSize;
@@ -236,6 +239,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private void BuildBoard()
     {
+        // รีเซ็ตเกมใหม่ทั้งหมด แล้วสุ่ม slime ลงกระดานโดยไม่ให้มี match ตั้งแต่เริ่ม
         Tiles.Clear();
         _selectedTile = null;
         _isBusy = false;
@@ -258,6 +262,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private SlimeInfo PickSlime(int row, int column)
     {
+        // สุ่ม slime สำหรับตำแหน่งนี้จนกว่าจะไม่สร้าง match อัตโนมัติ
         SlimeInfo slime;
 
         do
@@ -271,6 +276,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private SlimeInfo RandomSlime()
     {
+        // มีโอกาสเล็กน้อยได้ rainbow slime ที่ใช้ล้างสีทั้งกระดาน
         if (_random.NextDouble() < 0.06)
         {
             return _rainbowSlime;
@@ -281,6 +287,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private bool WouldCreateStartingMatch(int row, int column, SlimeInfo slime)
     {
+        // กันการวาง slime ที่จะทำให้เกิดสามตัวติดกันตั้งแต่เริ่มเกม
         var horizontalMatch = column >= 2
             && GetTile(row, column - 1).Slime?.Name == slime.Name
             && GetTile(row, column - 2).Slime?.Name == slime.Name;
@@ -294,6 +301,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private async Task SelectTile(MatchTile? tile)
     {
+        // คุม flow การเลือกสองช่อง สลับ slime แล้วเช็กว่าเกิด match หรือไม่
         if (tile == null || _isBusy || _isFinished || MovesLeft <= 0)
         {
             return;
@@ -355,6 +363,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private void Select(MatchTile tile)
     {
+        // mark tile ที่ผู้เล่นเลือกไว้เป็นช่องแรก
         tile.IsSelected = true;
         _selectedTile = tile;
         Message = "Pick a nearby slime";
@@ -362,6 +371,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private void ClearSelection()
     {
+        // เคลียร์กรอบเลือกออกจาก tile เดิม
         if (_selectedTile != null)
         {
             _selectedTile.IsSelected = false;
@@ -372,16 +382,19 @@ public class MatchGameViewModel : BaseViewModel
 
     private static bool AreAdjacent(MatchTile first, MatchTile second)
     {
+        // เช็กว่าอยู่ติดกันแบบบนล่างซ้ายขวา ไม่รับแนวทแยง
         return Math.Abs(first.Row - second.Row) + Math.Abs(first.Column - second.Column) == 1;
     }
 
     private static void SwapSlimes(MatchTile first, MatchTile second)
     {
+        // สลับ slime สองช่องแบบ tuple สั้น ๆ
         (first.Slime, second.Slime) = (second.Slime, first.Slime);
     }
 
     private List<MatchTile> FindRainbowClearTiles(MatchTile first, MatchTile second)
     {
+        // ถ้ามี rainbow เกี่ยวข้อง ให้หาทุกช่องที่ต้องถูกล้างออกพร้อมกัน
         var targetName = GetRainbowTargetName(first, second);
 
         if (targetName == null)
@@ -396,6 +409,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private static string? GetRainbowTargetName(MatchTile first, MatchTile second)
     {
+        // rainbow + สีปกติ จะล้างสีนั้นทั้งหมด ส่วน rainbow + rainbow จะล้าง rainbow ทั้งหมด
         if (first.Slime?.Name == RainbowSlimeName && second.Slime?.Name != RainbowSlimeName)
         {
             return second.Slime?.Name;
@@ -416,6 +430,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private async Task ResolveMatches(List<MatchTile> matchedTiles)
     {
+        // ล้าง match เป็นรอบ ๆ พร้อมให้ slime ตกลงมาและเช็ก chain ต่อ
         while (matchedTiles.Count > 0)
         {
             foreach (var tile in matchedTiles)
@@ -445,6 +460,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private static void ClearMatchedTiles(List<MatchTile> matchedTiles)
     {
+        // ทำช่องที่ match เป็นช่องว่างก่อนให้ระบบ drop เติมลงมา
         foreach (var tile in matchedTiles)
         {
             tile.Slime = null;
@@ -454,6 +470,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private void DropSlimesIntoEmptySpaces()
     {
+        // ดึง slime ในแต่ละคอลัมน์ลงล่าง แล้วสุ่มตัวใหม่เติมด้านบน
         for (var column = 0; column < Columns; column++)
         {
             var slimesInColumn = new List<SlimeInfo>();
@@ -483,6 +500,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private List<MatchTile> FindMatches()
     {
+        // หา match แนวนอนและแนวตั้งทั้งหมด แล้วรวมเป็น set กันช่องซ้ำ
         var matched = new HashSet<MatchTile>();
 
         for (var row = 0; row < Rows; row++)
@@ -534,6 +552,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private static bool HasSameSlime(MatchTile first, MatchTile second)
     {
+        // เทียบ slime สีเดียวกัน โดย rainbow ไม่นับเป็น match ปกติ
         return first.Slime is { } firstSlime
             && second.Slime is { } secondSlime
             && firstSlime.Name != RainbowSlimeName
@@ -543,6 +562,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private static void AddRunIfMatch(List<MatchTile> run, HashSet<MatchTile> matched)
     {
+        // run ที่ยาวตั้งแต่ 3 ช่องขึ้นไปถือว่า match
         if (run.Count < 3)
         {
             return;
@@ -556,11 +576,13 @@ public class MatchGameViewModel : BaseViewModel
 
     private MatchTile GetTile(int row, int column)
     {
+        // แปลง row/column เป็น index ใน ObservableCollection
         return Tiles[row * Columns + column];
     }
 
     private async Task CheckGameEnd()
     {
+        // เช็กเงื่อนไขจบเกมหลังทุกการสลับหรือ chain
         if (Collected >= Goal)
         {
             await FinishGame(true);
@@ -575,6 +597,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private async Task FinishGame(bool isWin)
     {
+        // สรุปผลเกม จ่ายโบนัส affection ถ้าเข้ามาจาก dialogue
         _isFinished = true;
 
         if (isWin)
@@ -612,6 +635,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private async Task ContinueResult()
     {
+        // ปิด popup แล้วกลับเข้า dialogue ถ้าเกมนี้ถูกเปิดจากบทสนทนา
         IsResultPopupVisible = false;
 
         if (IsDialogueGame)
@@ -632,6 +656,7 @@ public class MatchTile : BaseViewModel
 
     public MatchTile(int row, int column, SlimeInfo slime)
     {
+        // เก็บตำแหน่งถาวรของ tile และ slime ที่อยู่ในช่องตอนสร้างกระดาน
         Row = row;
         Column = column;
         _slime = slime;

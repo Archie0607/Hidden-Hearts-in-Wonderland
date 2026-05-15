@@ -20,9 +20,9 @@ namespace Hidden_Hearts_in_Wonderland
     {
         protected override void OnCreate(Bundle? savedInstanceState)
         {
+            // ตั้ง Android ให้ content วาดเต็มจอแบบ edge-to-edge
             base.OnCreate(savedInstanceState);
 
-          
             Window.SetDecorFitsSystemWindows(false);
         }
     }

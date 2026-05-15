@@ -23,6 +23,7 @@ public class InventoryViewModel : BaseViewModel
 
     public InventoryViewModel()
     {
+        // เตรียม command สำหรับให้ของขวัญ เลือกเป้าหมาย ปิด popup และย้อนกลับ
         GiveGiftCommand = new Command<InventoryDisplayItem>(GiveGift);
         SelectGiftTargetCommand = new Command<GiftTargetOption>(SelectGiftTarget);
         CloseGiftPopupCommand = new Command(() => IsTargetPopupVisible = false);
@@ -93,6 +94,7 @@ public class InventoryViewModel : BaseViewModel
 
     public void Refresh()
     {
+        // รีโหลดทั้งรายชื่อตัวละคร เป้าหมายของขวัญ และ item ในกระเป๋าให้ตรงกับ save ล่าสุด
         Characters.Clear();
         GiftTargets.Clear();
 
@@ -138,6 +140,7 @@ public class InventoryViewModel : BaseViewModel
 
     private void GiveGift(InventoryDisplayItem? item)
     {
+        // เปิด popup เลือกตัวละครปลายทางสำหรับ item ที่กด
         if (item == null)
         {
             return;
@@ -152,6 +155,7 @@ public class InventoryViewModel : BaseViewModel
 
     private void SelectGiftTarget(GiftTargetOption? target)
     {
+        // เลือกเป้าหมายแล้วส่งต่อไปยืนยันของขวัญทันที
         if (target == null)
         {
             return;
@@ -163,6 +167,7 @@ public class InventoryViewModel : BaseViewModel
 
     private void ConfirmGift()
     {
+        // ตรวจว่ามีของและมีตัวละครเป้าหมาย ก่อนเรียก GameService ให้ของจริง
         if (_pendingGiftItem == null)
         {
             GiftPopupMessage = "No gift selected";

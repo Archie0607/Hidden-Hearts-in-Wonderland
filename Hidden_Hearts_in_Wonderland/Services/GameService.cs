@@ -37,24 +37,28 @@ public class GameService
 
     public void SelectCharacter(string characterName)
     {
+        // จำตัวละครที่กำลังคุยอยู่ เพื่อให้ choice ต่อไปเพิ่ม affection ถูกคน
         CurrentCharacter = characterName;
         SaveSoon();
     }
 
     public void ApplyChoice(Choice choice)
     {
+        // ใช้ผลคะแนนจากช้อยที่ผู้เล่นเลือกไปเพิ่ม/ลดค่าความสัมพันธ์
         Player.AddAffection(CurrentCharacter, choice.AffectionChange);
         SaveSoon();
     }
 
     public void AddCoins(int amount)
     {
+        // เพิ่มเหรียญจากรางวัลหรือมินิเกม แล้วเซฟตามทันที
         Coins += amount;
         SaveSoon();
     }
 
     public bool SpendCoins(int amount)
     {
+        // หักเหรียญแบบเช็กก่อน ถ้าไม่พอจะไม่แตะยอดเงิน
         if (Coins < amount)
         {
             return false;
@@ -67,6 +71,7 @@ public class GameService
 
     public void AddExperience(int amount)
     {
+        // เพิ่ม exp และวนเลเวลอัปจนกว่า exp จะไม่พอขึ้นเลเวลถัดไป
         if (Level >= MaxLevel)
         {
             Experience = 0;
@@ -93,11 +98,13 @@ public class GameService
 
     public int GetRuneCount(string runeId)
     {
+        // อ่านจำนวน rune จาก inventory ถ้าไม่มีให้ถือว่า 0
         return Player.Inventory.TryGetValue(runeId, out var count) ? count : 0;
     }
 
     public bool UpgradeStat(string stat, out string message)
     {
+        // ใช้ stat point อัปค่าสเตตัสหลักทีละขั้น พร้อมส่งข้อความให้ UI
         if (StatPoints <= 0)
         {
             message = "Stat Points ไม่พอ";
@@ -151,6 +158,7 @@ public class GameService
 
     public bool UseRune(string stat, out string message)
     {
+        // ใช้ rune จากกระเป๋าเพื่อเพิ่ม bonus ถาวรของ stat นั้น
         var runeId = stat.ToLowerInvariant() switch
         {
             "atk" => AttackRuneId,
@@ -193,6 +201,7 @@ public class GameService
 
     public StageReward GrantStageRewards(int stageNumber)
     {
+        // แจกเหรียญ exp และมีโอกาสดรอป rune หลังเคลียร์ด่าน battle
         var coins = 25 + (stageNumber * 15);
         var exp = 40 + (stageNumber * 20);
         string? runeId = null;
@@ -213,21 +222,25 @@ public class GameService
 
     public int GetCurrentAffection()
     {
+        // คืน affection ของตัวละครที่กำลังเลือกอยู่ตอนนี้
         return Player.GetAffection(CurrentCharacter);
     }
 
     public IReadOnlyList<ShopItem> GetShopItems()
     {
+        // ให้หน้า shop อ่านรายการสินค้าโดยไม่ต้องรู้รายละเอียดของ ShopService
         return _shopService.GetItems();
     }
 
     public ShopItem? GetShopItem(string itemId)
     {
+        // หา item รายตัว ใช้ทั้งตอนซื้อและตอนแสดง inventory
         return _shopService.GetItem(itemId);
     }
 
     public bool BuyItem(string itemId, out string message)
     {
+        // ซื้อของจากร้าน ถ้าเงินพอจะเพิ่มเข้ากระเป๋าและส่งข้อความสำเร็จกลับไป
         var item = _shopService.GetItem(itemId);
 
         if (item == null)
@@ -249,6 +262,7 @@ public class GameService
 
     public bool GiveGift(string characterName, string itemId, out string message)
     {
+        // มอบของขวัญให้ตัวละคร แล้วคำนวณ affection/trust/happiness ตาม item
         var item = _shopService.GetItem(itemId);
 
         if (item == null)
@@ -286,6 +300,7 @@ public class GameService
 
     public void LoadFromSave(SaveData data)
     {
+        // โหลดข้อมูลเก่ากลับเข้า service พร้อม clamp ค่าที่ไม่ควรติดลบหรือเกินเพดาน
         Player = data.Player ?? new PlayerState();
         CurrentCharacter = data.CurrentCharacter ?? "";
         Coins = data.Coins;
@@ -302,6 +317,7 @@ public class GameService
 
     private void SaveSoon()
     {
+        // fire-and-forget เพื่อไม่ให้ UI หน่วงทุกครั้งที่ค่าเล็ก ๆ เปลี่ยน
         _ = new SaveService().SaveAsync(this);
     }
 }

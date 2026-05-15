@@ -8,17 +8,13 @@ public class AiDialogueService
 {
     public const string GeneratedNextNodeId = "__ai_next__";
 
-    // Groq API key guide:
-    // 1. Put your main key in ApiKey, for example: private const string ApiKey = "YOUR_GROQ_API_KEY";
-    // 2. Put backup keys in the empty ApiKeys slots below, for example: "YOUR_BACKUP_GROQ_API_KEY_1".
-    // 3. The app uses the main key first, then switches to backup keys on quota/rate limit errors.
-    // 4. Remove real keys from this file before pushing to GitHub.
-    private const string ApiKey = "";
-    private static readonly string[] ApiKeys =
+    // ใส่ key ผ่าน GROQ_API_KEYS จะปลอดภัยสุด เพราะไม่ต้องเก็บ key จริงไว้ในโค้ด
+    // DevApiKeys เอาไว้ลองเครื่องตัวเองชั่วคราวเท่านั้น ถ้าจะอัปขึ้น git ให้ปล่อยว่างไว้แบบนี้
+    private static readonly string[] DevApiKeys =
     [
-        ApiKey, // main key
-        "",     // backup key 1, for example: "YOUR_BACKUP_GROQ_API_KEY_1"
-        "",     // backup key 2, for example: "YOUR_BACKUP_GROQ_API_KEY_2"
+        "",
+        "",
+        "",
     ];
     private const string Model = "llama-3.3-70b-versatile";
     private static readonly Uri Endpoint = new("https://api.groq.com/openai/v1/chat/completions");
@@ -31,12 +27,14 @@ public class AiDialogueService
 
     public async Task<ScenePack> GenerateScenePackAsync(Character character, DialogueNode templateNode, int affection, string roundId)
     {
+        // เจนทั้งรอบไว้ทีเดียว จะได้คุมโทนและความต่อเนื่องของบทสนทนาได้ดีกว่าเจนทีละช้อยแบบสุ่ม ๆ
         var prompt = BuildScenePackPrompt(character, templateNode, affection, roundId);
         return await RequestCompleteScenePackAsync(prompt, "6-turn scene pack with heroine replies and exactly 3 player choices per turn");
     }
 
     public async Task<DialogueNode> GenerateOpeningNodeAsync(Character character, DialogueNode templateNode, int affection, string roundId)
     {
+        // โหมดเก่าแบบเจน opening เดี่ยว ยังเก็บไว้เผื่อมีหน้าอื่นเรียกใช้
         var prompt = BuildOpeningPrompt(character, templateNode, affection, roundId);
         var (result, choices) = await RequestCompleteTurnAsync(prompt, "opening dialogue with reply, moodTag, and exactly 3 player choices");
 
@@ -52,12 +50,14 @@ public class AiDialogueService
 
     public async Task<List<Choice>> GenerateChoicesAsync(Character character, DialogueNode node, int affection)
     {
+        // ใช้สร้างเฉพาะช้อยจากประโยคล่าสุด ถ้า flow ไหนไม่ได้ใช้ scene pack ทั้งรอบ
         var prompt = BuildChoicesPrompt(character, node, affection);
         return await RequestCompleteChoicesAsync(prompt, "exactly 3 player choices");
     }
 
     public async Task<DialogueNode> GenerateNextNodeAsync(Character character, DialogueNode currentNode, Choice selectedChoice, int affection, IReadOnlyList<string>? roundHistory = null)
     {
+        // โหมดเจนเทิร์นถัดไปทันที ใช้ประวัติบทสนทนาช่วยให้ AI ไม่หลุดฉาก
         var prompt = BuildNextTurnPrompt(character, currentNode, selectedChoice, affection, roundHistory ?? []);
         var (result, choices) = await RequestCompleteTurnAsync(prompt, "next dialogue with reply, moodTag, and exactly 3 player choices");
 
@@ -75,6 +75,7 @@ public class AiDialogueService
     {
         var lastIssue = string.Empty;
 
+        // ให้ AI มีโอกาสแก้งานตัวเองอีกนิด เพราะบางครั้งตอบ JSON ไม่ครบหรือช้อยไม่ครบ 3 อัน
         for (var attempt = 1; attempt <= 3; attempt++)
         {
             var attemptPrompt = attempt == 1
@@ -98,6 +99,7 @@ public class AiDialogueService
     {
         var lastIssue = string.Empty;
 
+        // ช้อยต้องครบ 3 แบบเสมอ คือดี กลาง และพลาดนิด ๆ ตามคะแนน affection
         for (var attempt = 1; attempt <= 3; attempt++)
         {
             var attemptPrompt = attempt == 1
@@ -121,6 +123,7 @@ public class AiDialogueService
     {
         var lastIssue = string.Empty;
 
+        // รอบหลักของเกมต้องครบ 6 เทิร์น ถ้า AI ส่งมาไม่ครบจะขอใหม่ทันที
         for (var attempt = 1; attempt <= 3; attempt++)
         {
             var attemptPrompt = attempt == 1
@@ -148,6 +151,7 @@ public class AiDialogueService
             return parsed;
         }
 
+        // ถ้าเนื้อหาดีแต่ JSON พังนิดหน่อย ให้ AI ช่วยจัดกลับเข้ารูปแบบเดิมก่อนทิ้ง error
         var repairedText = await RequestAiTextAsync(BuildJsonRepairPrompt<T>(text), 0.2);
         if (TryParseAiJson(repairedText, out parsed))
         {
@@ -159,15 +163,18 @@ public class AiDialogueService
 
     private async Task<string> RequestAiTextAsync(string prompt, double temperature)
     {
-        var apiKeys = ApiKeys
-            .Where(key => !string.IsNullOrWhiteSpace(key))
-            .Distinct()
-            .ToList();
+        // จุดเดียวที่ยิงไปหา Groq จริง ๆ เมธอดอื่นจะเตรียม prompt กับเช็กผลลัพธ์ก่อน/หลังเรียกตรงนี้
+        var apiKeys = GetConfiguredApiKeys();
 
         if (apiKeys.Count == 0)
-            throw new InvalidOperationException("Missing Groq API key. Fill ApiKeys in AiDialogueService before starting the app.");
+            throw new InvalidOperationException("ยังไม่ได้ตั้งค่า Groq API key. ให้ตั้ง GROQ_API_KEYS หรือใส่ dev key ชั่วคราวใน DevApiKeys ก่อนเริ่มแอป");
 
-        var systemPrompt = "You are a JSON-only writer for a Thai dating visual novel. Return one valid JSON object only.";
+        var systemPrompt = """
+        You are a JSON-only writer for a Thai dating visual novel.
+        Return one valid JSON object only.
+        All user-visible dialogue values must be Thai language only.
+        Do not use English, Japanese, Chinese, Korean, mojibake, romanized Thai, emoji, markdown, or garbled characters in dialogue.
+        """;
         var body = new
         {
             model = Model,
@@ -195,6 +202,7 @@ public class AiDialogueService
         var failedKeyIndexes = new HashSet<int>();
         var lastQuotaError = string.Empty;
 
+        // ถ้ามีหลาย key จะลองไล่ไปทีละอัน เผื่อบาง key quota หมดหรือโดน rate limit
         for (var keyIndex = 0; keyIndex < apiKeys.Count; keyIndex++)
         {
             if (failedKeyIndexes.Contains(keyIndex))
@@ -208,6 +216,11 @@ public class AiDialogueService
             var json = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
             {
+                if (IsOrganizationRestrictedError(json))
+                {
+                    throw new InvalidOperationException("Groq ปฏิเสธ API key นี้เพราะ organization ถูกจำกัด (organization_restricted). ต้องใช้ key จาก Groq organization ที่เปิดใช้งานได้ หรือไปแก้สถานะบัญชี/organization ใน Groq Console");
+                }
+
                 if (IsQuotaOrRateLimitError(response, json) && keyIndex < apiKeys.Count - 1)
                 {
                     failedKeyIndexes.Add(keyIndex);
@@ -216,9 +229,9 @@ public class AiDialogueService
                 }
 
                 if (IsQuotaOrRateLimitError(response, json))
-                    throw new InvalidOperationException($"Groq quota/rate limit failed for all API keys. Last issue: {(int)response.StatusCode} {response.ReasonPhrase}. {json}");
+                    throw new InvalidOperationException($"Groq quota/rate limit failed for all API keys. Last issue: {(int)response.StatusCode} {response.ReasonPhrase}. {ExtractGroqErrorMessage(json)}");
 
-                throw new InvalidOperationException($"Groq request failed: {(int)response.StatusCode} {response.ReasonPhrase}. {json}");
+                throw new InvalidOperationException($"Groq request failed: {(int)response.StatusCode} {response.ReasonPhrase}. {ExtractGroqErrorMessage(json)}");
             }
 
             var groq = JsonSerializer.Deserialize<GroqChatResponse>(json, _jsonOptions);
@@ -238,8 +251,66 @@ public class AiDialogueService
         throw new InvalidOperationException($"Groq quota/rate limit failed for all API keys. Last issue: {lastQuotaError}");
     }
 
+    private static List<string> GetConfiguredApiKeys()
+    {
+        var environmentKeys = Environment.GetEnvironmentVariable("GROQ_API_KEYS") ?? string.Empty;
+        // รองรับหลาย key ใน environment เดียว คั่นด้วย ; , หรือขึ้นบรรทัดใหม่ก็ได้
+        return environmentKeys
+            .Split([';', ',', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Concat(DevApiKeys)
+            .Where(key => !string.IsNullOrWhiteSpace(key))
+            .Distinct()
+            .ToList();
+    }
+
+    private static bool IsOrganizationRestrictedError(string responseBody)
+    {
+        // error แบบนี้เปลี่ยน key อย่างเดียวอาจไม่พอ ต้องแก้สถานะ organization ใน Groq ด้วย
+        return responseBody.Contains("organization_restricted", StringComparison.OrdinalIgnoreCase)
+            || responseBody.Contains("Organization has been restricted", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string ExtractGroqErrorMessage(string responseBody)
+    {
+        // ดึง error ให้อ่านง่ายขึ้น ไม่งั้น dialog จะโชว์ JSON ยาว ๆ จนผู้เล่นงง
+        if (string.IsNullOrWhiteSpace(responseBody))
+            return "Groq did not return an error body.";
+
+        try
+        {
+            using var document = JsonDocument.Parse(responseBody);
+            if (document.RootElement.TryGetProperty("error", out var error)
+                && error.ValueKind == JsonValueKind.Object)
+            {
+                var message = TryGetStringProperty(error, "message");
+                var code = TryGetStringProperty(error, "code");
+                var type = TryGetStringProperty(error, "type");
+
+                var parts = new[] { message, code, type }
+                    .Where(part => !string.IsNullOrWhiteSpace(part));
+
+                return string.Join(" | ", parts);
+            }
+        }
+        catch (JsonException)
+        {
+            // Fall back to a shortened raw body below.
+        }
+
+        return ShortenForError(responseBody);
+    }
+
+    private static string TryGetStringProperty(JsonElement element, string name)
+    {
+        // อ่าน property string จาก JSON แบบปลอดภัย ถ้าไม่มีให้คืนค่าว่าง
+        return element.TryGetProperty(name, out var property) && property.ValueKind == JsonValueKind.String
+            ? property.GetString() ?? string.Empty
+            : string.Empty;
+    }
+
     private static bool IsQuotaOrRateLimitError(HttpResponseMessage response, string responseBody)
     {
+        // ใช้ตัดสินใจว่าจะลอง key ถัดไปไหม โดยไม่สลับ key ตอนเป็น 401 เพราะมักเป็น key ผิดจริง
         var statusCode = (int)response.StatusCode;
         if (statusCode == 429)
             return true;
@@ -263,6 +334,7 @@ public class AiDialogueService
     {
         var personalityPrompt = CharacterProfileService.GetPersonalityPrompt(character.Name);
 
+        // Prompt นี้ตั้งใจให้คำตอบของสาว ๆ เกี่ยวกับช้อยที่เลือก แต่ไม่ต้องเห็นด้วยแบบแข็ง ๆ ทุกครั้ง
         return $$"""
         You write a complete 6-turn conversation scene pack for a Thai dating visual novel named Hidden Hearts in Wonderland.
 
@@ -290,7 +362,7 @@ public class AiDialogueService
                   "affectionChange": 5,
                   "isMiniGame": false,
                   "expectedMood": "happy",
-                  "reply": "Thai spoken dialogue from the heroine reacting to this exact choice",
+                  "reply": "Thai spoken dialogue from the heroine that naturally continues after this choice",
                   "moodTag": "happy"
                 }
               ]
@@ -301,12 +373,13 @@ public class AiDialogueService
         Scene pack rules:
         - Generate exactly 6 turns in the turns array.
         - Turn 1 reply is the opening line from {{character.Name}}.
-        - Turns 2-6 replies are shared continuation lines that should still make sense after any previous choice.
+        - Turns 2-6 replies are internal bridge lines for planning continuity. They are not shown immediately after a selected choice.
         - Every turn must continue the same small situation like one connected scene, not restart the conversation.
         - Each turn must have exactly 3 choices.
-        - Every choice must have a choice-specific heroine reply that directly reacts to that exact player line.
-        - After the player selects any choice, the game will show that choice's reply, then advance to the next shared turn's choices.
-        - Keep continuity broad enough that the next shared turn can follow from positive, neutral, or negative previous replies.
+        - Every choice must have a choice-specific heroine reply that feels related to that player line, but it does not need to agree, repeat, or answer too literally.
+        - After the player selects a choice, the game shows only that choice-specific heroine reply, then shows the next turn's shared choices.
+        - For turns 2-6, choices must make sense after any previous choice-specific heroine reply, because the internal bridge reply is not shown to the player.
+        - Keep every next choice set broad enough that it can follow from positive, neutral, or negative previous replies without feeling like it ignored the player.
         - Do not make a 3^6 branching tree. Generate one linear 6-turn scene with 3 reactive replies per turn.
         - Do not repeat or closely paraphrase any player choice across all 6 turns.
         - Do not copy or paraphrase any fixed starter text from the game data.
@@ -314,18 +387,25 @@ public class AiDialogueService
 
         Dialogue rules:
         - Write like a soft, slightly shy Thai anime visual novel heroine. Use natural Thai spoken rhythm, not formal translated Thai.
-        - Thai lines should feel casual, warm, and alive, with gentle particles or hesitation when appropriate, such as "犧ｭ犧ｷ犹霞ｸ｡", "犹犧ｭ犹謂ｸｭ", "犧吭ｸｰ", "犧･犹謂ｸｰ", "犹犧ｫ犧｣犧ｭ", "犧籾ｹ霞ｸｲ犹・ｸ｡犹謂ｸ｣犧壟ｸ≒ｸｧ犧・.
+        - Thai lines should feel casual, warm, and alive, with gentle Thai particles or hesitation when appropriate, such as "อืม", "เอ่อ", "นะ", "ล่ะ", "เหรอ", "ขอบคุณนะ".
+        - User-visible text in reply, choices.text, and choices.reply must contain Thai language only.
+        - Do not use English words, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters in user-visible text.
         - Avoid stiff, literal, questionnaire-like Thai. Do not make every line sound like an interview question.
+        - Avoid bland compliment loops like "ชอบที่นี่ไหม" -> "ฉันก็ชอบเหมือนกัน". Add a tiny concrete detail from the scene or feeling.
+        - Use short Thai spoken lines, usually 1-2 sentences. Let the character sound like she is reacting in the moment.
         - Prefer emotionally specific spoken lines over generic sentences.
         - All heroine replies must be direct spoken dialogue from {{character.Name}} to the player.
         - All player choice text must be direct spoken dialogue from the player to {{character.Name}}.
         - Do not write narration, actions, stage directions, descriptions of tone, or third-person text.
         - Do not write "{{character.Name}} smiles", "{{character.Name}} looks", or any third-person narration.
         - The heroine must speak like her personality, likes, dislikes, and current emotion.
-        - Every choice must directly answer or react to the heroine line for that turn.
-        - Choice-specific replies must answer the meaning or emotion of the selected choice.
+        - Every choice should stay related to the heroine line for that turn without sounding like a forced exact answer.
+        - Choice-specific replies should continue the same topic or mood naturally, like real flirting or casual conversation.
+        - The heroine may tease, hesitate, ask back, deflect shyly, add a new small detail, or change the angle slightly instead of agreeing directly.
+        - Avoid starting heroine replies with repeated agreement or confirmation phrases such as "ใช่", "อืม", "ฉันก็", "คุณพูดถูก", "จริงด้วย", or "นั่นสิ".
         - Do not quote or repeat the selected choice verbatim inside the heroine reply.
-        - Make the dialogue feel like two people talking, not like summarizing what the player chose.
+        - Make the dialogue feel like two people talking, flirting, and finding a rhythm, not like summarizing what the player chose.
+        - The next turn choices must feel natural after the previous choice-specific heroine reply, even if the internal bridge reply is not displayed.
         - Write natural Thai. No markdown. No extra explanation.
 
         Choice role rules for every turn:
@@ -350,6 +430,7 @@ public class AiDialogueService
     {
         var personalityPrompt = CharacterProfileService.GetPersonalityPrompt(character.Name);
 
+        // Prompt opening เน้นเปิดสถานการณ์เล็ก ๆ ให้คุยต่อได้ ไม่ใช่ประโยคทักทายลอย ๆ
         return $$"""
         You write a fresh opening line for a new conversation round in a Thai dating visual novel named Hidden Hearts in Wonderland.
 
@@ -386,17 +467,20 @@ public class AiDialogueService
         - This is a new conversation round. Create a different first situation from previous rounds.
         - This opening starts a connected 6-turn mini-scene. Set up one clear situation that can naturally continue for 6 turns.
         - Give the heroine a small immediate concern, curiosity, invitation, or emotional hook that the player can respond to.
+        - Make the first situation concrete: include one small visible detail, feeling, object, or question that the choices can naturally answer.
         - Do not copy or paraphrase any fixed starter text from the game data.
         - Avoid making {{character.Name}} read a book unless the selected moodTag is reading.
         - Keep the same setting mood, but vary the place, action, prop, or first emotional beat.
         - Write exactly 3 choices in Thai.
-        - Every choice must directly respond to or follow from {{character.Name}}'s reply.
-        - The choices must feel like natural answers to what {{character.Name}} just said, not generic pickup lines.
+        - Every choice should be related to {{character.Name}}'s reply, but not every choice needs to answer it literally.
+        - The choices must feel like natural things someone might say while talking or flirting, not generic pickup lines.
+        - Choices may reassure, ask a small question, tease gently, admit uncertainty, or invite her to do something in the same scene.
         - Each choice should lead the same situation forward, not jump to a different scene.
         - Every choice text must be direct speech from the player to {{character.Name}}.
         - Do not write actions, narration, stage directions, or descriptions of tone.
-        - Do not write text like "犧｢犧ｴ犹霞ｸ｡犹・ｸｫ犹・, "犹犧扉ｸｴ犧吭ｹ犧もｹ霞ｸｲ犹・ｸ・, "犧籾ｸｲ犧｡犧ｧ犹謂ｸｲ", "犧樅ｸｹ犧扉ｸ≒ｸｱ犧・, or "犧癌ｸｧ犧吭ｸ・ｸｸ犧｢".
-        - Good choice text examples: "犧ｧ犧ｱ犧吭ｸ吭ｸｵ犹霞ｹ犧倨ｸｭ犧扉ｸｹ犧ｪ犧壟ｸｲ犧｢犹・ｸ謂ｸ≒ｸｧ犹謂ｸｲ犧巵ｸ≒ｸ歩ｸｴ犧吭ｸｰ", "犧籾ｹ霞ｸｲ犹・ｸ｡犹謂ｸ｣犧ｱ犧・ｹ犧≒ｸｵ犧｢犧・犧霞ｸｱ犧吭ｸもｸｭ犧ｭ犧｢犧ｹ犹謂ｸ歩ｸ｣犧・ｸ吭ｸｵ犹霞ｸ扉ｹ霞ｸｧ犧｢犹・ｸ扉ｹ霞ｹ・ｸｫ犧｡"
+        - User-visible text in reply and choices.text must contain Thai language only.
+        - Do not use English words, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
+        - Good choice text examples: "งั้นเราเดินช้า ๆ ด้วยกันนะ", "ตรงนั้นมีแสงสวยดี อยากไปดูใกล้ ๆ ไหม", "ถ้าเธอไม่สบายใจ เราพักตรงนี้ก่อนก็ได้"
         - Generate exactly 3 player choices with these roles:
           1. Positive: respects her personality, likes, current emotion, or boundaries. affectionChange must be 5 to 12.
           2. Neutral: polite and natural but not especially intimate. affectionChange must be 0 to 3.
@@ -413,6 +497,7 @@ public class AiDialogueService
     {
         var personalityPrompt = CharacterProfileService.GetPersonalityPrompt(character.Name);
 
+        // Prompt นี้บังคับให้ช้อยเกี่ยวกับประโยคล่าสุด แต่ยังต้องฟังเหมือนคนตอบกันจริง ๆ
         return $$"""
         You write player choices for a Thai dating visual novel named Hidden Hearts in Wonderland.
 
@@ -442,12 +527,15 @@ public class AiDialogueService
 
         Rules:
         - Write exactly 3 choices in Thai.
-        - Every choice must directly answer or react to the latest heroine line.
-        - If the heroine asks, worries, hints, or shows emotion, each choice should address that exact context.
+        - Every choice must stay related to the latest heroine line.
+        - If the heroine asks, worries, hints, or shows emotion, at least one choice should address that context directly; the others may respond more casually or playfully.
         - Do not write generic choices that could fit any scene.
+        - Choices can mention the place, object, worry, invitation, or emotion she just mentioned, but do not force every choice to mirror the same words.
+        - Do not make all choices simple compliments or agreement. Mix reassurance, curiosity, playful honesty, a small invitation, and one believable mistake.
         - Each choice must be a line of dialogue the player says directly to {{character.Name}}.
         - Do not write actions, narration, stage directions, or descriptions of tone.
-        - Do not write text like "犧｢犧ｴ犹霞ｸ｡犹・ｸｫ犹・, "犹犧扉ｸｴ犧吭ｹ犧もｹ霞ｸｲ犹・ｸ・, "犧籾ｸｲ犧｡犧ｧ犹謂ｸｲ", "犧樅ｸｹ犧扉ｸ≒ｸｱ犧・, or "犧癌ｸｧ犧吭ｸ・ｸｸ犧｢".
+        - User-visible text in choices.text must contain Thai language only.
+        - Do not use English words, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
         - The player can imply emotion through words, but the text itself must be speakable aloud.
         - Do not repeat the same choice wording from earlier turns.
         - Generate exactly 3 player choices with these roles:
@@ -469,6 +557,7 @@ public class AiDialogueService
         var historyText = FormatRoundHistory(roundHistory);
         var usedChoicesText = FormatUsedChoices(roundHistory);
 
+        // ใช้ตอนให้ AI ต่อบทจากช้อยที่เลือก พร้อมส่ง history ไปกันการพูดวนหรือหลุดหัวข้อ
         return $$"""
         You continue a Thai dating visual novel scene and choose the heroine emotional mood.
 
@@ -517,23 +606,27 @@ public class AiDialogueService
         - Continue the same situation like one connected scene. Do not restart the setting or introduce an unrelated new situation.
         - reply must sound like {{character.Name}}.
         - reply must be direct spoken dialogue from {{character.Name}} to the player.
-        - reply must directly react to the player's selected choice.
-        - The first sentence of reply must naturally answer the meaning or emotion of the selected choice.
+        - reply must feel related to the player's selected choice, but it should not sound like a literal confirmation of it.
+        - The reply may answer, tease, ask back, shyly deflect, or pick up only one small part of the selected choice.
+        - The second sentence may gently move the same situation forward with a small new detail for the next choices.
         - Do not quote or repeat the selected choice verbatim.
-        - Do not start with formulaic phrases like "犧伶ｸｵ犹謂ｸ・ｸｸ犧内ｸ壟ｸｭ犧≒ｸｧ犹謂ｸｲ", "犧伶ｸｵ犹謂ｸ・ｸｸ犧内ｸ樅ｸｹ犧扉ｸｧ犹謂ｸｲ", "犧・ｸｳ犧ｧ犹謂ｸｲ", or "犹犧｣犧ｷ犹謂ｸｭ犧・ｸ伶ｸｵ犹謂ｸ・ｸｸ犧内ｸ樅ｸｹ犧・.
+        - Do not start with formulaic agreement phrases like "ใช่", "อืม", "ฉันก็", "คุณพูดถูก", "ฉันเข้าใจแล้ว", "จริงด้วย", or "ขอบคุณที่บอก".
+        - User-visible text in reply and choices.text must contain Thai language only.
+        - Do not use English words, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
         - Make it feel like two people talking, not like summarizing what the player chose.
         - Do not change topic suddenly. Continue from the previous heroine line and selected player choice.
         - Do not write narration, actions, stage directions, or descriptions in reply.
         - Do not write "{{character.Name}} smiles", "{{character.Name}} looks", or any third-person narration.
         - The reply must be speakable aloud as the heroine's own words.
         - Write exactly 3 new spoken choices in Thai for the next player response.
-        - The next choices must be natural responses to {{character.Name}}'s new reply.
+        - The next choices must be natural things the player might say after {{character.Name}}'s new reply.
         - Do not generate choices that ignore what {{character.Name}} just said.
+        - The next choices should stay in the same situation, but they can vary between asking, teasing, inviting, reassuring, or hesitating.
+        - Do not make all choices praise her or agree with her. At least one choice should move the conversation forward.
         - Do not repeat or closely paraphrase any player choice already used this round.
         - Each new choice should move the current situation forward in a different way.
         - Each choice text must be direct speech from the player to {{character.Name}}.
         - Do not write actions, narration, stage directions, or descriptions of tone.
-        - Do not write text like "犧｢犧ｴ犹霞ｸ｡犹・ｸｫ犹・, "犹犧扉ｸｴ犧吭ｹ犧もｹ霞ｸｲ犹・ｸ・, "犧籾ｸｲ犧｡犧ｧ犹謂ｸｲ", "犧樅ｸｹ犧扉ｸ≒ｸｱ犧・, or "犧癌ｸｧ犧吭ｸ・ｸｸ犧｢".
         - Do not repeat the same choice wording from earlier turns.
         - The next choices should fit the chosen mood and scene.
         - Generate exactly 3 player choices with these roles:
@@ -550,8 +643,9 @@ public class AiDialogueService
 
     private static List<Choice> NormalizeChoices(IReadOnlyList<AiChoice>? choices)
     {
+        // ตรงนี้กรองด่านสุดท้ายก่อนส่งเข้า UI กันภาษาแปลก ๆ หรือช้อยเกิน 3 อันหลุดไปโชว์
         var normalized = choices?
-            .Where(choice => !string.IsNullOrWhiteSpace(choice.Text))
+            .Where(choice => IsValidThaiDialogue(choice.Text))
             .Take(3)
             .Select(choice => new Choice
             {
@@ -568,15 +662,16 @@ public class AiDialogueService
 
     private static ScenePack NormalizeScenePack(ScenePack? scenePack)
     {
+        // Scene pack ต้องสะอาดทั้ง reply และช้อย เพราะอันนี้เป็นบทหลักที่ผู้เล่นจะเห็นทั้งรอบ
         var turns = scenePack?.Turns?
-            .Where(turn => !string.IsNullOrWhiteSpace(turn.Reply) && turn.Choices.Count > 0)
+            .Where(turn => IsValidThaiDialogue(turn.Reply) && turn.Choices.Count > 0)
             .Take(6)
             .Select(turn => new SceneTurn
             {
                 Reply = turn.Reply.Trim(),
                 MoodTag = CleanMoodTag(turn.MoodTag),
                 Choices = turn.Choices
-                    .Where(choice => !string.IsNullOrWhiteSpace(choice.Text) && !string.IsNullOrWhiteSpace(choice.Reply))
+                    .Where(choice => IsValidThaiDialogue(choice.Text) && IsValidThaiDialogue(choice.Reply))
                     .Take(3)
                     .Select(choice => new SceneChoice
                     {
@@ -594,13 +689,43 @@ public class AiDialogueService
         return new ScenePack { Turns = turns };
     }
 
+    private static bool IsValidThaiDialogue(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
+
+        // ยอมให้มีเลข เว้นวรรค และเครื่องหมายวรรคตอน แต่ตัวหนังสือหลักต้องเป็นไทยเท่านั้น
+        var hasThaiLetter = false;
+        foreach (var ch in text)
+        {
+            if (ch is >= '\u0E00' and <= '\u0E7F')
+            {
+                hasThaiLetter = true;
+                continue;
+            }
+
+            if (char.IsWhiteSpace(ch)
+                || char.IsDigit(ch)
+                || char.IsPunctuation(ch))
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return hasThaiLetter;
+    }
+
     private static string CleanMoodTag(string moodTag)
     {
+        // mood ว่างให้กลับไป neutral ไว้ก่อน ภาพตัวละครจะได้ไม่หา key แปลก ๆ
         return string.IsNullOrWhiteSpace(moodTag) ? "neutral" : moodTag.Trim();
     }
 
     private static string CleanJson(string text)
     {
+        // AI บางรอบชอบครอบ ```json มาให้ เลยตัดออกก่อน parse
         var cleaned = text.Replace("```json", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Replace("```", string.Empty)
             .Trim();
@@ -618,6 +743,7 @@ public class AiDialogueService
 
     private bool TryDeserializeJson<T>(string text, out T? result)
     {
+        // parse แบบปกติก่อน ถ้าไม่ได้ค่อยไปทาง flexible parser ด้านล่าง
         try
         {
             result = JsonSerializer.Deserialize<T>(CleanJson(text), _jsonOptions);
@@ -635,6 +761,7 @@ public class AiDialogueService
         if (TryDeserializeJson(text, out result))
             return true;
 
+        // บางที AI เปลี่ยนชื่อ field นิดหน่อย เลยมี parser สำรองไว้ช่วยเก็บงานที่ยังพอใช้ได้
         if (typeof(T) == typeof(AiTurnResponse) && TryParseFlexibleTurn(text, out var turn))
         {
             result = (T)(object)turn;
@@ -653,6 +780,7 @@ public class AiDialogueService
 
     private static bool TryParseFlexibleTurn(string text, out AiTurnResponse response)
     {
+        // parser สำรองสำหรับคำตอบหนึ่งเทิร์น เผื่อชื่อ field ไม่ตรง schema เป๊ะ ๆ
         response = new AiTurnResponse();
 
         if (!TryGetJsonRoot(text, out var root))
@@ -669,6 +797,7 @@ public class AiDialogueService
 
     private static bool TryParseFlexibleChoices(string text, out AiChoiceResponse response)
     {
+        // parser สำรองสำหรับเคสที่ต้องการแค่ choices
         response = new AiChoiceResponse();
 
         if (!TryGetJsonRoot(text, out var root))
@@ -680,6 +809,7 @@ public class AiDialogueService
 
     private static bool TryGetJsonRoot(string text, out JsonElement root)
     {
+        // รองรับทั้ง JSON ตรง ๆ และ JSON ที่โดนส่งมาเป็น string ซ้อนอีกชั้น
         root = default;
         var cleaned = CleanJson(text);
 
@@ -710,6 +840,7 @@ public class AiDialogueService
 
     private static List<AiChoice> ReadChoices(JsonElement root)
     {
+        // รับชื่อ field หลายแบบไว้หน่อย เพราะโมเดลบางทีใช้ options หรือ responses แทน choices
         if (!TryGetProperty(root, out var choicesElement, "choices", "Choices", "playerChoices", "options", "responses"))
             return [];
 
@@ -738,6 +869,7 @@ public class AiDialogueService
 
     private static string ReadChoiceText(JsonElement item)
     {
+        // choice อาจมาเป็น string ตรง ๆ หรือมาเป็น object ที่มี text ข้างใน
         return item.ValueKind == JsonValueKind.String
             ? item.GetString() ?? string.Empty
             : GetString(item, "text", "Text", "dialogue", "line", "choice");
@@ -745,6 +877,7 @@ public class AiDialogueService
 
     private static string GetString(JsonElement element, params string[] names)
     {
+        // อ่านค่าเป็น string จากชื่อ field หลายแบบ เผื่อ AI ตั้งชื่อไม่ตรงเป๊ะ
         if (!TryGetProperty(element, out var property, names))
             return string.Empty;
 
@@ -760,6 +893,7 @@ public class AiDialogueService
 
     private static int GetInt(JsonElement element, params string[] names)
     {
+        // อ่านเลขจาก JSON ได้ทั้งแบบ number และ string
         if (!TryGetProperty(element, out var property, names))
             return 0;
 
@@ -774,6 +908,7 @@ public class AiDialogueService
 
     private static bool GetBool(JsonElement element, params string[] names)
     {
+        // อ่าน boolean จาก JSON ได้ทั้ง bool ตรง ๆ และ string "true"
         if (!TryGetProperty(element, out var property, names))
             return false;
 
@@ -788,6 +923,7 @@ public class AiDialogueService
 
     private static bool TryGetProperty(JsonElement element, out JsonElement property, params string[] names)
     {
+        // หา property แบบตรงชื่อก่อน แล้วค่อยไล่แบบไม่สนตัวพิมพ์เล็กใหญ่
         property = default;
         if (element.ValueKind != JsonValueKind.Object)
             return false;
@@ -812,6 +948,7 @@ public class AiDialogueService
 
     private static string ShortenForError(string text)
     {
+        // จำกัด error ไม่ให้ยาวเกิน dialog ในเกม
         var cleaned = string.IsNullOrWhiteSpace(text) ? "(empty)" : text.Trim();
         const int maxLength = 260;
         return cleaned.Length <= maxLength ? cleaned : $"{cleaned[..maxLength]}...";
@@ -819,6 +956,7 @@ public class AiDialogueService
 
     private static string BuildJsonRepairPrompt<T>(string brokenText)
     {
+        // ใช้ตอน JSON แตกเท่านั้น ให้ AI ซ่อมรูปทรงข้อมูล ไม่ใช่แต่งบทใหม่ทั้งก้อน
         var schema = typeof(T) switch
         {
             { } type when type == typeof(ScenePack) => """
@@ -883,6 +1021,7 @@ public class AiDialogueService
 
     private static string BuildRetryPrompt(string originalPrompt, string taskName, string issue)
     {
+        // Retry prompt จะบอกปัญหาตรง ๆ แล้วให้เจนใหม่ตาม schema เดิม
         return $$"""
         Your previous response for this task was incomplete or invalid: {{issue}}
 
@@ -897,6 +1036,7 @@ public class AiDialogueService
 
     private static string DescribeTurnIssue(AiTurnResponse? result, IReadOnlyList<Choice> choices)
     {
+        // รวมเหตุผลที่ response ใช้ไม่ได้ เพื่อเอาไปบอก AI ตอน retry
         if (result == null)
             return "Response object was null.";
 
@@ -904,6 +1044,8 @@ public class AiDialogueService
 
         if (string.IsNullOrWhiteSpace(result.Reply))
             issues.Add("Missing reply.");
+        else if (!IsValidThaiDialogue(result.Reply))
+            issues.Add("Reply must contain Thai dialogue only.");
 
         if (string.IsNullOrWhiteSpace(result.MoodTag))
             issues.Add("Missing moodTag.");
@@ -924,6 +1066,7 @@ public class AiDialogueService
 
     private static string DescribeChoicesIssue(IReadOnlyList<Choice> choices)
     {
+        // ชุดช้อยต้องครบ 3 และต้องมีบทบาทครบตามคะแนนที่เราวางไว้
         if (choices.Count != 3)
             return $"Expected 3 choices, got {choices.Count}.";
 
@@ -935,6 +1078,7 @@ public class AiDialogueService
         if (scenePack == null)
             return "Response object was null.";
 
+        // เช็กให้ละเอียดหน่อย เพราะถ้าบทชุดแรกพัง เกมจะพังต่อเนื่องทั้งรอบ
         var issues = new List<string>();
 
         if (scenePack.Turns.Count != 6)
@@ -986,6 +1130,7 @@ public class AiDialogueService
 
     private static string DescribeChoiceRolesIssue(IReadOnlyList<Choice> choices)
     {
+        // กันไม่ให้ AI ส่งมาแต่ช้อยดีทั้งหมด เพราะเกมต้องมีผลคะแนนให้เลือกจริง
         var hasPositiveChoice = choices.Any(choice => choice.AffectionChange >= 5);
         var hasNeutralChoice = choices.Any(choice => choice.AffectionChange is >= 0 and <= 3);
         var hasNegativeChoice = choices.Any(choice => choice.AffectionChange <= -2);
@@ -1005,6 +1150,7 @@ public class AiDialogueService
 
     private static string FormatRoundHistory(IReadOnlyList<string> roundHistory)
     {
+        // แปลง history เป็น bullet สั้น ๆ ให้ prompt อ่านง่าย
         if (roundHistory.Count == 0)
             return "- No previous lines yet.";
 
@@ -1013,6 +1159,7 @@ public class AiDialogueService
 
     private static string FormatUsedChoices(IReadOnlyList<string> roundHistory)
     {
+        // ส่งเฉพาะช้อยที่ผู้เล่นเคยกดไปแล้ว เพื่อกัน AI สร้างคำตอบซ้ำ ๆ
         var usedChoices = roundHistory
             .Where(line => line.StartsWith("Player:", StringComparison.OrdinalIgnoreCase))
             .Select(line => line["Player:".Length..].Trim())

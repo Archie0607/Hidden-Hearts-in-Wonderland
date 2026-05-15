@@ -134,6 +134,7 @@ public class CardBattleViewModel : BaseViewModel
 
     public CardBattleViewModel()
     {
+        // เตรียม command ทั้งหมดของหน้าต่อสู้ แล้วโหลดทีมกับด่านแรกเข้ามา
         SelectPlayerCommand = new Command<BattleFighter>(SelectPlayer);
         AttackEnemyCommand = new Command<BattleFighter>(async enemy => await AttackEnemy(enemy));
         NextStageCommand = new Command(NextStage);
@@ -148,6 +149,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private void BuildPlayerTeam()
     {
+        // สร้างทีมผู้เล่นจาก hero หลักและ support ที่เลือกไว้ พร้อมบวก stat bonus จาก GameService
         PlayerTeam.Clear();
 
         var teamCards = _cardService.GetBattleTeamCards().ToList();
@@ -175,6 +177,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private void LoadStage(int stageIndex)
     {
+        // โหลดศัตรูของด่าน รีเซ็ตสถานะเทิร์น และอัปเดตข้อความบนจอ
         _stageIndex = Math.Clamp(stageIndex, 0, _cardService.Stages.Count - 1);
         _selectedPlayer = null;
         _isBattleEnded = false;
@@ -202,6 +205,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private void SelectPlayer(BattleFighter? fighter)
     {
+        // เลือกการ์ดฝ่ายเราเพื่อเตรียมโจมตี ถ้าตายหรือใช้เทิร์นแล้วจะกดไม่ได้
         if (fighter == null || !fighter.IsAlive || fighter.HasActed || _isBattleEnded)
         {
             return;
@@ -221,6 +225,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private async Task AttackEnemy(BattleFighter? enemy)
     {
+        // ใช้ตัวที่เลือกไว้โจมตีศัตรู แล้วให้ระบบเช็กว่าจะจบด่านหรือถึงเทิร์นศัตรูไหม
         if (_selectedPlayer == null || enemy == null || !enemy.IsAlive || _selectedPlayer.HasActed || _isBattleEnded)
         {
             return;
@@ -236,6 +241,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private void ExecutePlayerAction(BattleFighter attacker, BattleFighter target)
     {
+        // แยกผลของแต่ละ role เช่น support ฮีล mage โจมตีหมู่ assassin ใส่พิษ
         switch (attacker.Role)
         {
             case CardRole.Support:
@@ -285,6 +291,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private async Task CheckBattleProgress()
     {
+        // หลังผู้เล่นลงมือ ถ้าศัตรูหมดคือชนะ ไม่งั้นรอเล็กน้อยแล้วให้ศัตรูสวน
         if (EnemyTeam.All(enemy => !enemy.IsAlive))
         {
             WinStage();
@@ -297,6 +304,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private async Task EnemyTurn()
     {
+        // เทิร์นศัตรูเริ่มจากคิดพิษก่อน แล้วค่อยสุ่มตัวโจมตีกับเป้าหมาย
         foreach (var enemy in EnemyTeam.Where(enemy => enemy.IsAlive).ToList())
         {
             if (enemy.PoisonTurns <= 0)
@@ -359,6 +367,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private void WinStage()
     {
+        // เคลียร์ด่าน แจกของรางวัล ปลดล็อกด่านถัดไป และโชว์ popup สรุปผล
         _isBattleEnded = true;
         _cardService.MarkStageCleared(CurrentStage.Number);
         var reward = _gameService.GrantStageRewards(CurrentStage.Number);
@@ -378,6 +387,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private BattleFighter? PickEnemyTarget()
     {
+        // ถ้ามีตัวที่ taunt อยู่ ศัตรูต้องตีตัวนั้นก่อน ไม่งั้นสุ่มจากตัวที่ยังรอด
         var tauntTarget = PlayerTeam.FirstOrDefault(player => player.IsAlive && player.TauntTurns > 0);
         if (tauntTarget != null)
         {
@@ -390,17 +400,20 @@ public class CardBattleViewModel : BaseViewModel
 
     private BattleFighter? PickEnemyAttacker()
     {
+        // เลือกศัตรูที่ยังมีชีวิตขึ้นมาเป็นคนโจมตี
         var attackers = EnemyTeam.Where(enemy => enemy.IsAlive).ToList();
         return attackers.Count == 0 ? null : attackers[_random.Next(attackers.Count)];
     }
 
     private static int CalculateDamage(BattleFighter attacker, BattleFighter target, double multiplier = 1)
     {
+        // สูตร damage อย่างง่าย: atk ลบ def และอย่างน้อยต้องเข้า 1
         return Math.Max(1, (int)Math.Round((attacker.Atk * multiplier) - target.Def));
     }
 
     private void NextStage()
     {
+        // ไปด่านถัดไปได้เฉพาะตอนชนะและด่านนั้นปลดล็อกแล้ว
         if (!CanGoNext)
         {
             return;
@@ -412,6 +425,7 @@ public class CardBattleViewModel : BaseViewModel
 
     private void Restart()
     {
+        // เริ่มด่านเดิมใหม่พร้อม rebuild ทีม เผื่อ stat หรือทีมเปลี่ยน
         BuildPlayerTeam();
         LoadStage(StageNumber - 1);
         _ = AudioService.Instance.PlayBattleMusicOnceAsync();
@@ -431,6 +445,7 @@ public class BattleFighter : BaseViewModel
 
     public BattleFighter(CardUnit card, bool isEnemy, int attackBonus = 0, int defenseBonus = 0, int healthBonus = 0, bool isPrimary = false)
     {
+        // แปลงข้อมูลการ์ดเป็นตัวละครที่ลงสนามจริง พร้อม bonus ฝั่งผู้เล่น
         Id = card.Id;
         Name = card.Name;
         Description = card.Description;
@@ -562,6 +577,7 @@ public class BattleFighter : BaseViewModel
 
     public void TakeDamage(int amount)
     {
+        // ลด HP และเล่นเสียงโดนโจมตีถ้าดาเมจมากกว่า 0
         if (amount > 0)
         {
             _ = AudioService.Instance.PlayAttackHitAsync();
@@ -572,11 +588,13 @@ public class BattleFighter : BaseViewModel
 
     public void Heal(int amount)
     {
+        // ฟื้น HP โดย property Hp จะ clamp ไม่ให้เกิน MaxHp เอง
         Hp += amount;
     }
 
     public void ShowFloatingText(string text, Color color)
     {
+        // โชว์ตัวเลขลอยบนการ์ด เช่น damage หรือ heal แล้วซ่อนเองภายหลัง
         FloatingText = text;
         FloatingTextColor = color;
         IsFloatingTextVisible = true;
@@ -585,6 +603,7 @@ public class BattleFighter : BaseViewModel
 
     public void ResetTurnState()
     {
+        // รีเซ็ตสถานะที่ควรกลับใหม่ตอนเริ่มด่าน
         HasActed = false;
         PoisonTurns = 0;
         TauntTurns = 0;
@@ -592,6 +611,7 @@ public class BattleFighter : BaseViewModel
 
     private void OnVitalsChanged()
     {
+        // HP เปลี่ยนแล้วต้องแจ้งทุกค่าที่คำนวณจาก HP ให้ UI วาดใหม่
         OnPropertyChanged(nameof(Hp));
         OnPropertyChanged(nameof(IsAlive));
         OnPropertyChanged(nameof(HpPercent));
@@ -603,6 +623,7 @@ public class BattleFighter : BaseViewModel
 
     private async Task HideFloatingTextSoon()
     {
+        // ปล่อย floating text ค้างนิดหนึ่งให้เห็น ก่อนซ่อนออกจากจอ
         await Task.Delay(900);
         IsFloatingTextVisible = false;
     }

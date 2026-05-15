@@ -6,9 +6,10 @@ public partial class AppShell : Shell
 {
     public AppShell()
     {
+        // ตั้งค่า Shell และลงทะเบียน route ทุกหน้าที่ใช้ GoToAsync
         InitializeComponent();
 
-        // register routes
+        // route พวกนี้ต้องตรงกับ nameof(Page) ที่ viewmodel/page ใช้นำทาง
         Routing.RegisterRoute(nameof(CardSelectPage), typeof(CardSelectPage));
         Routing.RegisterRoute(nameof(CardStageSelectPage), typeof(CardStageSelectPage));
         Routing.RegisterRoute(nameof(StatsPage), typeof(StatsPage));

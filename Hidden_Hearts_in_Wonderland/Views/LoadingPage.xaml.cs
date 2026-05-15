@@ -6,11 +6,13 @@ public partial class LoadingPage : ContentPage
 {
     public LoadingPage()
     {
+        // หน้าโหลดแรกของเกมก่อนเข้า AppShell จริง
         InitializeComponent();
     }
 
     protected override async void OnAppearing()
     {
+        // ให้โหลด save กับ animation วิ่งพร้อมกัน เพื่อให้หน้าโหลดดูนิ่งและไม่กระตุก
         base.OnAppearing();
 
         
@@ -26,6 +28,7 @@ public partial class LoadingPage : ContentPage
 
     private async Task LoadGameAsync()
     {
+        // โหลด save ถ้ามี แล้วใส่กลับเข้า GameService กลางของเกม
         var data = await new SaveService().LoadAsync();
 
         if (data != null)

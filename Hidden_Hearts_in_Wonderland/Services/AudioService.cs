@@ -19,6 +19,7 @@ public class AudioService
 
     private AudioService()
     {
+        // โหลดระดับเสียงที่ผู้เล่นเคยตั้งไว้ ถ้าไม่เคยตั้งก็ใช้ค่าเริ่มต้นที่ฟังไม่ดังเกินไป
         _mainVolume = Preferences.Get(MainVolumeKey, 0.45);
         _battleVolume = Preferences.Get(BattleVolumeKey, 0.55);
         _clickVolume = Preferences.Get(ClickVolumeKey, 0.75);
@@ -58,41 +59,49 @@ public class AudioService
 
     public async Task PlayComedyMusicAsync()
     {
+        // เปิดเพลงหลักของหน้าเมนู/บทสนทนา
         await PlayMusicAsync("commady.mp3", MainVolume);
     }
 
     public async Task PlayBattleMusicAsync()
     {
+        // เปิดเพลงต่อสู้แบบวนซ้ำ
         await PlayMusicAsync("battle.mp3", BattleVolume);
     }
 
     public async Task PlayBattleMusicOnceAsync()
     {
+        // ใช้ตอนเข้าฉากต่อสู้ ให้เริ่มเพลงใหม่แม้เคยเล่นอยู่ก่อนแล้ว
         await PlayMusicAsync("battle.mp3", BattleVolume, false, true);
     }
 
     public async Task PlayClickAsync()
     {
+        // เสียงกดปุ่มสั้น ๆ ใช้ตามหน้า UI ทั่วไป
         await PlayOneShotAsync("click.mp3", ClickVolume);
     }
 
     public async Task PlayWinAsync()
     {
+        // เสียงชนะหลังจบเกมย่อยหรือด่านต่อสู้
         await PlayOneShotAsync("gamewin.mp3");
     }
 
     public async Task PlayGameOverAsync()
     {
+        // เสียงแพ้หรือจบแบบไม่ผ่านเป้าหมาย
         await PlayOneShotAsync("game_over.mp3");
     }
 
     public async Task PlayAttackHitAsync()
     {
+        // เสียงตอนโจมตีโดน ใช้ volume ฝั่ง battle
         await PlayOneShotAsync("hit.mp3", BattleVolume);
     }
 
     private async Task PlayMusicAsync(string fileName, double volume, bool loop = true, bool forceRestart = false)
     {
+        // ถ้าเพลงเดิมกำลังเล่นอยู่แล้ว แค่ปรับเสียงพอ ไม่ต้องโหลดไฟล์ใหม่
         if (!forceRestart && _currentMusic == fileName && _musicPlayer?.IsPlaying == true)
         {
             _musicPlayer.Volume = volume;
@@ -129,6 +138,7 @@ public class AudioService
 
     private static async Task PlayOneShotAsync(string fileName, double volume = 1)
     {
+        // เล่นเอฟเฟกต์สั้น ๆ แล้วค่อย dispose ทีหลัง เพื่อไม่ให้กิน memory ค้าง
         try
         {
             var stream = await FileSystem.OpenAppPackageFileAsync(fileName);
@@ -149,6 +159,7 @@ public class AudioService
 
     private void ApplyCurrentMusicVolume()
     {
+        // เวลา slider เปลี่ยน ให้เพลงที่กำลังเล่นอยู่ตาม volume ใหม่ทันที
         if (_musicPlayer == null)
         {
             return;
@@ -161,6 +172,7 @@ public class AudioService
 
     private static double ClampVolume(double value)
     {
+        // กันค่า volume หลุดช่วง 0-1 จาก slider หรือข้อมูลเก่า
         return Math.Clamp(value, 0, 1);
     }
 }

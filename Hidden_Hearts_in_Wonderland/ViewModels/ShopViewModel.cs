@@ -54,6 +54,7 @@ public class ShopViewModel : BaseViewModel
 
     public ShopViewModel()
     {
+        // เตรียมปุ่มซื้อของ ปุ่มย้อนกลับ และปุ่มปิด popup ผลการซื้อ
         BuyCommand = new Command<ShopItem>(BuyItem);
         BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
 
@@ -64,6 +65,7 @@ public class ShopViewModel : BaseViewModel
 
     public void Refresh()
     {
+        // โหลดรายการสินค้าและยอดเหรียญปัจจุบันใหม่
         Items.Clear();
 
         foreach (var item in _gameService.GetShopItems())
@@ -76,6 +78,7 @@ public class ShopViewModel : BaseViewModel
 
     private void BuyItem(ShopItem? item)
     {
+        // ซื้อ item แล้วโชว์ popup สำเร็จ/ไม่สำเร็จตามผลจาก GameService
         if (item == null)
         {
             return;

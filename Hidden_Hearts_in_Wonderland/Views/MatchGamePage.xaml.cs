@@ -15,6 +15,7 @@ public partial class MatchGamePage : ContentPage
 
     public MatchGamePage()
     {
+        // สร้างหน้า match game และวาด grid เริ่มต้นจาก viewmodel
         InitializeComponent();
         BindingContext = new MatchGameViewModel();
         BuildBoardGrid();
@@ -22,18 +23,21 @@ public partial class MatchGamePage : ContentPage
 
     protected override void OnBindingContextChanged()
     {
+        // ถ้า BindingContext เปลี่ยน ต้อง rebuild กระดานให้ตรงกับข้อมูลใหม่
         base.OnBindingContextChanged();
         BuildBoardGrid();
     }
 
     protected override async void OnAppearing()
     {
+        // เปิดเพลงหลักตอนเข้าหน้า match game
         base.OnAppearing();
         await AudioService.Instance.PlayComedyMusicAsync();
     }
 
     private void OnPageSizeChanged(object? sender, EventArgs e)
     {
+        // ปรับจำนวนแถว/คอลัมน์ตามแนวหน้าจอ เพื่อให้เล่นได้ทั้งแนวนอนและแนวตั้ง
         if (BindingContext is not MatchGameViewModel viewModel || Width <= 0 || Height <= 0)
         {
             return;
@@ -51,6 +55,7 @@ public partial class MatchGamePage : ContentPage
 
     private void OnBoardSizeChanged(object? sender, EventArgs e)
     {
+        // เมื่อกรอบกระดานเปลี่ยนขนาด ให้คำนวณ tile size ใหม่
         if (BindingContext is not MatchGameViewModel viewModel || Width <= 0 || Height <= 0)
         {
             return;
@@ -61,6 +66,7 @@ public partial class MatchGamePage : ContentPage
 
     private void UpdateTileSize(MatchGameViewModel viewModel, int rows, int columns, bool isLandscape)
     {
+        // หาขนาด tile ที่ใหญ่ที่สุดเท่าที่พื้นที่จริงรับได้
         var availableWidth = GetBoardAvailableWidth(isLandscape, columns);
         var availableHeight = GetBoardAvailableHeight(isLandscape, rows);
 
@@ -76,6 +82,7 @@ public partial class MatchGamePage : ContentPage
 
     private double GetBoardAvailableWidth(bool isLandscape, int columns)
     {
+        // คำนวณพื้นที่แนวนอนของกระดาน หลังหัก HUD และ spacing ออก
         if (BoardBorder.Width > 0)
         {
             return BoardBorder.Width - BoardBorder.Padding.HorizontalThickness - (TileSpacing * (columns - 1));
@@ -87,6 +94,7 @@ public partial class MatchGamePage : ContentPage
 
     private double GetBoardAvailableHeight(bool isLandscape, int rows)
     {
+        // คำนวณพื้นที่แนวตั้งของกระดาน หลังหัก HUD และ spacing ออก
         if (BoardBorder.Height > 0)
         {
             return BoardBorder.Height - BoardBorder.Padding.VerticalThickness - (TileSpacing * (rows - 1));
@@ -98,6 +106,7 @@ public partial class MatchGamePage : ContentPage
 
     private void ApplyHudLayout(bool isLandscape)
     {
+        // แนวนอนใช้ HUD ซ้ายขวา แนวตั้งใช้ HUD ด้านบน
         TopHud.IsVisible = !isLandscape;
         LeftHud.IsVisible = isLandscape;
         RightHud.IsVisible = isLandscape;
@@ -116,6 +125,7 @@ public partial class MatchGamePage : ContentPage
 
     private void BuildBoardGrid()
     {
+        // สร้าง visual grid จาก tile ใน viewmodel ถ้าขนาดเดิมอยู่แล้วไม่ต้องสร้างซ้ำ
         if (BindingContext is not MatchGameViewModel viewModel || viewModel.Tiles.Count == 0)
         {
             return;
@@ -156,6 +166,7 @@ public partial class MatchGamePage : ContentPage
 
     private Border CreateTileView(MatchTile tile, MatchGameViewModel viewModel)
     {
+        // สร้าง tile หนึ่งช่องด้วย binding รูป สี ขนาด และ tap command
         var slimeImage = new Image
         {
             Aspect = Aspect.AspectFit,
@@ -194,6 +205,7 @@ public partial class MatchGamePage : ContentPage
 
     private async void OnTileTapped(object? sender, TappedEventArgs e)
     {
+        // เล่นเสียงและ animation ย่อ/เด้งตอนแตะ slime
         if (sender is not VisualElement tile)
         {
             return;

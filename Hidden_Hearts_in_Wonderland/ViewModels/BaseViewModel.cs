@@ -12,6 +12,7 @@ namespace Hidden_Hearts_in_Wonderland.ViewModels
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
+            // แจ้งหน้า UI ว่าค่าที่ bind อยู่เปลี่ยนแล้ว ให้รีเฟรชบนจอ
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }

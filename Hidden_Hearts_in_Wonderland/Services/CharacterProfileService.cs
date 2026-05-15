@@ -36,10 +36,12 @@ public static class CharacterProfileService
         }
     ];
 
+    // ส่งรายชื่อตัวละครทั้งหมดให้หน้าเลือกตัวละคร
     public static IReadOnlyList<Character> GetCharacters() => CharacterProfiles;
 
     public static Character GetByName(string name)
     {
+        // หาโปรไฟล์จากชื่อ ถ้าไม่เจอกลับไปใช้ Luna เป็นค่า default
         return CharacterProfiles.FirstOrDefault(character =>
             string.Equals(character.Name, name, StringComparison.OrdinalIgnoreCase))
             ?? CharacterProfiles[0];
@@ -47,6 +49,7 @@ public static class CharacterProfileService
 
     public static Character GetByStartNodeId(string startNodeId)
     {
+        // ใช้ย้อนจาก start node ไปหาว่าฉากนี้เป็นของตัวละครไหน
         return CharacterProfiles.FirstOrDefault(character =>
             string.Equals(character.StartNodeId, startNodeId, StringComparison.OrdinalIgnoreCase))
             ?? CharacterProfiles[0];
@@ -54,6 +57,7 @@ public static class CharacterProfileService
 
     public static string GetPersonalityPrompt(string characterName)
     {
+        // prompt บุคลิกหลักของแต่ละคน ส่งให้ AI เพื่อให้บทพูดไม่ออกมาเหมือนกันหมด
         return characterName.ToLowerInvariant() switch
         {
             "alice" => """
@@ -93,11 +97,13 @@ public static class CharacterProfileService
 
     public static IReadOnlyList<string> GetImageNames(string characterName)
     {
+        // เอาไว้ดึงชื่อไฟล์รูปทั้งหมดของตัวละครนั้น
         return GetImageMoodOptions(characterName).Keys.ToList();
     }
 
     public static IReadOnlyDictionary<string, string> GetImageMoodOptions(string characterName)
     {
+        // map รูปกับอารมณ์ เพื่อให้ AI/ระบบเลือกภาพที่ใกล้กับประโยคที่สุด
         return characterName.ToLowerInvariant() switch
         {
             "alice" => new Dictionary<string, string>
@@ -153,12 +159,14 @@ public static class CharacterProfileService
 
     public static string GetImageMoodPrompt(string characterName)
     {
+        // แปลง mood options เป็นข้อความอ่านง่ายสำหรับใส่ใน prompt
         return string.Join("\n", GetImageMoodOptions(characterName)
             .Select(image => $"- {image.Key}: {image.Value}"));
     }
 
     public static string GetFallbackImage(string characterName, int affectionChange)
     {
+        // ถ้า moodTag ที่ได้มาไม่รู้จัก ให้เดาภาพจากคะแนน affection แทน
         return characterName.ToLowerInvariant() switch
         {
             "alice" when affectionChange >= 9 => "alice_inlove.png",
@@ -185,6 +193,7 @@ public static class CharacterProfileService
 
     public static string GetImageForMood(string characterName, string moodTag, int affectionChange)
     {
+        // เลือกรูปตาม moodTag ก่อน ถ้า tag แปลกค่อย fallback ด้วยคะแนน affection
         var mood = moodTag.Trim().ToLowerInvariant();
 
         return characterName.ToLowerInvariant() switch

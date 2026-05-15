@@ -7,12 +7,14 @@ public partial class StatsPage : ContentPage
 {
     public StatsPage()
     {
+        // ผูกหน้า stats กับ viewmodel สำหรับอัปค่าสเตตัสและ rune
         InitializeComponent();
         BindingContext = new StatsViewModel();
     }
 
     protected override async void OnAppearing()
     {
+        // refresh ตัวเลข stat ตอนกลับมาหน้านี้
         base.OnAppearing();
         await AudioService.Instance.PlayComedyMusicAsync();
 

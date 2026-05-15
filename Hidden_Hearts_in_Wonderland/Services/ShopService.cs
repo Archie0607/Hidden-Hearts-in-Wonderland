@@ -108,11 +108,13 @@ public class ShopService
 
     public IReadOnlyList<ShopItem> GetItems()
     {
+        // ส่งรายการของทั้งหมดในร้านให้หน้า shop แสดง
         return _items;
     }
 
     public ShopItem? GetItem(string itemId)
     {
+        // หาไอเทมตาม id ใช้ทั้งตอนซื้อและตอนอ่านของใน inventory
         return _items.FirstOrDefault(item => item.Id == itemId);
     }
 }

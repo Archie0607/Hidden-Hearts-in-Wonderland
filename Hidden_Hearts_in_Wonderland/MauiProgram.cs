@@ -6,6 +6,7 @@ namespace Hidden_Hearts_in_Wonderland
     {
         public static MauiApp CreateMauiApp()
         {
+            // จุดประกอบแอป MAUI ทั้งหมด ทั้ง App, font และ logging ตอน debug
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()

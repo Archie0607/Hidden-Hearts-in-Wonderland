@@ -33,6 +33,7 @@ public partial class FantasyButton : ContentView
 
     public FantasyButton()
     {
+        // โหลด XAML ของปุ่ม custom fantasy
         InitializeComponent();
     }
 
@@ -86,6 +87,7 @@ public partial class FantasyButton : ContentView
 
     private void OnTapped(object? sender, TappedEventArgs e)
     {
+        // แตะปุ่มแล้วเล่นเสียง กด command และยิง event เผื่อหน้าไหนฟัง Clicked อยู่
         if (!IsEnabled)
         {
             return;

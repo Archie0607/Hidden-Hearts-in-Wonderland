@@ -7,12 +7,14 @@ public partial class CardStageSelectPage : ContentPage
 {
     public CardStageSelectPage()
     {
+        // ผูกหน้าเลือกด่าน battle กับ viewmodel
         InitializeComponent();
         BindingContext = new CardStageSelectViewModel();
     }
 
     protected override async void OnAppearing()
     {
+        // refresh สถานะด่านทุกครั้งที่กลับมา เผื่อเพิ่งผ่านด่านหรืออัปทีม
         base.OnAppearing();
         await AudioService.Instance.PlayComedyMusicAsync();
 

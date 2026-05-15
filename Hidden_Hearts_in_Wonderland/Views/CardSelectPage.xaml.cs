@@ -7,12 +7,14 @@ public partial class CardSelectPage : ContentPage
 {
     public CardSelectPage()
     {
+        // ผูกหน้าเลือก hero กับ viewmodel ของมัน
         InitializeComponent();
         BindingContext = new CardSelectViewModel();
     }
 
     protected override async void OnAppearing()
     {
+        // กลับมาหน้านี้แล้ว refresh รายการและเล่นเพลงหลัก
         base.OnAppearing();
         await AudioService.Instance.PlayComedyMusicAsync();
 
@@ -24,6 +26,7 @@ public partial class CardSelectPage : ContentPage
 
     private async void OnBackClicked(object sender, EventArgs e)
     {
+        // ปุ่มย้อนกลับไปหน้าก่อนหน้า
         await Shell.Current.GoToAsync("..");
     }
 }

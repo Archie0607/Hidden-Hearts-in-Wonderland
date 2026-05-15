@@ -26,12 +26,14 @@ public class CardSelectViewModel : BaseViewModel
 
     public CardSelectViewModel()
     {
+        // เตรียม command เลือกตัวละครหลัก แล้วโหลดรายการการ์ดให้หน้าแสดง
         SelectHeroCommand = new Command<CardSelectItem>(async item => await SelectHero(item));
         Refresh();
     }
 
     public void Refresh()
     {
+        // โหลดการ์ด main hero ใหม่ เผื่อข้อมูลมีการเปลี่ยนระหว่างกลับมาหน้านี้
         MainCards.Clear();
 
         foreach (var card in _cardService.GetMainCards())
@@ -42,6 +44,7 @@ public class CardSelectViewModel : BaseViewModel
 
     private async Task SelectHero(CardSelectItem? item)
     {
+        // เลือก hero หลักแล้วกลับไปหน้าเลือกตัวละครเพื่อเริ่ม flow เกมต่อ
         if (item == null)
         {
             return;
@@ -57,6 +60,7 @@ public class CardSelectItem
 {
     public CardSelectItem(CardUnit card)
     {
+        // แปลง CardUnit เป็น model เบา ๆ สำหรับ bind ในหน้าเลือก hero
         Id = card.Id;
         Name = card.Name;
         Description = card.Description;

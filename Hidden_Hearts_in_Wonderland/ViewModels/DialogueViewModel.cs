@@ -64,11 +64,12 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
     {
         SelectChoiceCommand = new Command<Choice>(async choice => await SelectChoice(choice));
 
-        Init(); //  ใช้ async init
+        Init(); // โหลดบทเริ่มต้นแบบเบา ๆ ตอนเปิดหน้า
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
+        // รับค่าจากหน้าก่อนหน้า เช่น ตัวละคร จุดเริ่มบท และ round id
         _startId = GetQueryValue(query, "startId");
         _characterName = GetQueryValue(query, "character");
         _roundId = GetQueryValue(query, "roundId");
@@ -89,6 +90,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     async void Init()
     {
+        // โหลด dialogue.json ไว้ก่อน ถ้ามี startId อยู่แล้วค่อยเปิด node นั้น
         await LoadDialogueFromJson();
 
         if (!string.IsNullOrEmpty(_startId))
@@ -97,6 +99,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     async Task LoadDialogueFromJson()
     {
+        // dialogue.json ยังใช้เป็น seed และทางเข้าแรกของแต่ละฉาก
         using var stream = await FileSystem.OpenAppPackageFileAsync("dialogue.json");
         using var reader = new StreamReader(stream);
         var json = await reader.ReadToEndAsync();
@@ -109,6 +112,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
         if (choice == null || IsBusy)
             return;
 
+        // ช้อยที่ AI เจนไว้จะใช้เส้นทางนี้ เพื่อเอา reply ที่ผูกกับช้อยนั้นมาแสดงตรง ๆ
         if (choice.NextNodeId == RoundEndNodeId)
         {
             await EndRound();
@@ -166,10 +170,13 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
         var nextChoices = CreateEndRoundChoices();
         if (_turnCount < MaxTurnsPerRound && _sceneTurnIndex + 1 < _scenePack.Turns.Count)
         {
+            // ขยับไปเทิร์นถัดไปเพื่อเอาช้อยชุดใหม่มาใช้ แต่ไม่เอา reply ของเทิร์นถัดไปมาต่อโชว์ซ้ำ
             _sceneTurnIndex++;
-            nextChoices = CreateSceneChoices(_scenePack.Turns[_sceneTurnIndex]);
+            var nextTurn = _scenePack.Turns[_sceneTurnIndex];
+            nextChoices = CreateSceneChoices(nextTurn);
         }
 
+        // แสดงแค่คำตอบที่ผูกกับช้อยที่ผู้เล่นเลือก ไม่รวม bridge reply เลยไม่ขึ้นสองบรรทัดอีก
         CurrentNode = new DialogueNode
         {
             Id = $"scene_reply_{_roundId}_{_turnCount}_{Guid.NewGuid():N}",
@@ -184,6 +191,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     async Task LoadConfiguredStartNode()
     {
+        // กันเคส query ยังมาไม่ครบ หรือไฟล์ dialogue ยังโหลดไม่เสร็จ
         if (_allNodes == null || string.IsNullOrWhiteSpace(_startId))
             return;
 
@@ -196,6 +204,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
         if (node != null)
         {
+            // เริ่มรอบใหม่ให้สะอาดก่อน แล้วค่อยให้ AI สร้าง scene pack ชุดใหม่
             _turnCount = 0;
             _sceneTurnIndex = 0;
             _scenePack = null;
@@ -213,6 +222,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
                 if (loadVersion != _loadVersion)
                     return;
 
+                // เทิร์นแรกใช้ reply เปิดฉาก ส่วนเทิร์นหลัง ๆ จะขึ้นตามช้อยที่ผู้เล่นเลือก
                 CurrentNode = CreateSceneTurnNode(_scenePack.Turns[0], 0);
                 AddRoundHistory($"{_character.Name}: {CurrentNode.Text}");
 
@@ -235,6 +245,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     async Task EndRound()
     {
+        // เคลียร์สถานะรอบคุย แล้วพากลับหน้าเลือกตัวละคร
         _turnCount = 0;
         _sceneTurnIndex = 0;
         _scenePack = null;
@@ -247,6 +258,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     DialogueNode CreateSceneTurnNode(AiDialogueService.SceneTurn turn, int turnIndex)
     {
+        // ใช้ตอนเปิดฉากของรอบนั้น ๆ ให้มีคำพูดแรกพร้อมช้อยให้ตอบ
         _sceneTurnIndex = turnIndex;
         return new DialogueNode
         {
@@ -260,6 +272,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     List<Choice> CreateSceneChoices(AiDialogueService.SceneTurn turn)
     {
+        // เก็บ index ไว้ด้วย จะได้ตามกลับไปหา reply ของช้อยนั้นได้แม่นกว่าเทียบจากข้อความอย่างเดียว
         return turn.Choices
             .Select((choice, index) => new Choice
             {
@@ -275,6 +288,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     List<Choice> CreateEndRoundChoices()
     {
+        // หลังคุยครบ 6 เทิร์น ให้เหลือปุ่มจบรอบเดียวเพื่อไม่ให้ flow หลุด
         return
         [
             new Choice
@@ -290,6 +304,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     static AiDialogueService.SceneChoice? FindSceneChoice(AiDialogueService.SceneTurn turn, Choice choice)
     {
+        // ปกติใช้ index เป็นหลัก ถ้าไม่มีจริง ๆ ค่อย fallback ไปเทียบข้อความ
         if (choice.SceneChoiceIndex >= 0 && choice.SceneChoiceIndex < turn.Choices.Count)
             return turn.Choices[choice.SceneChoiceIndex];
 
@@ -298,6 +313,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     DialogueNode CreateLoadingNode()
     {
+        // ใช้บอกผู้เล่นว่ากำลังรอ AI อยู่ แทนที่จะปล่อยหน้าว่าง
         return new DialogueNode
         {
             Id = $"loading_{_roundId}",
@@ -310,6 +326,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     DialogueNode CreateAiErrorNode(Exception exception)
     {
+        // ถ้า AI ล้มเหลว ให้ยังแสดง error ในกล่องบทสนทนาได้ ไม่ให้หน้าเงียบไปเฉย ๆ
         return new DialogueNode
         {
             Id = $"ai_error_{Guid.NewGuid():N}",
@@ -322,6 +339,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     async Task ShowAiError(Exception exception)
     {
+        // เด้ง alert ซ้ำอีกชั้นเพื่อให้เห็น error ชัด โดยเฉพาะตอนทดสอบบนเครื่อง
         if (Application.Current?.MainPage == null)
             return;
 
@@ -333,6 +351,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     static string FormatAiError(string message)
     {
+        // ตัด error ให้พอดีกับ popup ไม่งั้นข้อความจาก API อาจยาวจนอ่านยาก
         if (string.IsNullOrWhiteSpace(message))
             return "ไม่พบรายละเอียดจาก API";
 
@@ -351,6 +370,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
         _roundHistory.Add(entry.Trim());
 
+        // เก็บแค่ช่วงล่าสุดพอ ไม่งั้น prompt จะยาวขึ้นเรื่อย ๆ โดยไม่ได้ช่วยให้บทดีขึ้นมาก
         const int maxHistoryEntries = MaxTurnsPerRound * 2 + 1;
         if (_roundHistory.Count > maxHistoryEntries)
         {
@@ -360,6 +380,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     static string GetQueryValue(IDictionary<string, object> query, string key)
     {
+        // query จาก Shell อาจถูก encode มา เลยแกะกลับก่อนใช้
         if (!query.TryGetValue(key, out var value))
             return string.Empty;
 
@@ -368,6 +389,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
     void CheckEnding()
     {
+        // ending แบบง่าย ๆ ตามค่า affection สะสม
         string ending;
 
         if (Affection >= 40)

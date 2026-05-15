@@ -9,6 +9,7 @@ public class SaveService
 
     public async Task SaveAsync(GameService game)
     {
+        // เก็บ state สำคัญของเกมลงไฟล์เดียว เพื่อโหลดกลับตอนเปิดแอปใหม่
         var data = new SaveData
         {
             Player = game.Player,
@@ -38,6 +39,7 @@ public class SaveService
 
     public async Task<SaveData?> LoadAsync()
     {
+        // ถ้ายังไม่มีเซฟ ให้ส่ง null กลับไปเพื่อใช้ค่าเริ่มต้นของเกม
         if (!File.Exists(SavePath))
         {
             return null;

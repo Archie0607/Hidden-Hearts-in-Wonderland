@@ -16,6 +16,7 @@ public class CharacterSelectViewModel
 
     public CharacterSelectViewModel()
     {
+        // สร้างรายการตัวละครตอนเข้า viewmodel และผูก command ตอนเลือกตัวละคร
         Characters = [];
         RefreshCharacters();
 
@@ -24,6 +25,7 @@ public class CharacterSelectViewModel
 
     public void RefreshCharacters()
     {
+        // เติม affection ล่าสุดเข้าไปในโปรไฟล์ที่หน้าเลือกตัวละครใช้แสดง
         Characters.Clear();
 
         foreach (var character in CharacterProfileService.GetCharacters())
@@ -41,10 +43,10 @@ public class CharacterSelectViewModel
 
     async void OnSelectCharacter(Character character)
     {
-        //  บอกระบบว่าเลือกใคร
+        // บอกระบบว่าเลือกใคร เพื่อให้ affection ต่อจากนี้เข้าตัวละครถูกคน
         _gameService.SelectCharacter(character.Name);
 
-        //  ไปหน้า Dialogue พร้อมส่งค่า
+        // ไปหน้า Dialogue พร้อมส่ง start node และ round id ใหม่ให้ AI สร้างรอบสนทนา
         await Shell.Current.GoToAsync(
             $"{nameof(Views.DialoguePage)}?startId={character.StartNodeId}&character={character.Name}&roundId={Guid.NewGuid():N}"
         );

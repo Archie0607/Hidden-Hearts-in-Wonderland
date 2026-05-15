@@ -29,6 +29,7 @@ public class CardStageSelectViewModel : BaseViewModel
 
     public CardStageSelectViewModel()
     {
+        // ผูกปุ่มของหน้าเลือกด่าน ทั้งเลือกด่าน ไปจัดทีม ไปอัป stat และย้อนกลับ
         SelectStageCommand = new Command<CardStageSelectItem>(async item => await SelectStage(item));
         TeamCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(Views.CardTeamPage)));
         StatsCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(Views.StatsPage)));
@@ -38,6 +39,7 @@ public class CardStageSelectViewModel : BaseViewModel
 
     public void Refresh()
     {
+        // สร้างรายการด่านใหม่พร้อมสถานะล็อก/ปลดล็อกล่าสุด
         Stages.Clear();
 
         foreach (var stage in _cardService.Stages)
@@ -48,6 +50,7 @@ public class CardStageSelectViewModel : BaseViewModel
 
     private async Task SelectStage(CardStageSelectItem? item)
     {
+        // ถ้าด่านเปิดแล้วค่อยส่งเลขด่านไปหน้า battle
         if (item == null)
         {
             return;
@@ -67,6 +70,7 @@ public class CardStageSelectItem
 {
     public CardStageSelectItem(BattleStage stage, bool isUnlocked)
     {
+        // เตรียมข้อความด่านกับรายชื่อศัตรูให้หน้าเลือกด่านแสดง
         Number = stage.Number;
         Name = stage.Name;
         EnemyText = string.Join(" / ", stage.EnemyIds);
