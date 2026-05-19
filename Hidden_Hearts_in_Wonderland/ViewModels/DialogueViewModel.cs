@@ -149,7 +149,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
     {
         if (_scenePack == null || _sceneTurnIndex < 0 || _sceneTurnIndex >= _scenePack.Turns.Count)
         {
-            await ShowAiError(new InvalidOperationException("ไม่พบชุดบทสนทนาที่ AI เจนไว้ กรุณากลับไปเลือกตัวละครใหม่"));
+            await ShowAiError(new InvalidOperationException("The AI scene pack was not found. Please return to character select and try again."));
             return;
         }
 
@@ -157,7 +157,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
         var sceneChoice = FindSceneChoice(sceneTurn, choice);
         if (sceneChoice == null)
         {
-            await ShowAiError(new InvalidOperationException("ช้อยนี้ไม่ตรงกับชุดบทสนทนาที่ AI เจนไว้ กรุณากลับไปเลือกตัวละครใหม่"));
+            await ShowAiError(new InvalidOperationException("This choice no longer matches the generated scene pack. Please return to character select and try again."));
             return;
         }
 
@@ -293,7 +293,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
         [
             new Choice
             {
-                Text = "จบรอบนี้",
+                Text = "End this round",
                 NextNodeId = RoundEndNodeId,
                 AffectionChange = 0,
                 IsMiniGame = false,
@@ -318,7 +318,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
         {
             Id = $"loading_{_roundId}",
             CharacterName = _character.Name,
-            Text = "กำลังเริ่มบทสนทนา...",
+            Text = "Starting the conversation...",
             Image = CharacterProfileService.GetImageForMood(_character.Name, "neutral", 0),
             Choices = []
         };
@@ -331,7 +331,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
         {
             Id = $"ai_error_{Guid.NewGuid():N}",
             CharacterName = _character.Name,
-            Text = $"AI สร้างบทสนทนาไม่สำเร็จ\n{FormatAiError(exception.Message)}",
+            Text = $"AI could not create the conversation.\n{FormatAiError(exception.Message)}",
             Image = CharacterProfileService.GetImageForMood(_character.Name, "neutral", 0),
             Choices = []
         };
@@ -345,7 +345,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
 
         await Application.Current.MainPage.DisplayAlert(
             "AI Error",
-            $"Groq สร้างบทสนทนาไม่สำเร็จ\n\n{FormatAiError(exception.Message)}",
+            $"Groq could not create the conversation.\n\n{FormatAiError(exception.Message)}",
             "OK");
     }
 
@@ -353,7 +353,7 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
     {
         // ตัด error ให้พอดีกับ popup ไม่งั้นข้อความจาก API อาจยาวจนอ่านยาก
         if (string.IsNullOrWhiteSpace(message))
-            return "ไม่พบรายละเอียดจาก API";
+            return "No API details were provided.";
 
         var safeMessage = message;
 
@@ -399,6 +399,6 @@ public class DialogueViewModel : BaseViewModel, IQueryAttributable
         else
             ending = "💔 Bad Ending";
 
-        Application.Current.MainPage.DisplayAlert("จบเกม", ending, "OK");
+        Application.Current.MainPage.DisplayAlert("Game End", ending, "OK");
     }
 }

@@ -9,7 +9,7 @@
     Padding="0">
 
     <Grid RowDefinitions="*,Auto"
-          ColumnDefinitions="0.48*,0.52*">
+          ColumnDefinitions="0.58*,0.42*">
 
         <!--<Image Source="bg5.png"
                Grid.RowSpan="2"
@@ -40,13 +40,13 @@
                Aspect="AspectFit"
                HorizontalOptions="Center"
                VerticalOptions="End"
-               Margin="28,48,12,8"
-               MaximumHeightRequest="560"
-               MaximumWidthRequest="420" />
+               Margin="28,44,8,2"
+               MaximumHeightRequest="660"
+               MaximumWidthRequest="560" />
 
         <ScrollView Grid.Row="0"
                     Grid.Column="1"
-                    Margin="12,72,28,12"
+                    Margin="8,72,24,8"
                     VerticalOptions="Center">
 
             <Grid>
@@ -67,7 +67,7 @@
                                 </Border.GestureRecognizers>
 
                                 <Label Text="{Binding Text}"
-                                       FontSize="17"
+                                       FontSize="15"
                                        LineBreakMode="WordWrap"
                                        TextColor="Black" />
                             </Border>
@@ -87,30 +87,30 @@
 
         <Border Grid.Row="1"
                 Grid.ColumnSpan="2"
-                Margin="24,0,24,20"
-                Padding="16"
+                Margin="24,0,24,14"
+                Padding="12"
                 BackgroundColor="#D9FFC0CB"
                 StrokeThickness="0">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="18" />
             </Border.StrokeShape>
 
-            <VerticalStackLayout Spacing="8">
+            <VerticalStackLayout Spacing="5">
                 <Border BackgroundColor="#FF80A0"
-                        Padding="8,5"
+                        Padding="7,3"
                         HorizontalOptions="Start">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="9" />
                     </Border.StrokeShape>
 
                     <Label Text="{Binding CurrentNode.CharacterName}"
-                           FontSize="16"
+                           FontSize="13"
                            FontAttributes="Bold"
                            TextColor="Black" />
                 </Border>
 
                 <Label Text="{Binding CurrentNode.Text}"
-                       FontSize="18"
+                       FontSize="15"
                        LineBreakMode="WordWrap"
                        TextColor="Black" />
             </VerticalStackLayout>

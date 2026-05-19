@@ -2,28 +2,28 @@
   {
     "Id": "start_luna",
     "CharacterName": "Luna",
-    "Text": "ลูน่านั่งอ่านหนังสืออยู่ใต้แสงอุ่นของสวนใน Wonderland เธอเงยหน้าขึ้นเมื่อเห็นคุณเดินเข้ามาใกล้ และยิ้มให้อย่างเขิน ๆ",
+    "Text": "Luna sits with a book beneath the warm light of a Wonderland garden. She looks up as you approach, then offers a shy smile while a distant shadow reminds you both of the Demon Lord's threat.",
     "Image": "luna.png",
     "Choices": []
   },
   {
     "Id": "start_alice",
     "CharacterName": "Alice",
-    "Text": "Alice ยืนกอดอกอยู่หน้าประตูไม้สีขาว ดวงตาของเธอมองคุณอย่างประเมิน แต่รอยยิ้มมุมปากบอกว่าเธอกำลังสนใจ",
+    "Text": "Alice stands with her arms crossed before a white wooden gate. Her sharp eyes size you up, but the slight curve of her smile says she is curious whether you are brave enough to face the Demon Lord with her.",
     "Image": "alice.png",
     "Choices": []
   },
   {
     "Id": "start_ryne",
     "CharacterName": "Ryne",
-    "Text": "Ryne โบกมือทักจากทางเดินในป่าดอกไม้ เธอมีรอยยิ้มสดใสและดูพร้อมลากคุณไปเจอเรื่องสนุกทันที",
+    "Text": "Ryne waves from a flower-lined forest path, bright-eyed and ready for trouble. She looks eager to turn the journey toward the Demon Lord into an adventure you can survive together.",
     "Image": "ryne_smile.png",
     "Choices": []
   },
   {
     "Id": "start_raven",
     "CharacterName": "Raven",
-    "Text": "Raven ยืนเงียบอยู่ข้างหน้าต่างกระจกสี เธอไม่ได้พูดก่อน แต่สายตานิ่งลึกของเธอเหมือนกำลังรอว่าคุณจะเข้าหาเธอแบบไหน",
+    "Text": "Raven stands quietly beside a stained-glass window. She does not speak first, but her steady gaze suggests she is waiting to see whether you understand the darkness gathering around the Demon Lord.",
     "Image": "raven_smile.png",
     "Choices": []
   }

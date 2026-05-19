@@ -5,12 +5,18 @@ namespace Hidden_Hearts_in_Wonderland.Views;
 
 public partial class MainPage : ContentPage
 {
-    private bool _isSyncingSettings;
+    private const int VolumeDotCount = 10;
+
+    private readonly List<Button> _mainVolumeDots = [];
+    private readonly List<Button> _battleVolumeDots = [];
+    private readonly List<Button> _clickVolumeDots = [];
+    private readonly List<Button> _resultVolumeDots = [];
 
     public MainPage()
     {
-        // หน้าแรกของเกม พร้อม sync ค่าเสียงให้ slider ตรงกับค่าที่เซฟไว้
+        // หน้าแรกของเกม พร้อม sync ค่าเสียงให้ตัวเลือกจุดตรงกับค่าที่เซฟไว้
         InitializeComponent();
+        BuildVolumeDots();
         SyncSettingsControls();
     }
 
@@ -47,58 +53,95 @@ public partial class MainPage : ContentPage
         SettingsOverlay.IsVisible = false;
     }
 
-    private void OnMainVolumeChanged(object sender, ValueChangedEventArgs e)
-    {
-        // ปรับเสียงเพลงหลักจาก slider
-        if (_isSyncingSettings)
-        {
-            return;
-        }
-
-        AudioService.Instance.MainVolume = e.NewValue;
-        UpdateVolumeLabels();
-    }
-
-    private void OnBattleVolumeChanged(object sender, ValueChangedEventArgs e)
-    {
-        // ปรับเสียงเพลง/เอฟเฟกต์ฝั่ง battle
-        if (_isSyncingSettings)
-        {
-            return;
-        }
-
-        AudioService.Instance.BattleVolume = e.NewValue;
-        UpdateVolumeLabels();
-    }
-
-    private void OnClickVolumeChanged(object sender, ValueChangedEventArgs e)
-    {
-        // ปรับเสียงคลิก UI
-        if (_isSyncingSettings)
-        {
-            return;
-        }
-
-        AudioService.Instance.ClickVolume = e.NewValue;
-        UpdateVolumeLabels();
-    }
-
     private void SyncSettingsControls()
     {
-        // อัปเดต slider จาก service โดยกันไม่ให้ event changed ยิงกลับไปเซฟซ้ำ
-        _isSyncingSettings = true;
-        MainVolumeSlider.Value = AudioService.Instance.MainVolume;
-        BattleVolumeSlider.Value = AudioService.Instance.BattleVolume;
-        ClickVolumeSlider.Value = AudioService.Instance.ClickVolume;
-        _isSyncingSettings = false;
         UpdateVolumeLabels();
     }
 
     private void UpdateVolumeLabels()
     {
-        // แสดงเลขเปอร์เซ็นต์ข้าง slider ให้ตรงกับ volume ตอนนี้
+        // แสดงเลขเปอร์เซ็นต์ข้างตัวเลือกเสียงให้ตรงกับ volume ตอนนี้
         MainVolumeLabel.Text = $"{AudioService.Instance.MainVolume:P0}";
         BattleVolumeLabel.Text = $"{AudioService.Instance.BattleVolume:P0}";
         ClickVolumeLabel.Text = $"{AudioService.Instance.ClickVolume:P0}";
+        ResultVolumeLabel.Text = $"{AudioService.Instance.ResultVolume:P0}";
+
+        UpdateVolumeDots(_mainVolumeDots, AudioService.Instance.MainVolume);
+        UpdateVolumeDots(_battleVolumeDots, AudioService.Instance.BattleVolume);
+        UpdateVolumeDots(_clickVolumeDots, AudioService.Instance.ClickVolume);
+        UpdateVolumeDots(_resultVolumeDots, AudioService.Instance.ResultVolume);
+    }
+
+    private void BuildVolumeDots()
+    {
+        BuildVolumeDotRow(MainVolumeDots, _mainVolumeDots, value =>
+        {
+            _ = AudioService.Instance.PlaySettingsClickAsync();
+            AudioService.Instance.MainVolume = value;
+            UpdateVolumeLabels();
+        });
+
+        BuildVolumeDotRow(BattleVolumeDots, _battleVolumeDots, value =>
+        {
+            _ = AudioService.Instance.PlaySettingsClickAsync();
+            AudioService.Instance.BattleVolume = value;
+            UpdateVolumeLabels();
+        });
+
+        BuildVolumeDotRow(ClickVolumeDots, _clickVolumeDots, value =>
+        {
+            AudioService.Instance.ClickVolume = value;
+            _ = AudioService.Instance.PlayClickAsync();
+            UpdateVolumeLabels();
+        });
+
+        BuildVolumeDotRow(ResultVolumeDots, _resultVolumeDots, value =>
+        {
+            _ = AudioService.Instance.PlaySettingsClickAsync();
+            AudioService.Instance.ResultVolume = value;
+            UpdateVolumeLabels();
+        });
+    }
+
+    private static void BuildVolumeDotRow(
+        HorizontalStackLayout host,
+        IList<Button> dots,
+        Action<double> onSelected)
+    {
+        host.Clear();
+        dots.Clear();
+
+        for (var index = 1; index <= VolumeDotCount; index++)
+        {
+            var value = index / (double)VolumeDotCount;
+            var dot = new Button
+            {
+                Text = "●",
+                FontSize = 20,
+                FontAttributes = FontAttributes.Bold,
+                WidthRequest = 25,
+                HeightRequest = 30,
+                Padding = 0,
+                BackgroundColor = Colors.Transparent,
+                BorderWidth = 0,
+                CornerRadius = 14
+            };
+
+            dot.Clicked += (_, _) => onSelected(value);
+            host.Add(dot);
+            dots.Add(dot);
+        }
+    }
+
+    private static void UpdateVolumeDots(IList<Button> dots, double volume)
+    {
+        var activeDots = (int)Math.Round(Math.Clamp(volume, 0, 1) * VolumeDotCount);
+
+        for (var index = 0; index < dots.Count; index++)
+        {
+            var isActive = index < activeDots;
+            dots[index].TextColor = isActive ? Color.FromArgb("#FFD866") : Color.FromArgb("#4CFFFFFF");
+            dots[index].Scale = isActive ? 1.12 : 0.9;
+        }
     }
 }

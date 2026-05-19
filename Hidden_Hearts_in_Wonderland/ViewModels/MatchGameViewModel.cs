@@ -209,7 +209,7 @@ public class MatchGameViewModel : BaseViewModel
     {
         // เตรียม command ของเกมจับคู่ slime แล้วสร้างกระดานเริ่มต้น
         SelectTileCommand = new Command<MatchTile>(async tile => await SelectTile(tile));
-        RestartCommand = new Command(BuildBoard);
+        RestartCommand = new Command(Restart);
         ContinueResultCommand = new Command(async () => await ContinueResult());
         BackCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
         BuildBoard();
@@ -241,6 +241,42 @@ public class MatchGameViewModel : BaseViewModel
     {
         // รีเซ็ตเกมใหม่ทั้งหมด แล้วสุ่ม slime ลงกระดานโดยไม่ให้มี match ตั้งแต่เริ่ม
         Tiles.Clear();
+        ResetGameState();
+
+        for (var row = 0; row < Rows; row++)
+        {
+            for (var column = 0; column < Columns; column++)
+            {
+                Tiles.Add(new MatchTile(row, column, PickSlime(row, column)));
+            }
+        }
+    }
+
+    private void Restart()
+    {
+        // Restart จากปุ่มเดิมต้องใช้ tile object ชุดเดิม เพื่อให้ board ที่วาดใน code-behind ยังผูกอยู่
+        if (Tiles.Count != Rows * Columns)
+        {
+            BuildBoard();
+            return;
+        }
+
+        ResetGameState();
+
+        for (var row = 0; row < Rows; row++)
+        {
+            for (var column = 0; column < Columns; column++)
+            {
+                var tile = GetTile(row, column);
+                tile.IsMatched = false;
+                tile.IsSelected = false;
+                tile.Slime = PickSlime(row, column);
+            }
+        }
+    }
+
+    private void ResetGameState()
+    {
         _selectedTile = null;
         _isBusy = false;
         _isFinished = false;
@@ -250,14 +286,6 @@ public class MatchGameViewModel : BaseViewModel
         Score = 0;
         CoinsEarned = 0;
         Message = "Match 3 colors";
-
-        for (var row = 0; row < Rows; row++)
-        {
-            for (var column = 0; column < Columns; column++)
-            {
-                Tiles.Add(new MatchTile(row, column, PickSlime(row, column)));
-            }
-        }
     }
 
     private SlimeInfo PickSlime(int row, int column)
@@ -276,12 +304,7 @@ public class MatchGameViewModel : BaseViewModel
 
     private SlimeInfo RandomSlime()
     {
-        // มีโอกาสเล็กน้อยได้ rainbow slime ที่ใช้ล้างสีทั้งกระดาน
-        if (_random.NextDouble() < 0.06)
-        {
-            return _rainbowSlime;
-        }
-
+        // สุ่มเฉพาะ slime ปกติ; rainbow เป็น special ที่เกิดจาก match 4 เท่านั้น
         return _slimes[_random.Next(_slimes.Length)];
     }
 
@@ -336,15 +359,15 @@ public class MatchGameViewModel : BaseViewModel
             var clearedColor = GetRainbowTargetName(_selectedTile, tile);
             ClearSelection();
             Message = clearedColor == null ? "Rainbow burst" : $"Rainbow cleared {clearedColor}";
-            await ResolveMatches(rainbowTiles);
+            await ResolveMatches(MatchResolution.ForClearedTiles(rainbowTiles));
             _isBusy = false;
             await CheckGameEnd();
             return;
         }
 
-        var matchedTiles = FindMatches();
+        var matchedTiles = FindMatches(_selectedTile, tile);
 
-        if (matchedTiles.Count == 0)
+        if (!matchedTiles.HasMatches)
         {
             await Task.Delay(220);
             SwapSlimes(_selectedTile, tile);
@@ -428,42 +451,47 @@ public class MatchGameViewModel : BaseViewModel
         return null;
     }
 
-    private async Task ResolveMatches(List<MatchTile> matchedTiles)
+    private async Task ResolveMatches(MatchResolution resolution)
     {
         // ล้าง match เป็นรอบ ๆ พร้อมให้ slime ตกลงมาและเช็ก chain ต่อ
-        while (matchedTiles.Count > 0)
+        while (resolution.HasMatches)
         {
-            foreach (var tile in matchedTiles)
+            foreach (var tile in resolution.Tiles)
             {
                 tile.IsMatched = true;
             }
 
             await Task.Delay(240);
 
-            var coins = matchedTiles.Count * CoinPerSlime;
-            Collected += matchedTiles.Count;
-            Score += matchedTiles.Count * 50;
+            var clearedCount = resolution.Tiles.Count;
+            var coins = clearedCount * CoinPerSlime;
+            Collected += clearedCount;
+            Score += clearedCount * 50;
             CoinsEarned += coins;
             _gameService.AddCoins(coins);
-            Message = $"Cleared {matchedTiles.Count}";
+            Message = resolution.Specials.Count > 0
+                ? "Rainbow slime created"
+                : $"Cleared {clearedCount}";
 
-            ClearMatchedTiles(matchedTiles);
+            ClearMatchedTiles(resolution);
             await Task.Delay(120);
 
             DropSlimesIntoEmptySpaces();
             Message = "Slimes dropped in";
             await Task.Delay(170);
 
-            matchedTiles = FindMatches();
+            resolution = FindMatches();
         }
     }
 
-    private static void ClearMatchedTiles(List<MatchTile> matchedTiles)
+    private static void ClearMatchedTiles(MatchResolution resolution)
     {
         // ทำช่องที่ match เป็นช่องว่างก่อนให้ระบบ drop เติมลงมา
-        foreach (var tile in matchedTiles)
+        foreach (var tile in resolution.Tiles)
         {
-            tile.Slime = null;
+            tile.Slime = resolution.Specials.TryGetValue(tile, out var specialSlime)
+                ? specialSlime
+                : null;
             tile.IsMatched = false;
         }
     }
@@ -498,10 +526,10 @@ public class MatchGameViewModel : BaseViewModel
         }
     }
 
-    private List<MatchTile> FindMatches()
+    private MatchResolution FindMatches(params MatchTile[] preferredSpecialTiles)
     {
         // หา match แนวนอนและแนวตั้งทั้งหมด แล้วรวมเป็น set กันช่องซ้ำ
-        var matched = new HashSet<MatchTile>();
+        var resolution = new MatchResolution();
 
         for (var row = 0; row < Rows; row++)
         {
@@ -517,12 +545,12 @@ public class MatchGameViewModel : BaseViewModel
                 }
                 else
                 {
-                    AddRunIfMatch(run, matched);
+                    AddRunIfMatch(run, resolution, preferredSpecialTiles);
                     run = [tile];
                 }
             }
 
-            AddRunIfMatch(run, matched);
+            AddRunIfMatch(run, resolution, preferredSpecialTiles);
         }
 
         for (var column = 0; column < Columns; column++)
@@ -539,15 +567,15 @@ public class MatchGameViewModel : BaseViewModel
                 }
                 else
                 {
-                    AddRunIfMatch(run, matched);
+                    AddRunIfMatch(run, resolution, preferredSpecialTiles);
                     run = [tile];
                 }
             }
 
-            AddRunIfMatch(run, matched);
+            AddRunIfMatch(run, resolution, preferredSpecialTiles);
         }
 
-        return matched.ToList();
+        return resolution;
     }
 
     private static bool HasSameSlime(MatchTile first, MatchTile second)
@@ -560,7 +588,7 @@ public class MatchGameViewModel : BaseViewModel
             && firstSlime.Name == secondSlime.Name;
     }
 
-    private static void AddRunIfMatch(List<MatchTile> run, HashSet<MatchTile> matched)
+    private void AddRunIfMatch(List<MatchTile> run, MatchResolution resolution, IReadOnlyList<MatchTile> preferredSpecialTiles)
     {
         // run ที่ยาวตั้งแต่ 3 ช่องขึ้นไปถือว่า match
         if (run.Count < 3)
@@ -570,7 +598,13 @@ public class MatchGameViewModel : BaseViewModel
 
         foreach (var tile in run)
         {
-            matched.Add(tile);
+            resolution.Add(tile);
+        }
+
+        if (run.Count >= 4)
+        {
+            var specialTile = preferredSpecialTiles.FirstOrDefault(run.Contains) ?? run[0];
+            resolution.AddSpecial(specialTile, _rainbowSlime);
         }
     }
 
@@ -645,6 +679,39 @@ public class MatchGameViewModel : BaseViewModel
     }
 
     private bool IsDialogueGame => !string.IsNullOrWhiteSpace(NextNodeId);
+}
+
+public class MatchResolution
+{
+    private readonly HashSet<MatchTile> _tiles = [];
+    private readonly Dictionary<MatchTile, SlimeInfo> _specials = [];
+
+    public IReadOnlyList<MatchTile> Tiles => _tiles.ToList();
+    public IReadOnlyDictionary<MatchTile, SlimeInfo> Specials => _specials;
+    public bool HasMatches => _tiles.Count > 0;
+
+    public static MatchResolution ForClearedTiles(IEnumerable<MatchTile> tiles)
+    {
+        var resolution = new MatchResolution();
+
+        foreach (var tile in tiles)
+        {
+            resolution.Add(tile);
+        }
+
+        return resolution;
+    }
+
+    public void Add(MatchTile tile)
+    {
+        _tiles.Add(tile);
+    }
+
+    public void AddSpecial(MatchTile tile, SlimeInfo specialSlime)
+    {
+        _tiles.Add(tile);
+        _specials[tile] = specialSlime;
+    }
 }
 
 public class MatchTile : BaseViewModel

@@ -9,6 +9,7 @@ public class AudioService
     private const string MainVolumeKey = "audio_main_volume";
     private const string BattleVolumeKey = "audio_battle_volume";
     private const string ClickVolumeKey = "audio_click_volume";
+    private const string ResultVolumeKey = "audio_result_volume";
 
     private IAudioPlayer? _musicPlayer;
     private string _currentMusic = "";
@@ -16,6 +17,7 @@ public class AudioService
     private double _mainVolume;
     private double _battleVolume;
     private double _clickVolume;
+    private double _resultVolume;
 
     private AudioService()
     {
@@ -23,6 +25,7 @@ public class AudioService
         _mainVolume = Preferences.Get(MainVolumeKey, 0.45);
         _battleVolume = Preferences.Get(BattleVolumeKey, 0.55);
         _clickVolume = Preferences.Get(ClickVolumeKey, 0.75);
+        _resultVolume = Preferences.Get(ResultVolumeKey, 0.75);
     }
 
     public double MainVolume
@@ -57,6 +60,16 @@ public class AudioService
         }
     }
 
+    public double ResultVolume
+    {
+        get => _resultVolume;
+        set
+        {
+            _resultVolume = ClampVolume(value);
+            Preferences.Set(ResultVolumeKey, _resultVolume);
+        }
+    }
+
     public async Task PlayComedyMusicAsync()
     {
         // เปิดเพลงหลักของหน้าเมนู/บทสนทนา
@@ -81,16 +94,22 @@ public class AudioService
         await PlayOneShotAsync("click.mp3", ClickVolume);
     }
 
+    public async Task PlaySettingsClickAsync()
+    {
+        // ใช้เฉพาะ feedback ตอนปรับ settings เพื่อให้ได้ยินแม้ค่า click เดิมต่ำมาก
+        await PlayOneShotAsync("click.mp3", Math.Max(ClickVolume, 0.35));
+    }
+
     public async Task PlayWinAsync()
     {
         // เสียงชนะหลังจบเกมย่อยหรือด่านต่อสู้
-        await PlayOneShotAsync("gamewin.mp3");
+        await PlayOneShotAsync("gamewin.mp3", ResultVolume);
     }
 
     public async Task PlayGameOverAsync()
     {
         // เสียงแพ้หรือจบแบบไม่ผ่านเป้าหมาย
-        await PlayOneShotAsync("game_over.mp3");
+        await PlayOneShotAsync("game_over.mp3", ResultVolume);
     }
 
     public async Task PlayAttackHitAsync()

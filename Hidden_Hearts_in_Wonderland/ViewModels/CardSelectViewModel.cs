@@ -50,6 +50,7 @@ public class CardSelectViewModel : BaseViewModel
             return;
         }
 
+        _ = AudioService.Instance.PlayClickAsync();
         _cardService.SelectMainHero(item.Id);
         Message = $"{item.Name} selected";
         await Shell.Current.GoToAsync(nameof(Views.CharacterSelectPage));

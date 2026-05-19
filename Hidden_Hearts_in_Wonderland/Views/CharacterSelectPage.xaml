@@ -23,32 +23,7 @@
             HorizontalOptions="Center"
             MaximumWidthRequest="860">
             
-            <!--<Border BackgroundColor="Transparent"
-                    Padding="12,6"
-                    HorizontalOptions="Center">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="14" />
-                </Border.StrokeShape>
-
-                <Label Text="Choose a character"
-                   FontSize="18"
-                   FontAttributes="Bold"
-                   TextColor="#333"/>
-            </Border>
-
-            <Border BackgroundColor="Transparent"
-                    Padding="12,6"
-                    HorizontalOptions="Center">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="14" />
-                </Border.StrokeShape>
-
-                <Label x:Name="CoinsLabel"
-                       Text="Coins: 0"
-                       FontSize="12"
-                       FontAttributes="Bold"
-                       TextColor="#333" />
-            </Border>-->
+      
 
             <HorizontalStackLayout Spacing="10"
                                    HorizontalOptions="Center">

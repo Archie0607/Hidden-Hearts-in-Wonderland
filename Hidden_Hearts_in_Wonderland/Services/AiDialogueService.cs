@@ -167,13 +167,13 @@ public class AiDialogueService
         var apiKeys = GetConfiguredApiKeys();
 
         if (apiKeys.Count == 0)
-            throw new InvalidOperationException("ยังไม่ได้ตั้งค่า Groq API key. ให้ตั้ง GROQ_API_KEYS หรือใส่ dev key ชั่วคราวใน DevApiKeys ก่อนเริ่มแอป");
+            throw new InvalidOperationException("Groq API key is not configured. Set GROQ_API_KEYS or add a temporary dev key in DevApiKeys before starting the app.");
 
         var systemPrompt = """
-        You are a JSON-only writer for a Thai dating visual novel.
+        You are a JSON-only writer for an English fantasy dating visual novel.
         Return one valid JSON object only.
-        All user-visible dialogue values must be Thai language only.
-        Do not use English, Japanese, Chinese, Korean, mojibake, romanized Thai, emoji, markdown, or garbled characters in dialogue.
+        All user-visible dialogue values must be natural English only.
+        Do not use Thai, Japanese, Chinese, Korean, mojibake, romanized Thai, emoji, markdown, or garbled characters in dialogue.
         """;
         var body = new
         {
@@ -218,7 +218,7 @@ public class AiDialogueService
             {
                 if (IsOrganizationRestrictedError(json))
                 {
-                    throw new InvalidOperationException("Groq ปฏิเสธ API key นี้เพราะ organization ถูกจำกัด (organization_restricted). ต้องใช้ key จาก Groq organization ที่เปิดใช้งานได้ หรือไปแก้สถานะบัญชี/organization ใน Groq Console");
+                    throw new InvalidOperationException("Groq rejected this API key because the organization is restricted (organization_restricted). Use a key from an active Groq organization or fix the organization status in the Groq Console.");
                 }
 
                 if (IsQuotaOrRateLimitError(response, json) && keyIndex < apiKeys.Count - 1)
@@ -336,7 +336,7 @@ public class AiDialogueService
 
         // Prompt นี้ตั้งใจให้คำตอบของสาว ๆ เกี่ยวกับช้อยที่เลือก แต่ไม่ต้องเห็นด้วยแบบแข็ง ๆ ทุกครั้ง
         return $$"""
-        You write a complete 6-turn conversation scene pack for a Thai dating visual novel named Hidden Hearts in Wonderland.
+        You write a complete 6-turn conversation scene pack for an English fantasy dating visual novel named Hidden Hearts in Wonderland.
 
         Heroine personality:
         {{personalityPrompt}}
@@ -354,15 +354,15 @@ public class AiDialogueService
         {
           "turns": [
             {
-              "reply": "Thai spoken dialogue from the heroine, 1-3 sentences",
+              "reply": "English spoken dialogue from the heroine, 1-3 sentences",
               "moodTag": "neutral",
               "choices": [
                 {
-                  "text": "Thai player spoken dialogue line",
+                  "text": "English player spoken dialogue line",
                   "affectionChange": 5,
                   "isMiniGame": false,
                   "expectedMood": "happy",
-                  "reply": "Thai spoken dialogue from the heroine that naturally continues after this choice",
+                  "reply": "English spoken dialogue from the heroine that naturally continues after this choice",
                   "moodTag": "happy"
                 }
               ]
@@ -386,13 +386,13 @@ public class AiDialogueService
         - Avoid making {{character.Name}} read a book unless the selected moodTag is reading.
 
         Dialogue rules:
-        - Write like a soft, slightly shy Thai anime visual novel heroine. Use natural Thai spoken rhythm, not formal translated Thai.
-        - Thai lines should feel casual, warm, and alive, with gentle Thai particles or hesitation when appropriate, such as "อืม", "เอ่อ", "นะ", "ล่ะ", "เหรอ", "ขอบคุณนะ".
-        - User-visible text in reply, choices.text, and choices.reply must contain Thai language only.
-        - Do not use English words, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters in user-visible text.
-        - Avoid stiff, literal, questionnaire-like Thai. Do not make every line sound like an interview question.
-        - Avoid bland compliment loops like "ชอบที่นี่ไหม" -> "ฉันก็ชอบเหมือนกัน". Add a tiny concrete detail from the scene or feeling.
-        - Use short Thai spoken lines, usually 1-2 sentences. Let the character sound like she is reacting in the moment.
+        - Write like a soft, slightly shy anime visual novel heroine in natural English.
+        - English lines should feel casual, warm, and alive, with gentle hesitation when appropriate, such as "um", "well", "I mean", or "thank you".
+        - User-visible text in reply, choices.text, and choices.reply must contain English language only.
+        - Do not use Thai, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters in user-visible text.
+        - Avoid stiff, literal, questionnaire-like English. Do not make every line sound like an interview question.
+        - Avoid bland compliment loops like "Do you like this place?" -> "I like it too." Add a tiny concrete detail from the scene or feeling.
+        - Use short English spoken lines, usually 1-2 sentences. Let the character sound like she is reacting in the moment.
         - Prefer emotionally specific spoken lines over generic sentences.
         - All heroine replies must be direct spoken dialogue from {{character.Name}} to the player.
         - All player choice text must be direct spoken dialogue from the player to {{character.Name}}.
@@ -402,11 +402,14 @@ public class AiDialogueService
         - Every choice should stay related to the heroine line for that turn without sounding like a forced exact answer.
         - Choice-specific replies should continue the same topic or mood naturally, like real flirting or casual conversation.
         - The heroine may tease, hesitate, ask back, deflect shyly, add a new small detail, or change the angle slightly instead of agreeing directly.
-        - Avoid starting heroine replies with repeated agreement or confirmation phrases such as "ใช่", "อืม", "ฉันก็", "คุณพูดถูก", "จริงด้วย", or "นั่นสิ".
+        - Avoid starting heroine replies with repeated agreement or confirmation phrases such as "yes", "yeah", "I agree", "you're right", or "that's true".
         - Do not quote or repeat the selected choice verbatim inside the heroine reply.
         - Make the dialogue feel like two people talking, flirting, and finding a rhythm, not like summarizing what the player chose.
         - The next turn choices must feel natural after the previous choice-specific heroine reply, even if the internal bridge reply is not displayed.
-        - Write natural Thai. No markdown. No extra explanation.
+        - The larger story is that the player and heroine are preparing to confront the Demon Lord. Mention this main quest naturally in some turns through plans, worries, training, clues, courage, or promises.
+        - Keep romance alive alongside the main quest: include gentle flirting, emotional closeness, trust, vulnerability, or teasing that fits the heroine.
+        - Do not make every line about the Demon Lord. Blend the quest with the current small scene and the relationship.
+        - Write natural English. No markdown. No extra explanation.
 
         Choice role rules for every turn:
         - Choice 1 should be positive: respects her personality, likes, current emotion, or boundaries. affectionChange must be 5 to 12.
@@ -432,7 +435,7 @@ public class AiDialogueService
 
         // Prompt opening เน้นเปิดสถานการณ์เล็ก ๆ ให้คุยต่อได้ ไม่ใช่ประโยคทักทายลอย ๆ
         return $$"""
-        You write a fresh opening line for a new conversation round in a Thai dating visual novel named Hidden Hearts in Wonderland.
+        You write a fresh opening line for a new conversation round in an English fantasy dating visual novel named Hidden Hearts in Wonderland.
 
         Heroine personality:
         {{personalityPrompt}}
@@ -447,11 +450,11 @@ public class AiDialogueService
 
         Return JSON only:
         {
-          "reply": "Thai spoken dialogue from the heroine, 1-3 sentences",
+          "reply": "English spoken dialogue from the heroine, 1-3 sentences",
           "moodTag": "neutral",
           "choices": [
             {
-              "text": "Thai player spoken dialogue line",
+              "text": "English player spoken dialogue line",
               "affectionChange": 5,
               "isMiniGame": false,
               "expectedMood": "happy"
@@ -471,16 +474,19 @@ public class AiDialogueService
         - Do not copy or paraphrase any fixed starter text from the game data.
         - Avoid making {{character.Name}} read a book unless the selected moodTag is reading.
         - Keep the same setting mood, but vary the place, action, prop, or first emotional beat.
-        - Write exactly 3 choices in Thai.
+        - Write exactly 3 choices in English.
         - Every choice should be related to {{character.Name}}'s reply, but not every choice needs to answer it literally.
         - The choices must feel like natural things someone might say while talking or flirting, not generic pickup lines.
         - Choices may reassure, ask a small question, tease gently, admit uncertainty, or invite her to do something in the same scene.
         - Each choice should lead the same situation forward, not jump to a different scene.
         - Every choice text must be direct speech from the player to {{character.Name}}.
         - Do not write actions, narration, stage directions, or descriptions of tone.
-        - User-visible text in reply and choices.text must contain Thai language only.
-        - Do not use English words, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
-        - Good choice text examples: "งั้นเราเดินช้า ๆ ด้วยกันนะ", "ตรงนั้นมีแสงสวยดี อยากไปดูใกล้ ๆ ไหม", "ถ้าเธอไม่สบายใจ เราพักตรงนี้ก่อนก็ได้"
+        - User-visible text in reply and choices.text must contain English language only.
+        - Do not use Thai, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
+        - Weave in the main quest naturally: the player and heroine are preparing to confront the Demon Lord.
+        - The opening may mention a clue, training, a plan, fear, courage, or a promise about the Demon Lord, while still leaving room for romance.
+        - Keep the dating tone active: choices can reassure, flirt gently, invite trust, or show affection while discussing the quest.
+        - Good choice text examples: "Then let's take this one step at a time together.", "If the Demon Lord scares you, stay beside me. I won't let you face it alone.", "That light over there looks strange. Want to check it with me?"
         - Generate exactly 3 player choices with these roles:
           1. Positive: respects her personality, likes, current emotion, or boundaries. affectionChange must be 5 to 12.
           2. Neutral: polite and natural but not especially intimate. affectionChange must be 0 to 3.
@@ -499,7 +505,7 @@ public class AiDialogueService
 
         // Prompt นี้บังคับให้ช้อยเกี่ยวกับประโยคล่าสุด แต่ยังต้องฟังเหมือนคนตอบกันจริง ๆ
         return $$"""
-        You write player choices for a Thai dating visual novel named Hidden Hearts in Wonderland.
+        You write player choices for an English fantasy dating visual novel named Hidden Hearts in Wonderland.
 
         Heroine personality:
         {{personalityPrompt}}
@@ -517,7 +523,7 @@ public class AiDialogueService
         {
           "choices": [
             {
-              "text": "Thai player spoken dialogue line",
+              "text": "English player spoken dialogue line",
               "affectionChange": 5,
               "isMiniGame": false,
               "expectedMood": "happy"
@@ -526,7 +532,7 @@ public class AiDialogueService
         }
 
         Rules:
-        - Write exactly 3 choices in Thai.
+        - Write exactly 3 choices in English.
         - Every choice must stay related to the latest heroine line.
         - If the heroine asks, worries, hints, or shows emotion, at least one choice should address that context directly; the others may respond more casually or playfully.
         - Do not write generic choices that could fit any scene.
@@ -534,8 +540,10 @@ public class AiDialogueService
         - Do not make all choices simple compliments or agreement. Mix reassurance, curiosity, playful honesty, a small invitation, and one believable mistake.
         - Each choice must be a line of dialogue the player says directly to {{character.Name}}.
         - Do not write actions, narration, stage directions, or descriptions of tone.
-        - User-visible text in choices.text must contain Thai language only.
-        - Do not use English words, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
+        - User-visible text in choices.text must contain English language only.
+        - Do not use Thai, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
+        - Some choices should naturally connect romance with the main quest against the Demon Lord: trust, protection, bravery, planning, or a promise to return safely.
+        - Do not make all choices about the Demon Lord; keep them grounded in the heroine's latest line and current emotion.
         - The player can imply emotion through words, but the text itself must be speakable aloud.
         - Do not repeat the same choice wording from earlier turns.
         - Generate exactly 3 player choices with these roles:
@@ -559,7 +567,7 @@ public class AiDialogueService
 
         // ใช้ตอนให้ AI ต่อบทจากช้อยที่เลือก พร้อมส่ง history ไปกันการพูดวนหรือหลุดหัวข้อ
         return $$"""
-        You continue a Thai dating visual novel scene and choose the heroine emotional mood.
+        You continue an English fantasy dating visual novel scene and choose the heroine emotional mood.
 
         Heroine personality:
         {{personalityPrompt}}
@@ -582,11 +590,11 @@ public class AiDialogueService
 
         Return JSON only:
         {
-          "reply": "Thai spoken dialogue from the heroine, 1-3 sentences",
+          "reply": "English spoken dialogue from the heroine, 1-3 sentences",
           "moodTag": "shy",
           "choices": [
             {
-              "text": "Thai player spoken dialogue line",
+              "text": "English player spoken dialogue line",
               "affectionChange": 5,
               "isMiniGame": false,
               "expectedMood": "happy"
@@ -610,15 +618,15 @@ public class AiDialogueService
         - The reply may answer, tease, ask back, shyly deflect, or pick up only one small part of the selected choice.
         - The second sentence may gently move the same situation forward with a small new detail for the next choices.
         - Do not quote or repeat the selected choice verbatim.
-        - Do not start with formulaic agreement phrases like "ใช่", "อืม", "ฉันก็", "คุณพูดถูก", "ฉันเข้าใจแล้ว", "จริงด้วย", or "ขอบคุณที่บอก".
-        - User-visible text in reply and choices.text must contain Thai language only.
-        - Do not use English words, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
+        - Do not start with formulaic agreement phrases like "yes", "yeah", "I agree", "you're right", "I understand", "that's true", or "thank you for telling me".
+        - User-visible text in reply and choices.text must contain English language only.
+        - Do not use Thai, romanized Thai, Japanese, Chinese, Korean, emoji, mojibake, or garbled characters.
         - Make it feel like two people talking, not like summarizing what the player chose.
         - Do not change topic suddenly. Continue from the previous heroine line and selected player choice.
         - Do not write narration, actions, stage directions, or descriptions in reply.
         - Do not write "{{character.Name}} smiles", "{{character.Name}} looks", or any third-person narration.
         - The reply must be speakable aloud as the heroine's own words.
-        - Write exactly 3 new spoken choices in Thai for the next player response.
+        - Write exactly 3 new spoken choices in English for the next player response.
         - The next choices must be natural things the player might say after {{character.Name}}'s new reply.
         - Do not generate choices that ignore what {{character.Name}} just said.
         - The next choices should stay in the same situation, but they can vary between asking, teasing, inviting, reassuring, or hesitating.
@@ -629,6 +637,9 @@ public class AiDialogueService
         - Do not write actions, narration, stage directions, or descriptions of tone.
         - Do not repeat the same choice wording from earlier turns.
         - The next choices should fit the chosen mood and scene.
+        - Keep the main story present: the Demon Lord is the larger threat, and this conversation should sometimes reveal preparation, fear, strategy, hope, or resolve about that quest.
+        - Keep the romantic route present too: the heroine can grow closer to the player through trust, vulnerability, teasing, courage, and small promises.
+        - The quest should support the romance, not replace it.
         - Generate exactly 3 player choices with these roles:
           1. Positive: respects her personality, likes, current emotion, or boundaries. affectionChange must be 5 to 12.
           2. Neutral: polite and natural but not especially intimate. affectionChange must be 0 to 3.
@@ -645,7 +656,7 @@ public class AiDialogueService
     {
         // ตรงนี้กรองด่านสุดท้ายก่อนส่งเข้า UI กันภาษาแปลก ๆ หรือช้อยเกิน 3 อันหลุดไปโชว์
         var normalized = choices?
-            .Where(choice => IsValidThaiDialogue(choice.Text))
+            .Where(choice => IsValidEnglishDialogue(choice.Text))
             .Take(3)
             .Select(choice => new Choice
             {
@@ -664,14 +675,14 @@ public class AiDialogueService
     {
         // Scene pack ต้องสะอาดทั้ง reply และช้อย เพราะอันนี้เป็นบทหลักที่ผู้เล่นจะเห็นทั้งรอบ
         var turns = scenePack?.Turns?
-            .Where(turn => IsValidThaiDialogue(turn.Reply) && turn.Choices.Count > 0)
+            .Where(turn => IsValidEnglishDialogue(turn.Reply) && turn.Choices.Count > 0)
             .Take(6)
             .Select(turn => new SceneTurn
             {
                 Reply = turn.Reply.Trim(),
                 MoodTag = CleanMoodTag(turn.MoodTag),
                 Choices = turn.Choices
-                    .Where(choice => IsValidThaiDialogue(choice.Text) && IsValidThaiDialogue(choice.Reply))
+                    .Where(choice => IsValidEnglishDialogue(choice.Text) && IsValidEnglishDialogue(choice.Reply))
                     .Take(3)
                     .Select(choice => new SceneChoice
                     {
@@ -689,19 +700,24 @@ public class AiDialogueService
         return new ScenePack { Turns = turns };
     }
 
-    private static bool IsValidThaiDialogue(string text)
+    private static bool IsValidEnglishDialogue(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
             return false;
 
-        // ยอมให้มีเลข เว้นวรรค และเครื่องหมายวรรคตอน แต่ตัวหนังสือหลักต้องเป็นไทยเท่านั้น
-        var hasThaiLetter = false;
+        // ยอมให้มีเลข เว้นวรรค และเครื่องหมายวรรคตอน แต่ตัวหนังสือหลักต้องเป็นอังกฤษเท่านั้น
+        var hasEnglishLetter = false;
         foreach (var ch in text)
         {
-            if (ch is >= '\u0E00' and <= '\u0E7F')
+            if (ch is >= 'A' and <= 'Z' or >= 'a' and <= 'z')
             {
-                hasThaiLetter = true;
+                hasEnglishLetter = true;
                 continue;
+            }
+
+            if (char.IsLetter(ch))
+            {
+                return false;
             }
 
             if (char.IsWhiteSpace(ch)
@@ -714,7 +730,7 @@ public class AiDialogueService
             return false;
         }
 
-        return hasThaiLetter;
+        return hasEnglishLetter;
     }
 
     private static string CleanMoodTag(string moodTag)
@@ -963,15 +979,15 @@ public class AiDialogueService
               {
                 "turns": [
                   {
-                    "reply": "Thai spoken dialogue from the heroine, 1-3 sentences",
+                    "reply": "English spoken dialogue from the heroine, 1-3 sentences",
                     "moodTag": "neutral",
                     "choices": [
                       {
-                        "text": "Thai player spoken dialogue line",
+                        "text": "English player spoken dialogue line",
                         "affectionChange": 5,
                         "isMiniGame": false,
                         "expectedMood": "happy",
-                        "reply": "Thai spoken dialogue from the heroine reacting to this exact choice",
+                        "reply": "English spoken dialogue from the heroine reacting to this exact choice",
                         "moodTag": "happy"
                       }
                     ]
@@ -981,11 +997,11 @@ public class AiDialogueService
               """,
             { } type when type == typeof(AiTurnResponse) => """
               {
-                "reply": "Thai spoken dialogue from the heroine, 1-3 sentences",
+                "reply": "English spoken dialogue from the heroine, 1-3 sentences",
                 "moodTag": "neutral",
                 "choices": [
                   {
-                    "text": "Thai player spoken dialogue line",
+                    "text": "English player spoken dialogue line",
                     "affectionChange": 5,
                     "isMiniGame": false,
                     "expectedMood": "happy"
@@ -997,7 +1013,7 @@ public class AiDialogueService
               {
                 "choices": [
                   {
-                    "text": "Thai player spoken dialogue line",
+                    "text": "English player spoken dialogue line",
                     "affectionChange": 5,
                     "isMiniGame": false,
                     "expectedMood": "happy"
@@ -1009,7 +1025,7 @@ public class AiDialogueService
 
         return $$"""
         Convert the following model output into exactly one valid JSON object for this schema.
-        Preserve the Thai meaning if possible. Do not invent a fallback story. Return JSON only.
+        Preserve the English meaning if possible. Do not invent a fallback story. Return JSON only.
 
         Required schema:
         {{schema}}
@@ -1044,8 +1060,8 @@ public class AiDialogueService
 
         if (string.IsNullOrWhiteSpace(result.Reply))
             issues.Add("Missing reply.");
-        else if (!IsValidThaiDialogue(result.Reply))
-            issues.Add("Reply must contain Thai dialogue only.");
+        else if (!IsValidEnglishDialogue(result.Reply))
+            issues.Add("Reply must contain English dialogue only.");
 
         if (string.IsNullOrWhiteSpace(result.MoodTag))
             issues.Add("Missing moodTag.");

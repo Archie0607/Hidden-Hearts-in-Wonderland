@@ -11,28 +11,28 @@ public static class CharacterProfileService
             Name = "Luna",
             Image = "luna.png",
             StartNodeId = "start_luna",
-            PersonalityPrompt = "Luna เป็นสาวอ่อนโยน ขี้อาย ชอบอ่านหนังสือและชงชา พูดสุภาพ อบอุ่น แต่จะเปิดใจช้า ชอบคนที่ใจเย็นและใส่ใจรายละเอียดเล็ก ๆ"
+            PersonalityPrompt = "Luna is gentle, shy, and warm. She loves reading and brewing tea, speaks politely, opens her heart slowly, and likes someone patient who notices small details."
         },
         new Character
         {
             Name = "Alice",
             Image = "alice.png",
             StartNodeId = "start_alice",
-            PersonalityPrompt = "Alice เป็นสาวมั่นใจ ฉลาด พูดตรง มีความเป็นผู้นำและชอบท้าทายผู้เล่น เธอชอบคำตอบที่กล้าหาญ ซื่อสัตย์ และมีไหวพริบ"
+            PersonalityPrompt = "Alice is confident, clever, direct, and a natural leader. She likes to challenge the player and appreciates brave, honest, witty answers."
         },
         new Character
         {
             Name = "Ryne",
             Image = "ryne_smile.png",
             StartNodeId = "start_ryne",
-            PersonalityPrompt = "Ryne เป็นสาวสดใส แข็งแรง รักการผจญภัย ใจดีแบบลุย ๆ พูดเป็นกันเอง ชอบคนที่จริงใจ สนุกกับสถานการณ์ และพร้อมช่วยเหลือคนอื่น"
+            PersonalityPrompt = "Ryne is bright, strong, adventurous, and boldly kind. She speaks casually and likes someone sincere, energetic, and ready to help others."
         },
         new Character
         {
             Name = "Raven",
             Image = "raven_smile.png",
             StartNodeId = "start_raven",
-            PersonalityPrompt = "Raven เป็นสาวเงียบ ขรึม ลึกลับ ชอบสังเกตมากกว่าพูด แต่ข้างในอ่อนโยน เธอชอบคำตอบที่เคารพพื้นที่ส่วนตัว ไม่เร่งรัด และจริงใจ"
+            PersonalityPrompt = "Raven is quiet, serious, mysterious, and more observant than talkative, but gentle inside. She likes sincere answers that respect her space and never rush her."
         }
     ];
 
@@ -67,6 +67,7 @@ public static class CharacterProfileService
                 - Likes: confidence, honesty, playful teasing, courage, curiosity, and people who keep up with her pace.
                 - Dislikes: boring answers, passive behavior, being treated like she is fragile, dishonesty, and pushy flirting without tact.
                 - Negative choices for Alice should sound like the player is dull, dismissive, dishonest, or too arrogant in a way that irritates her.
+                - Main quest angle: Alice treats the Demon Lord as a strategic challenge and may flirt through daring plans, sharp teasing, and respect for courage.
                 """,
             "ryne" => """
                 Ryne personality:
@@ -75,6 +76,7 @@ public static class CharacterProfileService
                 - Likes: encouragement, courage, playful energy, teamwork, direct kindness, and sharing small adventures.
                 - Dislikes: cowardice, laziness, mocking her enthusiasm, ignoring danger, and treating her like she is reckless or childish.
                 - Negative choices for Ryne should sound like the player kills the mood, doubts her too harshly, or refuses to take her feelings seriously.
+                - Main quest angle: Ryne is eager to face the Demon Lord head-on and may bond with the player through teamwork, bravery, and promises to protect each other.
                 """,
             "raven" => """
                 Raven personality:
@@ -83,6 +85,7 @@ public static class CharacterProfileService
                 - Likes: patience, calm honesty, privacy, subtle compliments, emotional intelligence, and being trusted without pressure.
                 - Dislikes: prying questions, loud pressure, shallow flirting, jokes about her secrecy, and forcing her to explain herself.
                 - Negative choices for Raven should sound like the player pushes too hard, invades her privacy, or treats her silence as a problem.
+                - Main quest angle: Raven senses the Demon Lord's shadow quietly and may open up through trust, careful warnings, and private promises before the battle.
                 """,
             _ => """
                 Luna personality:
@@ -91,6 +94,7 @@ public static class CharacterProfileService
                 - Likes: soft encouragement, patience, honest compliments, being asked about her feelings, gentle humor, and quiet companionship.
                 - Dislikes: being rushed, being teased about her ears, loud pressure, being treated like a mascot, careless jokes, and people ignoring her quiet signals.
                 - Negative choices for Luna should sound like the player is careless, too pushy, dismisses her worry, or teases a sensitive point.
+                - Main quest angle: Luna worries about the Demon Lord but wants to support the player with courage, tenderness, and quiet promises.
                 """
         };
     }

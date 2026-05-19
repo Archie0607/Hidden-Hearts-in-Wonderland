@@ -7,10 +7,10 @@
     BackgroundColor="#F6F2E8"
     BackgroundImageSource="startbg2.png">
 
-    <Grid BackgroundColor="#80000000">
-        <Grid Padding="1"
+    <Grid BackgroundColor="#99000000">
+        <Grid Padding="24,10,24,18"
               RowDefinitions="Auto,*"
-              RowSpacing="16">
+              RowSpacing="8">
         <controls:FantasyButton Text="Back"
                                 Clicked="OnBackClicked"
                                 ButtonImage="ui_button_red_dark.png"
@@ -19,38 +19,29 @@
                                 LabelFontSize="13"
                                 HorizontalOptions="End"
                                 VerticalOptions="Start"
-                                Margin="0,12,12,0"
+                                Margin="0"
                                 ZIndex="2" />
-
-        <VerticalStackLayout Spacing="4">
-            <!--<Label Text="Choose your hero"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="White"
-                   HorizontalOptions="Center"/>-->
-            <!--<Label Text="{Binding Message}"
-                   FontSize="14"
-                   TextColor="White" 
-                   HorizontalOptions="Center"/>-->
-        </VerticalStackLayout>
 
         <CollectionView Grid.Row="1"
                         ItemsSource="{Binding MainCards}"
-                        SelectionMode="None">
+                        SelectionMode="None"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        MaximumWidthRequest="940">
             <CollectionView.ItemsLayout>
                 <GridItemsLayout Orientation="Vertical"
                                  Span="3"
-                                 HorizontalItemSpacing="12"
-                                 VerticalItemSpacing="12" />
+                                 HorizontalItemSpacing="18"
+                                 VerticalItemSpacing="0" />
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border Padding="1"
-                            Stroke="Gold"
+                    <Border Padding="3"
+                            Stroke="#FFE08A"
                             StrokeThickness="3"
                             BackgroundColor="Transparent">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="8" />
+                            <RoundRectangle CornerRadius="16" />
                         </Border.StrokeShape>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer
@@ -58,47 +49,82 @@
                                 CommandParameter="{Binding .}" />
                         </Border.GestureRecognizers>
 
-                        <Grid Margin="5" VerticalOptions="Start" HeightRequest="300">
-                            <Border StrokeShape="RoundRectangle 15"
-                                        StrokeThickness="0">
-                                <Image Source="bg3.png" 
-                                           Aspect="AspectFill" 
-                                           Opacity="0.8" />
+                        <Grid HeightRequest="318"
+                              WidthRequest="280">
+                            <Border StrokeShape="RoundRectangle 13"
+                                    StrokeThickness="0">
+                                <Image Source="bg3.png"
+                                       Aspect="AspectFill"
+                                       Opacity="0.82" />
                             </Border>
 
-                            <VerticalStackLayout Spacing="10" 
-                                                 Padding="15">
+                            <Grid RowDefinitions="*,Auto,Auto"
+                                  Padding="12,12,12,14"
+                                  RowSpacing="9">
 
                                 <Image Source="{Binding Image}"
-                                           Aspect="AspectFit"
-                                           HeightRequest="120" />
-                                <Label Text="{Binding Name}"
-                                           FontSize="18"
-                                           FontAttributes="Bold"
-                                           TextColor="Gold" 
-                                           HorizontalTextAlignment="Center" />
+                                       Aspect="AspectFit"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       MaximumHeightRequest="218" />
 
-                                <Label Text="{Binding Description}"
-                                           FontSize="12"
-                                           TextColor="Gold"
-                                           HorizontalTextAlignment="Center" />
-
-                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="5">
-                                    <Label Text="{Binding Hp, StringFormat='HP {0}'}" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="Gold" />
-                                    <Label Grid.Column="1" Text="{Binding Atk, StringFormat='ATK {0}'}" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="Gold" />
-                                    <Label Grid.Column="2" Text="{Binding Def, StringFormat='DEF {0}'}" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="Gold" />
+                                <Grid Grid.Row="1"
+                                      ColumnDefinitions="*,*,*"
+                                      ColumnSpacing="8"
+                                      Padding="2,0">
+                                    <Border BackgroundColor="#99070510"
+                                            Stroke="#66FFE08A"
+                                            StrokeThickness="1"
+                                            Padding="5,4">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding Hp, StringFormat='HP {0}'}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="#FFE08A" />
+                                    </Border>
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="#99070510"
+                                            Stroke="#66FFE08A"
+                                            StrokeThickness="1"
+                                            Padding="5,4">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding Atk, StringFormat='ATK {0}'}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="#FFE08A" />
+                                    </Border>
+                                    <Border Grid.Column="2"
+                                            BackgroundColor="#99070510"
+                                            Stroke="#66FFE08A"
+                                            StrokeThickness="1"
+                                            Padding="5,4">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding Def, StringFormat='DEF {0}'}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="#FFE08A" />
+                                    </Border>
                                 </Grid>
 
                                 <controls:FantasyButton Text="Select"
+                                                        Grid.Row="2"
                                                         Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectHeroCommand}"
                                                         CommandParameter="{Binding .}"
                                                         ButtonImage="ui_button_blue_glow.png"
                                                         ButtonWidth="180"
                                                         ButtonHeight="46"
                                                         LabelFontSize="14"
-                                                        HorizontalOptions="Center"
-                                                        Margin="0,8,0,0" />
-                            </VerticalStackLayout>
+                                                        HorizontalOptions="Center" />
+                            </Grid>
                         </Grid>
                     </Border>
                 </DataTemplate>
